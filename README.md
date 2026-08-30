@@ -6,7 +6,7 @@
 
 **Priorización de limpieza por riesgo de incendio en las quebradas de Valparaíso**
 
-[![Prototipo en Figma](https://img.shields.io/badge/Prototipo-Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white)](URL_FIGMA)
+[![Prototipo en Figma](https://img.shields.io/badge/Prototipo-Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white)](https://www.figma.com/proto/NMUudu0YPxumGuZedsLVDS/FocalWare?node-id=0-1&t=nKgN063FMb7m3uT6-1)
 [![Requerimientos](https://img.shields.io/badge/Requerimientos-1F2937?style=for-the-badge)](#requerimientos-funcionales)
 [![Instalación](https://img.shields.io/badge/Instalación-1F2937?style=for-the-badge)](#instalación)
 
@@ -22,11 +22,11 @@
 
 ---
 
-## Prototipo
+## Capturas Prototipo
 
 El diseño de las pantallas fue elaborado manualmente en Figma, considerando versión móvil y versión web.
 
-[Ver prototipo en Figma](URL_FIGMA)
+[Ver prototipo en Figma](https://www.figma.com/proto/NMUudu0YPxumGuZedsLVDS/FocalWare?node-id=0-1&t=nKgN063FMb7m3uT6-1)
 
 ## Descripción general
 
