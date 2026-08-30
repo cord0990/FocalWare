@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/img/logo_focalware.jpg" width="240" alt="FocalWare">
+<img src="docs/img/logo.png" width="240" alt="FocalWare">
 
 # FocalWare
 
