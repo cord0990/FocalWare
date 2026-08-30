@@ -58,7 +58,7 @@ Desafíos CTD Litoral abordados: **#11** (capacidad para manejo de residuos) y *
 |---|---|
 | Diego Cordova  | Desarrollo web y Diseño UI/UX en Figma  |
 | Macarena ----- | Diseño UI/UX en Figma y Documentacion   |
-| Agustín ------ | Desarrollo web y Diseño UI/UX en Figma  |
+| Agustín Guzmán | Desarrollo web y Diseño UI/UX en Figma  |
 | Daniel ------- | Diseño UI/UX en Figma y Documentacion   |
 
 ## Roles del sistema
