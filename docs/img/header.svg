@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 260" width="1200" height="260" role="img" aria-label="FocalWare - Quebradas de Valparaiso, priorizacion por riesgo de incendio">
+
+  <defs>
+    <clipPath id="fw-frame"><rect width="1200" height="260" rx="12"/></clipPath>
+  </defs>
+
+  <g clip-path="url(#fw-frame)">
+    <rect width="1200" height="260" fill="#0E1013"/>
+
+    <!-- Eje -->
+    <path d="M0,228 H1200" stroke="#FFFFFF" stroke-opacity="0.05" stroke-width="1"/>
+
+    <!-- Cuerpo bajo el perfil -->
+    <path opacity="0" fill="#FFFFFF" fill-opacity="0.022" d="M0,214 L48,206 L92,218 L130,200 L168,212 L210,222 L250,202 L292,214 L330,192 L372,208 L410,220 L452,198 L512,210 L600,178 L688,204 L730,216 L770,196 L812,210 L854,220 L896,190 L938,206 L980,218 L1022,198 L1064,210 L1106,220 L1148,200 L1200,208 L1200,228 L0,228 Z">
+      <animate attributeName="opacity" from="0" to="1" dur="1.2s" begin="2s" fill="freeze"/>
+    </path>
+
+    <!-- Perfil de quebrada / curva de riesgo -->
+    <path pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"
+          fill="none" stroke="#5B6675" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"
+          d="M0,214 L48,206 L92,218 L130,200 L168,212 L210,222 L250,202 L292,214 L330,192 L372,208 L410,220 L452,198 L512,210 L600,178 L688,204 L730,216 L770,196 L812,210 L854,220 L896,190 L938,206 L980,218 L1022,198 L1064,210 L1106,220 L1148,200 L1200,208">
+      <animate attributeName="stroke-dashoffset" from="1" to="0" dur="2s" begin="0.45s"
+               fill="freeze" calcMode="spline" keySplines="0.22 0.7 0.2 1"/>
+    </path>
+
+    <!-- Tramo critico -->
+    <path pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"
+          fill="none" stroke="#F97316" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"
+          d="M512,210 L600,178 L688,204">
+      <animate attributeName="stroke-dashoffset" from="1" to="0" dur="0.55s" begin="1.35s" fill="freeze"/>
+    </path>
+
+    <!-- Punto critico -->
+    <g transform="translate(600,178)" opacity="0">
+      <animate attributeName="opacity" from="0" to="1" dur="0.4s" begin="1.7s" fill="freeze"/>
+      <circle fill="none" stroke="#F97316" stroke-width="1.2" r="4">
+        <animate attributeName="r" values="4;20" dur="3.8s" begin="2.3s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.5;0" dur="3.8s" begin="2.3s" repeatCount="indefinite"/>
+      </circle>
+      <circle r="4" fill="#F97316"/>
+    </g>
+
+    <!-- Reportes secundarios -->
+    <circle cx="330" cy="192" r="2.6" fill="#0E1013" stroke="#8A94A3" stroke-width="1.3" opacity="0">
+      <animate attributeName="opacity" from="0" to="1" dur="0.4s" begin="1.05s" fill="freeze"/>
+    </circle>
+    <circle cx="896" cy="190" r="2.6" fill="#0E1013" stroke="#8A94A3" stroke-width="1.3" opacity="0">
+      <animate attributeName="opacity" from="0" to="1" dur="0.4s" begin="2.05s" fill="freeze"/>
+    </circle>
+
+    <!-- Logotipo -->
+    <g font-family="'Segoe UI','Helvetica Neue',Helvetica,Arial,sans-serif" text-anchor="middle">
+      <text x="600" y="102" font-size="56" letter-spacing="-1" fill="#F5F5F4" opacity="0">
+        <animate attributeName="opacity" from="0" to="1" dur="0.9s" begin="0.1s" fill="freeze"/>
+        <tspan font-weight="700">Focal</tspan><tspan font-weight="400">Ware</tspan>
+      </text>
+      <text x="600" y="132" font-size="11" font-weight="600" letter-spacing="2.8" fill="#6E7681" opacity="0">
+        <animate attributeName="opacity" from="0" to="1" dur="1s" begin="0.45s" fill="freeze"/>
+        QUEBRADAS DE VALPARAÍSO · PRIORIZACIÓN POR RIESGO DE INCENDIO
+      </text>
+    </g>
+  </g>
+</svg>

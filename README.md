@@ -1,10 +1,6 @@
 <div align="center">
 
-<img src="docs/img/logo.png" width="240" alt="FocalWare">
-
-# FocalWare
-
-**Priorización de limpieza por riesgo de incendio en las quebradas de Valparaíso**
+<img src="docs/img/header.svg" alt="FocalWare — Priorización de limpieza por riesgo de incendio en las quebradas de Valparaíso" width="100%">
 
 [![Prototipo en Figma](https://img.shields.io/badge/Prototipo-Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white)](https://www.figma.com/proto/NMUudu0YPxumGuZedsLVDS/FocalWare?node-id=0-1&t=nKgN063FMb7m3uT6-1)
 [![Requerimientos](https://img.shields.io/badge/Requerimientos-1F2937?style=for-the-badge)](#requerimientos-funcionales)
