@@ -77,7 +77,7 @@ Inicio de sesión y registro no se contabilizan como requerimientos funcionales,
 | ID | Nombre | Descripción | Rol |
 |---|---|---|---|
 | **RF-01** | Registro de reporte georreferenciado | Crear un reporte con ubicación GPS, fotografías, categoría del residuo, volumen estimado y descripción. | Vecino/a |
-| **RF-02** | Sincronización sin conexión | Guardar localmente los reportes creados sin red y enviarlos automáticamente al reconectarse, sin duplicados. | Vecino/a |
+| **RF-02** | Sincronización sin conexión | Guardar localmente los reportes creados sin red y enviarlos automáticamente al reconectarse, sin duplicados. | Sistema |
 | **RF-03** | Mapa interactivo de reportes | Desplegar los reportes con agrupación de marcadores y filtros por estado, categoría, riesgo, sector y fecha. | Ambos |
 | **RF-04** | Cálculo del índice de riesgo | Calcular un índice ponderado según categoría, volumen, reportes cercanos, antigüedad y condiciones meteorológicas externas. | Sistema |
 | **RF-05** | Apoyo y control de duplicados | Detectar reportes activos cercanos antes de crear uno nuevo y permitir apoyar el existente, incidiendo en la prioridad. | Vecino/a |
