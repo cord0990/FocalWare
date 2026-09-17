@@ -155,6 +155,72 @@ Es el usuario final comunitario; cualquier habitante o residente de los cerros, 
 
 ---
 
+## 5. Proto-personas
+
+> **Nota metodológica:** Los siguientes perfiles corresponden a representaciones hipotéticas construidas a partir del análisis documental, contexto territorial y requerimientos del sistema. No representan a usuarios reales específicos.
+
+---
+
+### 5.1. Rodrigo Salinas - Vecino de Cerro (Rol Vecino)
+
+* **Tipo de rol:** Vecino / Habitante de cerro y quebrada.
+* **Características generales:** 
+  * Hombre de 32 años, residente en el Cerro Cordillera y trabajador administrativo en el plan/sector costero de Valparaíso.
+  * Cumple una jornada laboral típica de 44 horas semanales (08:00 a 16:30 hrs, lunes a viernes). Se desplaza a diario en micro y debe ascender a pie por escalas y pasajes de su cerro para llegar a su hogar.
+  * Participativo en las dinámicas sociales del barrio: se reúne con amistades los fines de semana en la sede social y suele conversar con los almaceneros locales sobre las incivilidades del sector.
+  * Manifiesta frustración frecuente ante la acumulación de desechos en sitios eriazos y la quema informal de pastizales/basura en laderas adyacentes, aunque hasta ahora no contaba con un canal formal accesible para canalizar denuncias.
+* **Necesidades principales:**
+  * Disponer de un mecanismo rápido y formal para visibilizar y registrar microbasurales y terrenos baldíos que acumulan residuos frente a su entorno habitacional.
+  * Lograr mayor compromiso comunitario e involucrar a la junta vecinal en la mantención del aseo del sector.
+  * Tener la seguridad de que su denuncia no generará conflictos vecinales ni represalias con los involucrados.
+* **Objetivos de uso:**
+  * Notificar y georreferenciar vertederos clandestinos y acopios de material inflamable (madera, colchones, plásticos) en su trayecto diario.
+  * Verificar si los sectores informales ya fueron alertados por otros vecinos y apoyar su relevancia para acelerar la respuesta de las autoridades.
+* **Dificultades o frustraciones:**
+  * Presencia de malos olores y focos de insalubridad en pasajes estrechos y escalas peatonales.
+  * Percepción de falta de proactividad en la comunidad y sensación de lentitud o ausencia de respuesta preventiva por parte del municipio.
+  * Brecha digital personal: no domina herramientas digitales complejas y se frustra con trámites burocráticos engorrosos en plataformas digitales.
+  * Conectividad intermitente y caídas de señal móvil mientras transita por fondos de quebrada o laderas pronunciadas.
+* **Funcionalidades que utilizaría:**
+  * **Registro de reporte georreferenciado en 3 pasos (RF-01, RNF-01):** Captura fotográfica del acopio, marcado GPS del punto y selección sencilla de categorías.
+  * **Operación offline (RF-02, RNF-03):** Almacenamiento local del reporte cuando no disponga de señal en las escalas, enviándolo al recuperar conectividad.
+  * **Visualización de mapa vecinal (RF-03, RF-04):** Búsqueda de avisos cercanos para evitar duplicados.
+  * **Apoyo a reportes comunitarios y seguimiento (RNF-08, RF-08):** Sistema de votos (upvotes) a focos preexistentes y consulta del avance en la resolución del reporte.
+* **Dispositivo y contexto de acceso:**
+  * *Dispositivo:* Smartphone gama media-baja (Android 10), con recursos moderados de almacenamiento y plan de datos acotado.
+  * *Contexto de acceso:* Uso primordial en terreno durante su trayecto matutino a pie hacia el trabajo o al regresar al hogar por la tarde, operando la aplicación con una sola mano en la vía pública ante el avistamiento de un vertedero.
+
+---
+
+### 5.2. Juan Carlos Moraga - Cuadrillero y Operador de Terreno (Rol Funcionario)
+
+* **Tipo de rol:** Funcionario municipal / Cuadrilla de Aseo, Operaciones y Emergencias.
+* **Características generales:**
+  * Hombre de 47 años, funcionario operativo de terreno de la Dirección de Operaciones de la Municipalidad de Valparaíso, asignado al retiro de voluminosos y despeje de quebradas.
+  * Desempeña turnos operativos extensos (jornadas de 07:00 a 16:30 hrs o turnos de contingencia estival ante alertas de calor extremo).
+  * Cuenta con excelente resistencia física, habituado a manipular residuos pesados, escombros y trabajar en pendientes abruptas. Mantiene una relación laboral cercana y de camaradería con sus compañeros de cuadrilla.
+  * Realizó la inducción y capacitación del sistema municipal; posee un nivel de competencias digitales básico-intermedio orientado al uso de herramientas corporativas y teléfonos institucionales.
+  * Preocupado constantemente por los riesgos de cortes y presencia de solventes, baterías o químicos inflamables ocultos bajo los escombros de los microbasurales.
+* **Necesidades principales:**
+  * Saber con claridad qué sectores y quebradas tienen mayor índice de criticidad inflamable antes de salir a la ruta diaria, optimizando el uso del camión tolva y las bateas.
+  * Contar con datos confiables para no desplegar maquinaria pesada en pasajes donde la pendiente o el ancho de vía impiden el acceso.
+  * Disponer de un canal ágil para reportar hallazgos de nuevos puntos críticos detectados durante los patrullajes e intervenciones.
+* **Objetivos de uso:**
+  * Organizar la jornada operativa diaria en base a una cola de trabajo objetivamente priorizada según carga calórica y peligro de interfaz.
+  * Confirmar el estado de los focos asignados, validar en terreno la magnitud real del residuo y cerrar los incidentes intervenidos para actualizar el catastro municipal.
+* **Dificultades o frustraciones:**
+  * Incertidumbre inicial sobre la magnitud del residuo al guiarse únicamente por una fotografía remitida por un vecino, arriesgando falta de capacidad de carga en el camión.
+  * Pérdida de tiempo operativo y desgaste físico por desplazamientos cruzados e ineficientes a lo largo de cerros distantes de la comuna.
+  * Carencia de un registro fotográfico estandarizado para respaldar el despeje de los acopios frente a reclamos posteriores de la comunidad.
+* **Funcionalidades que utilizaría:**
+  * **Visualización y filtrado de mapa técnico (RF-03, RF-04):** Monitoreo de focos clasificados por nivel de riesgo, sector geográfico y estado operativo.
+  * **Gestión municipal e intervención de incidentes (RF-07):** Revisión de la cola priorizada (RF-06), actualización del estado del foco (ej. "En proceso de despeje") y carga de evidencia fotográfica del cierre de la faena.
+  * **Creación de reportes institucionales en terreno (RF-01):** Levantamiento de nuevos botaderos clandestinos descubiertos durante los operativos de despeje.
+  * **Detección de puntos críticos recurrentes (RF-10):** Consulta de zonas históricas de vertimiento ilegal para coordinar intervenciones con inspectores y sugerir señalética.
+* **Dispositivo y contexto de acceso:**
+  * *Dispositivo:* Smartphone o tablet institucional de uso rudo (Android 11+), protegido contra caídas y polvo, con conexión móvil 4G.
+  * *Contexto de acceso:* Uso a bordo del vehículo municipal de cuadrilla (camioneta o camión recolector) o a pie en el borde de la quebrada antes de iniciar la maniobra de retiro, revisando las coordenadas de acceso y subiendo la foto probatoria al terminar la jornada de aseo.
+
 ## 6. Fuentes (Formato APA 7.ª edición)
 
 ### 6.1. Sección 1
