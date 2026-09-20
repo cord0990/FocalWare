@@ -56,10 +56,10 @@ Desafíos CTD Litoral abordados: **#11** (capacidad para manejo de residuos) y *
 
 | Integrante | Responsabilidades |
 |---|---|
-| Diego Cordova  | Desarrollo web y Diseño UI/UX en Figma  |
-| Macarena Catalan | Diseño UI/UX en Figma y Documentacion   |
-| Agustín Guzmán | Desarrollo web y Diseño UI/UX en Figma  |
-| Daniel Castro | Diseño UI/UX en Figma y Documentacion   |
+| Diego Cordova | Desarrollo web y Diseño UI/UX en Figma |
+| Macarena Catalan | Diseño UI/UX en Figma y Documentación |
+| Agustín Guzmán | Desarrollo web y Diseño UI/UX en Figma |
+| Daniel Castro | Diseño UI/UX en Figma y Documentación |
 
 ## Roles del sistema
 
@@ -74,29 +74,37 @@ La caracterización de los usuarios objetivo y las proto-personas están documen
 
 Inicio de sesión y registro no se contabilizan como requerimientos funcionales, ya que son funcionalidades transversales de soporte.
 
-| ID | Nombre | Descripción | Rol |
+La especificación completa, con tipo y dependencias de cada requerimiento, está en [docs/EP1.1-Requerimientos-del-sistema.md](docs/EP1.1-Requerimientos-del-sistema.md).
+
+| ID | Nombre | Descripción | Usuario |
 |---|---|---|---|
-| **RF-01** | Registro de reporte georreferenciado | Crear un reporte con ubicación GPS, fotografías, categoría del residuo, volumen estimado y descripción. | Vecino/a |
-| **RF-02** | Sincronización sin conexión | Guardar localmente los reportes creados sin red y enviarlos automáticamente al reconectarse, sin duplicados. | Sistema |
-| **RF-03** | Mapa interactivo de reportes | Desplegar los reportes con agrupación de marcadores y filtros por estado, categoría, riesgo, sector y fecha. | Ambos |
-| **RF-04** | Cálculo del índice de riesgo | Calcular un índice ponderado según categoría, volumen, reportes cercanos, antigüedad y condiciones meteorológicas externas. | Sistema |
-| **RF-05** | Apoyo y control de duplicados | Detectar reportes activos cercanos antes de crear uno nuevo y permitir apoyar el existente, incidiendo en la prioridad. | Vecino/a |
-| **RF-06** | Gestión municipal y triage | Ver la cola priorizada, asignar cuadrilla, programar atención, cambiar estado y adjuntar evidencia de cierre. | Funcionario |
-| **RF-07** | Notificación y trazabilidad | Notificar al autor cada cambio de estado y exponer el historial completo de transiciones. | Vecino/a |
-| **RF-08** | Panel de indicadores | Mostrar reportes por estado y categoría, tiempo promedio de resolución por sector y evolución mensual, con exportación CSV. | Funcionario |
-| **RF-09** | Puntos críticos recurrentes | Marcar las ubicaciones con un número configurable de reportes cerrados dentro de una ventana temporal. | Funcionario |
+| **RF-01** | Registro de reporte georreferenciado | Permitir al vecino crear un reporte con ubicación GPS, fotografías, categoría de residuo, volumen estimado y descripción. | Vecino |
+| **RF-02** | Almacenamiento local offline | Guardar localmente los reportes creados sin conexión a internet. | Vecino |
+| **RF-03** | Visualización en mapa interactivo | Desplegar un mapa interactivo con las localizaciones asociadas a los reportes existentes. | Vecino / Funcionario |
+| **RF-04** | Filtrado del mapa interactivo | Filtrar el mapa por estado, categoría, riesgo, sector y fecha. | Vecino / Funcionario |
+| **RF-05** | Cálculo de índice ponderado | Calcular un índice ponderado según categoría, volumen, reportes cercanos, antigüedad y condiciones meteorológicas externas. | Sistema |
+| **RF-06** | Aplicación del índice ponderado | Utilizar el índice ponderado para priorizar la cola de atención municipal. | Sistema |
+| **RF-07** | Gestión municipal de incidentes | Ver la cola priorizada, asignar cuadrilla, programar atención, cambiar estado y adjuntar evidencia de cierre. | Funcionario |
+| **RF-08** | Notificación y trazabilidad de reportes | Notificar al autor los cambios de estado y exponer el historial completo de transiciones. | Vecino |
+| **RF-09** | Panel y métricas de reportes | Mostrar reportes por estado y categoría, tiempo promedio de resolución por sector y evolución mensual. | Funcionario |
+| **RF-10** | Identificación de puntos críticos recurrentes | Marcar las ubicaciones con un número configurable de reportes cerrados dentro de una ventana temporal. | Funcionario |
 
 ## Requerimientos no funcionales
 
-| ID | Categoría | Criterio verificable |
-|---|---|---|
-| **RNF-01** | Usabilidad | Reporte creado en máximo 3 pasos y menos de 60 segundos; controles de al menos 44x44 px y texto base de 16 px. |
-| **RNF-02** | Rendimiento | Respuestas bajo 500 ms en percentil 95; mapa con 1.000 marcadores en menos de 2 segundos; listados paginados de 20. |
-| **RNF-03** | Seguridad | bcrypt con mínimo 10 rondas, JWT con expiración de 60 minutos, consultas parametrizadas, CORS restringido. |
-| **RNF-04** | Privacidad | Reportes públicos sin exponer identidad del autor; solo el rol funcionario accede a datos personales. |
-| **RNF-05** | Compatibilidad | Android 9 o superior, iOS 14 o superior y navegadores actuales; pestañas inferiores en móvil y menú lateral en escritorio. |
-| **RNF-06** | Tolerancia a fallos de red | Cola local de reportes sin pérdida de datos; imágenes comprimidas a máximo 300 KB antes del envío. |
-| **RNF-07** | Portabilidad | El sistema completo se levanta con `docker compose up` y configuración en variables de entorno. |
+| ID | Nombre | Criterio | Tipo |
+|---|---|---|---|
+| **RNF-01** | Límite de pasos de reporte | Crear un reporte en máximo 3 pasos. | Usabilidad |
+| **RNF-02** | Dimensiones mínimas y accesibilidad | Controles de al menos 44x44 px y texto base de 16 px, según WCAG 2.1 Nivel AA. | Accesibilidad |
+| **RNF-03** | Descarga de reportes sin conexión | Operar sin conexión a internet para los reportes de los vecinos. | Disponibilidad / Integridad |
+| **RNF-04** | Cifrado de credenciales | bcrypt con mínimo 10 rondas. | Seguridad |
+| **RNF-05** | Expiración y rotación de tokens | JWT con expiración de 15 minutos, algoritmo asimétrico y mecanismo de rotación. | Seguridad |
+| **RNF-06** | Restricción CORS | Lista blanca explícita de dominios, sin comodines en endpoints autenticados. | Seguridad |
+| **RNF-07** | Disociación y anonimización | Disociación total de la identidad de los autores en reportes públicos, conforme a la Ley N° 19.628. | Privacidad |
+| **RNF-08** | Validación de duplicados y orden de prioridad | Validar que el reporte no exista previamente y ofrecer apoyarlo, incidiendo en el orden de prioridad. | Integridad de los datos |
+| **RNF-09** | Compatibilidad móvil | Android 9 o superior, iOS 14 o superior. | Portabilidad |
+| **RNF-10** | Compatibilidad web | Chrome, Firefox, Edge y Safari en sus versiones actuales y anteriores (N-2). | Portabilidad |
+| **RNF-11** | Contenerización y despliegue | Despliegue completo con Docker y Docker Compose, configuración en variables de entorno. | Arquitectónico |
+| **RNF-12** | Exportación de datos | Exportar reportes a formato CSV. | Interoperabilidad |
 
 ## Tecnologías
 
