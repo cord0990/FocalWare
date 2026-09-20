@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/img/header.svg" alt="FocalWare — Priorización de limpieza por riesgo de incendio en las quebradas de Valparaíso" width="100%">
+<img src="docs/img/header.svg" alt="FocalWare: priorización de limpieza por riesgo de incendio en las quebradas de Valparaíso" width="100%">
 
 [![Prototipo en Figma](https://img.shields.io/badge/Prototipo-Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white)](https://www.figma.com/proto/NMUudu0YPxumGuZedsLVDS/FocalWare?node-id=0-1&t=nKgN063FMb7m3uT6-1)
 [![Requerimientos](https://img.shields.io/badge/Requerimientos-1F2937?style=for-the-badge)](#requerimientos-funcionales)
@@ -18,23 +18,25 @@
 
 ---
 
-## Capturas Prototipo
+## Prototipo
 
 El diseño de las pantallas fue elaborado manualmente en Figma, considerando versión móvil y versión web.
 
 [Ver prototipo en Figma](https://www.figma.com/proto/NMUudu0YPxumGuZedsLVDS/FocalWare?node-id=0-1&t=nKgN063FMb7m3uT6-1)
 
+La documentación del diseño, con paleta, correspondencia entre pantallas y requerimientos, y justificación de los formularios, está en [docs/EP1.3-diseno-ui-ux.md](docs/EP1.3-diseno-ui-ux.md).
+
 ## Descripción general
 
 FocalWare permite a los habitantes de los cerros de Valparaíso reportar de forma georreferenciada la acumulación de residuos y material combustible en quebradas y sitios eriazos.
 
-A diferencia de un sistema de reclamos tradicional, no entrega al municipio una lista ordenada por fecha de ingreso, sino una **cola de atención priorizada por riesgo**, calculada a partir del tipo de residuo, la proximidad a viviendas, la concentración de reportes en el sector, la antigüedad sin resolución y las condiciones meteorológicas vigentes obtenidas en tiempo real.
+El municipio recibe una cola de atención ordenada por riesgo y no por fecha de ingreso. Ese orden se calcula a partir del tipo de residuo, la proximidad a viviendas, la concentración de reportes en el sector, la antigüedad sin resolución y las condiciones meteorológicas vigentes obtenidas en tiempo real.
 
-Además detecta **puntos críticos recurrentes**, distinguiendo los lugares que necesitan limpieza de los que necesitan infraestructura.
+El sistema también detecta **puntos críticos recurrentes**, que permiten distinguir los lugares que necesitan limpieza de los que necesitan infraestructura.
 
 ## Problema que aborda
 
-Las quebradas de Valparaíso son corredores por los que el fuego asciende con rapidez y, a la vez, los lugares donde se acumula el vertido informal de residuos. La basura acumulada es material combustible almacenado a metros de viviendas: el incendio de marzo de 2015, que obligó a evacuar a unas 7.000 personas, se originó en un vertedero clandestino.
+Las quebradas de Valparaíso son corredores por los que el fuego asciende con rapidez y, a la vez, los lugares donde se acumula el vertido informal de residuos. La basura acumulada es material combustible almacenado a metros de viviendas. El incendio de marzo de 2015, que obligó a evacuar a unas 7.000 personas, se originó en un vertedero clandestino.
 
 Hoy las cuadrillas municipales son limitadas y la atención sigue el orden de llegada de los reclamos, no la magnitud del riesgo. Los vecinos conocen los puntos críticos de su sector, pero esa información se canaliza por vías no estructuradas donde no se registra, no se georreferencia y no se puede analizar en el tiempo.
 
