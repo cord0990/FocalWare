@@ -80,7 +80,7 @@ La especificación completa, con tipo y dependencias de cada requerimiento, est�
 
 | ID | Nombre | Descripción | Usuario |
 |---|---|---|---|
-| **RF-01** | Registro de reporte georreferenciado | Permitir al vecino crear un reporte con ubicación GPS, fotografías, categoría de residuo, volumen estimado y descripción. | Vecino |
+| **RF-01** | Registro de reporte georreferenciado | Permitir crear un reporte con ubicación GPS, fotografías, categoría de residuo, volumen estimado y descripción. | Vecino / Funcionario |
 | **RF-02** | Almacenamiento local offline | Guardar localmente los reportes creados sin conexión a internet. | Vecino |
 | **RF-03** | Visualización en mapa interactivo | Desplegar un mapa interactivo con las localizaciones asociadas a los reportes existentes. | Vecino / Funcionario |
 | **RF-04** | Filtrado del mapa interactivo | Filtrar el mapa por estado, categoría, riesgo, sector y fecha. | Vecino / Funcionario |
@@ -88,21 +88,29 @@ La especificación completa, con tipo y dependencias de cada requerimiento, est�
 | **RF-06** | Aplicación del índice ponderado | Utilizar el índice ponderado para priorizar la cola de atención municipal. | Sistema |
 | **RF-07** | Gestión municipal de incidentes | Ver la cola priorizada, asignar cuadrilla, programar atención, cambiar estado y adjuntar evidencia de cierre. | Funcionario |
 | **RF-08** | Notificación y trazabilidad de reportes | Notificar al autor los cambios de estado y exponer el historial completo de transiciones. | Vecino |
-| **RF-09** | Panel y métricas de reportes | Mostrar reportes por estado y categoría, tiempo promedio de resolución por sector y evolución mensual. | Funcionario |
-| **RF-10** | Identificación de puntos críticos recurrentes | Marcar las ubicaciones con un número configurable de reportes cerrados dentro de una ventana temporal. | Funcionario |
+| **RF-09** | Estadísticas mensuales | Acceder a un resumen mensual con el total de reportes, los reportes resueltos, el tiempo promedio de resolución y la evolución mensual. | Funcionario |
+| **RF-10** | Identificador único de reportes | Generar y asignar automáticamente un identificador único para cada reporte creado. | Sistema |
+| **RF-11** | Ocultamiento automático de reportes controlados | Ocultar del mapa los reportes en estado "Controlado" después de un mes, manteniendo su visualización de forma exclusiva para funcionarios. | Vecino / Funcionario |
+| **RF-12** | Opciones de Funcionario en reportes | Acceder a un menú para cada reporte que incluya: aceptar, rechazar, modificar o generar un reporte de control. | Funcionario |
+| **RF-13** | Modificación Offline | Permitir modificar los reportes guardados en el almacenamiento local que aún no han sido enviados. | Vecino / Funcionario |
+| **RF-14** | Votos a favor de reportes | Permitir a los usuarios aumentar la relevancia de un reporte mediante un sistema de votos a favor (upvotes). | Vecino / Funcionario |
+| **RF-15** | Vista de Detalles | Mostrar ubicación, sector, ID, fotografías (hasta 5), categoría de residuo, volumen estimado, votos a favor, descripción, riesgo y clima. | Vecino / Funcionario |
+| **RF-16** | Limitación de reporte controlado | Permitir a un funcionario crear un reporte controlado únicamente si cuenta con la autorización para la cuadrilla asignada. | Funcionario |
+| **RF-17** | Asignación de reporte | Permitir a los funcionarios asignar a un reporte aprobado una cuadrilla, una fecha de acción y una descripción opcional. | Funcionario |
+| **RF-18** | Motivos de Rechazo | Exige a los funcionarios asignar a un reporte rechazado una descripción obligatoria que indique el motivo del rechazo. | Funcionario |
 
 ## Requerimientos no funcionales
 
 | ID | Nombre | Criterio | Tipo |
 |---|---|---|---|
-| **RNF-01** | Límite de pasos de reporte | Crear un reporte en máximo 3 pasos. | Usabilidad |
+| **RNF-01** | Límite de pasos de reporte | Crear un reporte en máximo 2 pasos. | Usabilidad |
 | **RNF-02** | Dimensiones mínimas y accesibilidad | Controles de al menos 44x44 px y texto base de 16 px, según WCAG 2.1 Nivel AA. | Accesibilidad |
 | **RNF-03** | Descarga de reportes sin conexión | Operar sin conexión a internet para los reportes de los vecinos. | Disponibilidad / Integridad |
 | **RNF-04** | Cifrado de credenciales | bcrypt con mínimo 10 rondas. | Seguridad |
 | **RNF-05** | Expiración y rotación de tokens | JWT con expiración de 15 minutos, algoritmo asimétrico y mecanismo de rotación. | Seguridad |
 | **RNF-06** | Restricción CORS | Lista blanca explícita de dominios, sin comodines en endpoints autenticados. | Seguridad |
 | **RNF-07** | Disociación y anonimización | Disociación total de la identidad de los autores en reportes públicos, conforme a la Ley N° 19.628. | Privacidad |
-| **RNF-08** | Validación de duplicados y orden de prioridad | Validar que el reporte no exista previamente y ofrecer apoyarlo, incidiendo en el orden de prioridad. | Integridad de los datos |
+| **RNF-08** | Validación de duplicados y orden de prioridad | Validar que el reporte no exista previamente | Integridad de los datos |
 | **RNF-09** | Compatibilidad móvil | Android 9 o superior, iOS 14 o superior. | Portabilidad |
 | **RNF-10** | Compatibilidad web | Chrome, Firefox, Edge y Safari en sus versiones actuales y anteriores (N-2). | Portabilidad |
 | **RNF-11** | Contenerización y despliegue | Despliegue completo con Docker y Docker Compose, configuración en variables de entorno. | Arquitectónico |
