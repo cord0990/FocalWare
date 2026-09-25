@@ -1,4 +1,4 @@
-/// <reference types="vitest" />
+/// <reference types="vitest/config" />
 
 import legacy from '@vitejs/plugin-legacy'
 import react from '@vitejs/plugin-react'
