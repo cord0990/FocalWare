@@ -50,8 +50,7 @@
   overflow-y: auto;
 }
 
-.inicio-conteo,
-.inicio-vacio {
+.inicio-conteo {
   margin: 0;
   color: #5a4545;
   font-size: 0.9rem;
@@ -98,16 +97,4 @@
   --padding-start: 6px;
   --padding-end: 6px;
   font-size: 0.7rem;
-}
-
-.inicio-quitar-filtros {
-  padding: 0;
-  border: 0;
-  background: none;
-  color: #e0283a;
-  font-family: inherit;
-  font-size: inherit;
-  font-weight: 600;
-  text-decoration: underline;
-  cursor: pointer;
 }
