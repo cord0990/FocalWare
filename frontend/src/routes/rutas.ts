@@ -2,5 +2,8 @@ export const RUTAS = {
   login: '/login',
   registro: '/registro',
   recuperar: '/recuperar-contrasena',
-  mapa: '/mapa',
+  inicio: '/inicio',
+  misReportes: '/mis-reportes',
+  crearReporte: '/crear-reporte',
+  perfil: '/perfil',
 } as const;

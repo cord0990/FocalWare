@@ -2,9 +2,11 @@ import { Navigate, Route } from 'react-router-dom';
 import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import Login from './pages/public/Login';
-import Mapa from './pages/public/Mapa';
 import Registro from './pages/public/Registro';
 import RecuperarContrasena from './pages/public/RecuperarContrasena';
+import Inicio from './pages/vecino/Inicio';
+import EnConstruccion from './pages/vecino/EnConstruccion';
+import MenuProvider from './context/MenuProvider';
 import { RUTAS } from './routes/rutas';
 
 /* Core CSS required for Ionic components to work properly */
@@ -41,17 +43,21 @@ setupIonicReact();
 
 const App: React.FC = () => (
   <IonApp>
-    <IonReactRouter>
-      <IonRouterOutlet>
-        <Route path={RUTAS.login} element={<Login />} />
-        <Route path={RUTAS.registro} element={<Registro />} />
-        <Route path={RUTAS.recuperar} element={<RecuperarContrasena />} />
-        <Route path={RUTAS.mapa} element={<Mapa />} />
-        <Route path="/" element={<Navigate to={RUTAS.login} replace />} />
-        <Route path={RUTAS.mapa} element={<Mapa />} />
-        <Route path="/" element={<Navigate to={RUTAS.login} replace />} />
-      </IonRouterOutlet>
-    </IonReactRouter>
+    <MenuProvider>
+      <IonReactRouter>
+        <IonRouterOutlet>
+          <Route path={RUTAS.login} element={<Login />} />
+          <Route path={RUTAS.registro} element={<Registro />} />
+          <Route path={RUTAS.recuperar} element={<RecuperarContrasena />} />
+          <Route path={RUTAS.inicio} element={<Inicio />} />
+          <Route path={RUTAS.misReportes} element={<EnConstruccion titulo="Mis reportes" />} />
+          <Route path={RUTAS.crearReporte} element={<EnConstruccion titulo="Crear reporte" />} />
+          <Route path={RUTAS.perfil} element={<EnConstruccion titulo="Mi perfil" />} />
+          <Route path="/" element={<Navigate to={RUTAS.login} replace />} />
+          <Route path="*" element={<Navigate to={RUTAS.login} replace />} />
+        </IonRouterOutlet>
+      </IonReactRouter>
+    </MenuProvider>
   </IonApp>
 );
 

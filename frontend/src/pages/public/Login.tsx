@@ -4,7 +4,7 @@ import {
   IonInputPasswordToggle,
   IonRouterLink,
   IonSpinner,
-  IonToast,
+  useIonRouter,
 } from '@ionic/react';
 import AuthLayout from '../../components/layout/AuthLayout';
 import CampoFormulario from '../../components/CampoFormulario';
@@ -17,8 +17,8 @@ const Login: React.FC = () => {
   const [correo, setCorreo] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [enviando, setEnviando] = useState(false);
-  const [mensaje, setMensaje] = useState('');
   const { tocar, claseCampo } = useCamposTocados();
+  const router = useIonRouter();
 
   const errores = {
     correo: !correo
@@ -37,7 +37,7 @@ const Login: React.FC = () => {
     setEnviando(true);
     await iniciarSesion({ correo, contrasena });
     setEnviando(false);
-    setMensaje('Inicio de sesión correcto.');
+    router.push(RUTAS.inicio, 'root', 'replace');
   };
 
   return (
@@ -86,15 +86,6 @@ const Login: React.FC = () => {
           </IonRouterLink>
         </div>
       </form>
-
-      <IonToast
-        isOpen={!!mensaje}
-        message={mensaje}
-        duration={2500}
-        color="success"
-        position="top"
-        onDidDismiss={() => setMensaje('')}
-      />
     </AuthLayout>
   );
 };
