@@ -15,7 +15,7 @@ El presente apartado detalla la especificación formal de requisitos del sistema
 
 | ID | Nombre | Requerimiento | Tipo | Dependencias con otro Requerimiento | Usuario |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **RF-01** | Registro de reporte georreferenciado | El sistema debe permitir crear un reporte con Ubicación GPS, Fotografias, Categoria de residuo, volumen estimado y descripción. | Transacciones/Niveles de autorizacion | RF-10 | Vecino / Funcionario |
+| **RF-01** | Registro de reporte georreferenciado | El sistema debe permitir crear un reporte con Ubicación GPS, Fotografias, Categoria de residuo, volumen estimado, Distancia a hogares y descripción. | Transacciones/Niveles de autorizacion | RF-10 | Vecino / Funcionario |
 | **RF-02** | Almacenamiento local offline | El sistema debe permitir guardar localmente los reportes creados sin conexión a internet. | Transacciones | RNF-03 | Vecino |
 | **RF-03** | Visualización en mapa interactivo | El sistema debe desplegar un mapa interactivo con localizaciones asociadas a los reportes existentes en el sistema. | Interfaces externas | Ninguna | Vecino / Funcionario |
 | **RF-04** | Filtrado del mapa interactivo | El sistema debe permitir filtrar el mapa interactivo por estado, categoria, riesgo, sector y fecha. | Requisito de Búsqueda y reportes | RF-03 | Vecino / Funcionario |
