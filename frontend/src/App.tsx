@@ -3,6 +3,8 @@ import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import Login from './pages/public/Login';
 import Mapa from './pages/public/Mapa';
+import Registro from './pages/public/Registro';
+import RecuperarContrasena from './pages/public/RecuperarContrasena';
 import { RUTAS } from './routes/rutas';
 
 /* Core CSS required for Ionic components to work properly */
@@ -42,6 +44,10 @@ const App: React.FC = () => (
     <IonReactRouter>
       <IonRouterOutlet>
         <Route path={RUTAS.login} element={<Login />} />
+        <Route path={RUTAS.registro} element={<Registro />} />
+        <Route path={RUTAS.recuperar} element={<RecuperarContrasena />} />
+        <Route path={RUTAS.mapa} element={<Mapa />} />
+        <Route path="/" element={<Navigate to={RUTAS.login} replace />} />
         <Route path={RUTAS.mapa} element={<Mapa />} />
         <Route path="/" element={<Navigate to={RUTAS.login} replace />} />
       </IonRouterOutlet>

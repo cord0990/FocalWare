@@ -1,0 +1,38 @@
+.pie {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  padding: 24px 48px;
+  background: #8b7979;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.pie-enlaces {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pie a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.pie a:hover {
+  text-decoration: underline;
+}
+
+.pie-derechos {
+  margin: 0;
+}
+
+@media (max-width: 767px) {
+  .pie {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px 16px;
+  }
+}

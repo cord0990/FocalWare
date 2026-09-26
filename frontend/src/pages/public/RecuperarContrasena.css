@@ -1,0 +1,81 @@
+.pasos-encabezado {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 0.8rem;
+}
+
+.pasos-barra {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.pasos-barra span {
+  height: 4px;
+  border-radius: 2px;
+  background: #d9d9d9;
+}
+
+.pasos-barra span.activo {
+  background: #e0283a;
+}
+
+.pasos-siguientes {
+  display: flex;
+  gap: 32px;
+  margin: 24px 0 0;
+  padding: 16px 0 0;
+  border-top: 2px solid #e0e0e0;
+  list-style: none;
+  font-size: 0.85rem;
+}
+
+.pasos-siguientes li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pasos-siguientes span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid #1f1f1f;
+  border-radius: 50%;
+  font-size: 0.75rem;
+}
+.codigo-otp {
+  --background: #fff;
+  --color: #1f1f1f;
+  --border-color: #d6d6d6;
+  --highlight-color-focused: #e0283a;
+  --highlight-color-valid: #e0283a;
+  margin-bottom: 12px;
+}
+
+/* Botón con apariencia de enlace (Cambiar correo, Reenviar código) */
+.enlace-boton {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* En celular las 6 cajas del código se achican para caber en el panel */
+@media (max-width: 767px) {
+  /* Selectores más específicos que los de Ionic para poder sobrescribir su tamaño */
+  .auth-panel ion-input-otp.codigo-otp {
+    --width: 34px;
+    --min-width: 34px;
+    --height: 44px;
+  }
+
+  .auth-panel ion-input-otp.codigo-otp .input-otp-group {
+    gap: 6px !important;
+  }
+}
