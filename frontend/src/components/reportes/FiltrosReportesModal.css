@@ -1,0 +1,199 @@
+/* Ventana centrada con el fondo oscurecido detrás */
+.modal-filtros {
+  --width: min(760px, calc(100% - 32px));
+  --height: auto;
+  --max-height: calc(100% - 32px);
+  --border-radius: 20px;
+  --backdrop-opacity: 0.65;
+}
+
+/* Sin esto Ionic le da altura fija y el contenido queda cortado */
+.modal-filtros .ion-page {
+  position: relative;
+  contain: content;
+}
+
+.modal-filtros .filtros-contenido {
+  --background: #463e3e;
+}
+
+.filtros-marco {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 20px 20px;
+  color: #1f1f1f;
+}
+
+.filtros-encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #fff;
+}
+
+.filtros-encabezado h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.filtros-cerrar {
+  --color: #fff;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.filtros-panel {
+  --ion-text-color: #1f1f1f;
+  --ion-background-color: #fff;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  padding: 24px;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.filtros-columna {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+}
+
+.filtros-columna + .filtros-columna {
+  padding-left: 24px;
+  border-left: 3px solid #e0e0e0;
+}
+
+.filtros-panel ion-select {
+  --background: #fff;
+  --color: #1f1f1f;
+  --placeholder-color: #6b6b6b;
+  --border-color: #c9c9c9;
+  --border-radius: 8px;
+  --highlight-color-focused: #e0283a;
+  min-height: 52px;
+  font-size: 1rem;
+}
+
+.filtros-fechas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  min-width: 0;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.filtros-fechas legend {
+  margin-bottom: 8px;
+  padding: 0;
+  font-weight: 600;
+}
+
+.filtros-error {
+  margin: -8px 0 0;
+  color: #c62828;
+  font-size: 0.85rem;
+}
+
+.filtros-orden {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.filtros-orden ion-select {
+  flex: 1;
+  min-width: 0;
+}
+
+.filtros-direccion {
+  display: flex;
+  border: 2px solid #c9c9c9;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.filtros-direccion button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: 0;
+  background: #f1f1f1;
+  color: #5a4545;
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+.filtros-direccion button + button {
+  border-left: 2px solid #c9c9c9;
+}
+
+.filtros-direccion button.activo {
+  background: #e0283a;
+  color: #fff;
+}
+
+.filtros-acciones {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.filtros-acciones ion-button {
+  --border-radius: 12px;
+  --box-shadow: none;
+  flex: 1;
+  max-width: 220px;
+  min-height: 52px;
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: none;
+}
+
+.btn-limpiar {
+  --background: #fde6c8;
+  --background-hover: #f9d6a8;
+  --color: #1f1f1f;
+}
+
+.btn-aplicar {
+  --background: #f05a47;
+  --background-hover: #d9483a;
+  --color: #fff;
+}
+
+/* Celular: una sola columna y la ventana ocupa casi toda la pantalla */
+@media (max-width: 767px) {
+  .filtros-panel {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 16px;
+  }
+
+  .filtros-columna + .filtros-columna {
+    padding-top: 18px;
+    padding-left: 0;
+    border-top: 3px solid #e0e0e0;
+    border-left: 0;
+  }
+
+  .filtros-acciones ion-button {
+    max-width: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .filtros-fechas {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

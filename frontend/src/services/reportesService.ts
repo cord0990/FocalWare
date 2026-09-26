@@ -1,10 +1,16 @@
 // Por ahora los reportes son datos de prueba. En la Entrega 2 se obtendrán desde la API REST.
 
+export const ESTADOS_REPORTE = ['Pendiente', 'Aprobado', 'En atención', 'Controlado'] as const;
+
+export type EstadoReporte = (typeof ESTADOS_REPORTE)[number];
+
 export interface Reporte {
   id: string;
   nombre: string;
   sector: string;
   categoria: string;
+  estado: EstadoReporte;
+  fecha: string;
   riesgo: number;
   votos: number;
   latitud: number;
@@ -18,6 +24,8 @@ const REPORTES_PRUEBA: Reporte[] = [
     nombre: 'Acumulación de basura en quebrada',
     sector: 'Cerro Cordillera',
     categoria: 'Microbasural',
+    estado: 'En atención',
+    fecha: '2026-09-02',
     riesgo: 86,
     votos: 24,
     latitud: -33.0418,
@@ -28,6 +36,8 @@ const REPORTES_PRUEBA: Reporte[] = [
     nombre: 'Ramas secas bajo tendido eléctrico',
     sector: 'Las Cañas',
     categoria: 'Vegetación seca',
+    estado: 'Aprobado',
+    fecha: '2026-09-20',
     riesgo: 91,
     votos: 31,
     latitud: -33.0562,
@@ -38,6 +48,8 @@ const REPORTES_PRUEBA: Reporte[] = [
     nombre: 'Pastizal seco junto a viviendas',
     sector: 'Playa Ancha',
     categoria: 'Vegetación seca',
+    estado: 'Pendiente',
+    fecha: '2026-09-24',
     riesgo: 72,
     votos: 18,
     latitud: -33.0305,
@@ -48,6 +60,8 @@ const REPORTES_PRUEBA: Reporte[] = [
     nombre: 'Neumáticos abandonados en ladera',
     sector: 'Rodelillo',
     categoria: 'Neumáticos',
+    estado: 'Aprobado',
+    fecha: '2026-08-28',
     riesgo: 64,
     votos: 9,
     latitud: -33.0518,
@@ -58,6 +72,8 @@ const REPORTES_PRUEBA: Reporte[] = [
     nombre: 'Microbasural en Quebrada Verde',
     sector: 'Playa Ancha',
     categoria: 'Microbasural',
+    estado: 'Pendiente',
+    fecha: '2026-09-15',
     riesgo: 57,
     votos: 12,
     latitud: -33.0561,
@@ -68,6 +84,8 @@ const REPORTES_PRUEBA: Reporte[] = [
     nombre: 'Escombros en ladera',
     sector: 'Cerro Alegre',
     categoria: 'Escombros',
+    estado: 'Controlado',
+    fecha: '2026-08-10',
     riesgo: 45,
     votos: 7,
     latitud: -33.0433,
@@ -78,6 +96,8 @@ const REPORTES_PRUEBA: Reporte[] = [
     nombre: 'Colchones y muebles en quebrada',
     sector: 'Cerro Barón',
     categoria: 'Residuos voluminosos',
+    estado: 'Pendiente',
+    fecha: '2026-09-11',
     riesgo: 38,
     votos: 5,
     latitud: -33.0397,
@@ -88,6 +108,8 @@ const REPORTES_PRUEBA: Reporte[] = [
     nombre: 'Basura domiciliaria acumulada',
     sector: 'Placeres',
     categoria: 'Microbasural',
+    estado: 'En atención',
+    fecha: '2026-09-05',
     riesgo: 22,
     votos: 3,
     latitud: -33.0452,
@@ -98,6 +120,8 @@ const REPORTES_PRUEBA: Reporte[] = [
     nombre: 'Restos de poda en pasaje',
     sector: 'Cerro Florida',
     categoria: 'Vegetación seca',
+    estado: 'Controlado',
+    fecha: '2026-08-19',
     riesgo: 15,
     votos: 2,
     latitud: -33.0498,
@@ -107,5 +131,5 @@ const REPORTES_PRUEBA: Reporte[] = [
 
 export const obtenerReportes = (): Promise<Reporte[]> =>
   new Promise((resolver) =>
-    setTimeout(() => resolver([...REPORTES_PRUEBA].sort((a, b) => b.riesgo - a.riesgo)), 500),
+    setTimeout(() => resolver([...REPORTES_PRUEBA]), 500),
   );

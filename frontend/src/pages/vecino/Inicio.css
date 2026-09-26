@@ -84,3 +84,30 @@
     padding-right: 0;
   }
 }
+
+.inicio-boton-icono {
+  position: relative;
+}
+
+.inicio-filtros-activos {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  --background: #e0283a;
+  --color: #fff;
+  --padding-start: 6px;
+  --padding-end: 6px;
+  font-size: 0.7rem;
+}
+
+.inicio-quitar-filtros {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #e0283a;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
