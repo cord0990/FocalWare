@@ -1,0 +1,69 @@
+.selector-fecha {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.selector-fecha-etiqueta {
+  font-size: 0.8rem;
+  color: #5a4545;
+}
+
+.selector-fecha-boton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 52px;
+  padding: 0 12px;
+  border: 1px solid #c9c9c9;
+  border-radius: 8px;
+  background: #fff;
+  color: #1f1f1f;
+  font-family: inherit;
+  font-size: 1rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.selector-fecha-boton:hover,
+.selector-fecha-boton:focus-visible {
+  border-color: #e0283a;
+}
+
+.selector-fecha-boton.vacio {
+  color: #6b6b6b;
+}
+
+.selector-fecha-boton ion-icon {
+  flex-shrink: 0;
+  color: #e0283a;
+  font-size: 1.3rem;
+}
+
+/* Ventana pequeña del calendario, centrada sobre la de filtros */
+.modal-calendario {
+  --width: 340px;
+  --height: auto;
+  --border-radius: 16px;
+  --backdrop-opacity: 0.4;
+}
+
+.modal-calendario .ion-page {
+  position: relative;
+  contain: content;
+}
+
+/* Colores de la app en el calendario (día seleccionado, botones y flechas) */
+.calendario {
+  --background: #fff;
+  --ion-text-color: #1f1f1f;
+  --ion-color-primary: #e0283a;
+  --ion-color-primary-rgb: 224, 40, 58;
+  --ion-color-primary-contrast: #fff;
+  --ion-color-primary-shade: #c5233a;
+  --ion-color-primary-tint: #e33e4e;
+  width: 100%;
+  color: #1f1f1f;
+}

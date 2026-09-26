@@ -1,0 +1,44 @@
+.filtros-activos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.filtro-chip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 36px;
+  padding: 0 8px 0 14px;
+  border: 2px solid #e0283a;
+  border-radius: 18px;
+  background: #fff;
+  color: #1f1f1f;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.filtro-chip ion-icon {
+  color: #e0283a;
+  font-size: 1.2rem;
+}
+
+.filtro-chip:hover {
+  background: #fdeeee;
+}
+
+.filtros-quitar-todos {
+  min-height: 36px;
+  padding: 0 6px;
+  border: 0;
+  background: none;
+  color: #e0283a;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
