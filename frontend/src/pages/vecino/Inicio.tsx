@@ -5,6 +5,7 @@ import AppLayout from '../../components/layout/AppLayout';
 import FiltrosActivos from '../../components/reportes/FiltrosActivos';
 import FiltrosReportesModal from '../../components/reportes/FiltrosReportesModal';
 import MapaReportes from '../../components/reportes/MapaReportes';
+import SinResultados from '../../components/reportes/SinResultados';
 import TarjetaReporte from '../../components/reportes/TarjetaReporte';
 import { obtenerReportes, type Reporte } from '../../services/reportesService';
 import {
@@ -129,21 +130,14 @@ const Inicio: React.FC = () => {
           <FiltrosActivos activos={listaFiltrosActivos} onCambiar={setFiltros} />
 
           {!cargando && reportesFiltrados.length === 0 && (
-            <p className="inicio-vacio">
-              No encontramos reportes con esa búsqueda o filtros.
-              {filtrosActivos > 0 && (
-                <>
-                  {' '}
-                  <button
-                    type="button"
-                    className="inicio-quitar-filtros"
-                    onClick={() => setFiltros(FILTROS_INICIALES)}
-                  >
-                    Quitar filtros
-                  </button>
-                </>
-              )}
-            </p>
+            <SinResultados
+              busqueda={busqueda}
+              hayFiltros={filtrosActivos > 0}
+              onReiniciar={() => {
+                setBusqueda('');
+                setFiltros(FILTROS_INICIALES);
+              }}
+            />
           )}
 
           {reportesFiltrados.map((reporte) => (
