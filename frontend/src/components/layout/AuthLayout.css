@@ -16,7 +16,6 @@
   padding: 48px 32px;
 }
 
-/* Tarjeta con degradado, borde crema y sombra desplazada */
 .auth-tarjeta {
   display: grid;
   grid-template-columns: 1fr minmax(400px, 560px);
@@ -61,7 +60,6 @@
   width: clamp(80px, 7vw, 130px);
 }
 
-/* Panel blanco del formulario */
 .auth-panel {
   --ion-text-color: #1f1f1f;
   --ion-background-color: #fff;
@@ -87,7 +85,6 @@
   line-height: 1.4;
 }
 
-/* Campos del formulario */
 .campo {
   margin-bottom: 12px;
 }
@@ -141,7 +138,6 @@
   font-size: 0.8rem;
 }
 
-/* Botón principal y enlaces */
 .btn-principal {
   --background: #5c1010;
   --background-hover: #7a1818;

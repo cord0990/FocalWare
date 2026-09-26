@@ -8,7 +8,6 @@ interface AuthLayoutProps {
   children: React.ReactNode;
 }
 
-// Estructura común de Iniciar sesión, Crear cuenta y Recuperar contraseña.
 const AuthLayout: React.FC<AuthLayoutProps> = ({ titulo, panelAmplio = false, children }) => (
   <IonPage>
     <IonContent className="auth-contenido">
