@@ -5,6 +5,7 @@ import Login from './pages/public/Login';
 import Registro from './pages/public/Registro';
 import RecuperarContrasena from './pages/public/RecuperarContrasena';
 import Inicio from './pages/vecino/Inicio';
+import Perfil from './pages/perfil/Perfil'
 import EnConstruccion from './pages/vecino/EnConstruccion';
 import MenuProvider from './context/MenuProvider';
 import { RUTAS } from './routes/rutas';
@@ -52,7 +53,7 @@ const App: React.FC = () => (
           <Route path={RUTAS.inicio} element={<Inicio />} />
           <Route path={RUTAS.misReportes} element={<EnConstruccion titulo="Mis reportes" />} />
           <Route path={RUTAS.crearReporte} element={<EnConstruccion titulo="Crear reporte" />} />
-          <Route path={RUTAS.perfil} element={<EnConstruccion titulo="Mi perfil" />} />
+          <Route path={RUTAS.perfil} element={<Perfil />} />
           <Route path="/" element={<Navigate to={RUTAS.login} replace />} />
           <Route path="*" element={<Navigate to={RUTAS.login} replace />} />
         </IonRouterOutlet>
