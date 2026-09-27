@@ -1,0 +1,47 @@
+.perfil-header-tabs {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--bg-auth-fondo, #463e3e);
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  gap: 2rem;
+}
+
+.perfil-segment {
+  background: transparent;
+  width: auto;
+  gap: 0.75rem;
+  --indicator-color: transparent;
+  --indicator-box-shadow: none;
+}
+
+.perfil-segment-btn {
+  --color: var(--texto-principal, #1f1f1f);
+  --color-checked: var(--texto-principal, #1f1f1f);
+  --background: #d6cbca;
+  --background-checked: var(--color-blanco, #ffffff);
+  --border-radius: 12px;
+  --indicator-color: transparent;
+  min-height: 44px;
+  min-width: 60px;
+  margin: 0;
+}
+
+.perfil-segment-btn ion-icon {
+  font-size: 1.75rem;
+}
+
+.btn-cerrar-sesion {
+  --background: var(--color-blanco, #ffffff);
+  --color: var(--texto-principal, #1f1f1f);
+  --border-radius: 20px;
+  --padding-start: 1.25rem;
+  --padding-end: 1.25rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-transform: none;
+  height: 44px;
+  margin-left: auto;
+}

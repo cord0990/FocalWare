@@ -1,0 +1,147 @@
+.detalle-notificacion-container {
+  background-color: #d6cbca;
+  border-radius: 16px;
+  padding: 1.5rem;
+}
+
+.tarjeta-detalle-custom {
+  background-color: #ffffff;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: none;
+}
+
+.btn-volver-link {
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #1f1f1f;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 1.5rem;
+}
+
+.detalle-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.badge-reporte-id {
+  background-color: #463e3e;
+  color: #ffffff;
+  padding: 0.6rem 1.4rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.btn-ir-reporte {
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1rem;
+  color: #1f1f1f;
+  cursor: pointer;
+  padding: 0;
+}
+
+.icon-circle {
+  background-color: #463e3e;
+  color: #ffffff;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.timeline-section {
+  margin-bottom: 2.5rem;
+}
+
+.timeline-badge-title {
+  background-color: #e0283a;
+  color: #ffffff;
+  display: inline-block;
+  padding: 0.4rem 1.2rem;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.95rem;
+  margin-bottom: 2rem;
+}
+
+.timeline-track-container {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1000px;
+  margin: 3rem auto;
+  padding: 0 3rem;
+}
+
+.timeline-line {
+  position: absolute;
+  top: 50%;
+  left: 6rem;
+  right: 6rem;
+  height: 12px;
+  background-color: #e0283a;
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+.timeline-step {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 220px;
+}
+
+.step-label {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f1f1f;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.step-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  border: 7px solid #e0283a;
+}
+
+.step-actual .step-circle {
+  background-color: #e0283a;
+}
+
+.step-date {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f1f1f;
+  margin-top: 1rem;
+}
+
+.mensaje-agradecimiento {
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #1f1f1f;
+  margin-top: 2rem;
+}
