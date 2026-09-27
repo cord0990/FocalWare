@@ -4,11 +4,11 @@ import {
   IonInputPasswordToggle,
   IonRouterLink,
   IonSpinner,
-  useIonRouter,
 } from '@ionic/react';
 import AuthLayout from '../../components/layout/AuthLayout';
 import CampoFormulario from '../../components/CampoFormulario';
 import { useCamposTocados } from '../../hooks/useCamposTocados';
+import { useSesion } from '../../hooks/useSesion';
 import { iniciarSesion } from '../../services/authService';
 import { RUTAS } from '../../routes/rutas';
 import { esCorreoValido } from '../../utils/validaciones';
@@ -18,7 +18,7 @@ const Login: React.FC = () => {
   const [contrasena, setContrasena] = useState('');
   const [enviando, setEnviando] = useState(false);
   const { tocar, claseCampo } = useCamposTocados();
-  const router = useIonRouter();
+  const sesion = useSesion();
 
   const errores = {
     correo: !correo
@@ -35,9 +35,10 @@ const Login: React.FC = () => {
     if (errores.correo || errores.contrasena) return;
 
     setEnviando(true);
-    await iniciarSesion({ correo, contrasena });
+    const usuario = await iniciarSesion({ correo, contrasena });
     setEnviando(false);
-    router.push(RUTAS.inicio, 'root', 'replace');
+    // Con la sesión iniciada, RutaPublica lleva al mapa o a la página que se quería abrir.
+    sesion.iniciarSesion(usuario);
   };
 
   return (

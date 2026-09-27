@@ -12,8 +12,11 @@ import DetalleReporte from './pages/vecino/DetalleReporte';
 import EditarReporte from './pages/vecino/EditarReporte';
 import Ayuda from './pages/ayuda/Ayuda';
 import MenuProvider from './context/MenuProvider';
+import SesionProvider from './context/SesionProvider';
 import MenuCuenta from './components/layout/MenuCuenta';
 import { RUTAS } from './routes/rutas';
+import RutaProtegida from './routes/RutaProtegida';
+import RutaPublica from './routes/RutaPublica';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -51,25 +54,98 @@ setupIonicReact();
 
 const App: React.FC = () => (
   <IonApp>
-    <MenuProvider>
-      <IonReactRouter>
-        <MenuCuenta contentId="contenido-principal" />
-        <IonRouterOutlet id="contenido-principal">
-          <Route path={RUTAS.login} element={<Login />} />
-          <Route path={RUTAS.registro} element={<Registro />} />
-          <Route path={RUTAS.recuperar} element={<RecuperarContrasena />} />
-          <Route path={RUTAS.inicio} element={<Inicio />} />
-          <Route path={RUTAS.misReportes} element={<MisReportes />} />
-          <Route path={RUTAS.crearReporte} element={<CrearReporte />} />
-          <Route path={RUTAS.detalleReporte} element={<DetalleReporte />} />
-          <Route path={RUTAS.editarReporte} element={<EditarReporte />} />
-          <Route path={RUTAS.perfil} element={<Perfil />} />
-          <Route path={RUTAS.ayuda} element={<Ayuda />} />
-          <Route path="/" element={<Navigate to={RUTAS.login} replace />} />
-          <Route path="*" element={<Navigate to={RUTAS.login} replace />} />
-        </IonRouterOutlet>
-      </IonReactRouter>
-    </MenuProvider>
+    <SesionProvider>
+      <MenuProvider>
+        <IonReactRouter>
+          <MenuCuenta contentId="contenido-principal" />
+          <IonRouterOutlet id="contenido-principal">
+            <Route
+              path={RUTAS.login}
+              element={
+                <RutaPublica>
+                  <Login />
+                </RutaPublica>
+              }
+            />
+            <Route
+              path={RUTAS.registro}
+              element={
+                <RutaPublica>
+                  <Registro />
+                </RutaPublica>
+              }
+            />
+            <Route
+              path={RUTAS.recuperar}
+              element={
+                <RutaPublica>
+                  <RecuperarContrasena />
+                </RutaPublica>
+              }
+            />
+            <Route
+              path={RUTAS.inicio}
+              element={
+                <RutaProtegida>
+                  <Inicio />
+                </RutaProtegida>
+              }
+            />
+            <Route
+              path={RUTAS.misReportes}
+              element={
+                <RutaProtegida>
+                  <MisReportes />
+                </RutaProtegida>
+              }
+            />
+            <Route
+              path={RUTAS.crearReporte}
+              element={
+                <RutaProtegida>
+                  <CrearReporte />
+                </RutaProtegida>
+              }
+            />
+            <Route
+              path={RUTAS.detalleReporte}
+              element={
+                <RutaProtegida>
+                  <DetalleReporte />
+                </RutaProtegida>
+              }
+            />
+            <Route
+              path={RUTAS.editarReporte}
+              element={
+                <RutaProtegida>
+                  <EditarReporte />
+                </RutaProtegida>
+              }
+            />
+            <Route
+              path={RUTAS.perfil}
+              element={
+                <RutaProtegida>
+                  <Perfil />
+                </RutaProtegida>
+              }
+            />
+            <Route
+              path={RUTAS.ayuda}
+              element={
+                <RutaProtegida>
+                  <Ayuda />
+                </RutaProtegida>
+              }
+            />
+            {/* Sin sesión, la ruta protegida del mapa redirige al login */}
+            <Route path="/" element={<Navigate to={RUTAS.inicio} replace />} />
+            <Route path="*" element={<Navigate to={RUTAS.inicio} replace />} />
+          </IonRouterOutlet>
+        </IonReactRouter>
+      </MenuProvider>
+    </SesionProvider>
   </IonApp>
 );
 
