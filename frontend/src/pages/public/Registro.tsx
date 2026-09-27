@@ -11,6 +11,7 @@ import AuthLayout from '../../components/layout/AuthLayout';
 import CampoFormulario from '../../components/CampoFormulario';
 import RequisitosContrasena from '../../components/RequisitosContrasena';
 import { useCamposTocados } from '../../hooks/useCamposTocados';
+import { useSesion } from '../../hooks/useSesion';
 import { registrarUsuario } from '../../services/authService';
 import { RUTAS } from '../../routes/rutas';
 import { esContrasenaSegura, esCorreoValido } from '../../utils/validaciones';
@@ -26,6 +27,7 @@ const Registro: React.FC = () => {
   const [enviando, setEnviando] = useState(false);
   const [mensaje, setMensaje] = useState('');
   const { tocar, claseCampo } = useCamposTocados();
+  const sesion = useSesion();
 
   const errores = {
     nombre: nombre.trim().length < 3 ? 'Ingresa tu nombre completo.' : '',
@@ -51,9 +53,11 @@ const Registro: React.FC = () => {
     if (Object.values(errores).some(Boolean)) return;
 
     setEnviando(true);
-    await registrarUsuario({ nombre, correo, telefono, contrasena });
+    const usuario = await registrarUsuario({ nombre, correo, telefono, contrasena });
     setEnviando(false);
     setMensaje('Cuenta creada correctamente.');
+    // Se muestra el aviso un momento y se entra a la app con la cuenta nueva.
+    setTimeout(() => sesion.iniciarSesion(usuario), 1200);
   };
 
   return (

@@ -4,7 +4,8 @@ import {
   IonSegment,
   IonSegmentButton,
   IonIcon,
-  IonButton
+  IonButton,
+  useIonRouter
 } from '@ionic/react';
 import {
   mailOutline,
@@ -14,6 +15,8 @@ import {
 } from 'ionicons/icons';
 
 import AppLayout from '../../components/layout/AppLayout';
+import { useSesion } from '../../hooks/useSesion';
+import { RUTAS } from '../../routes/rutas';
 import Notificaciones, { Notificacion } from './Notificaciones';
 import Configuracion from './Configuracion';
 import DetalleNotificacion from './DetalleNotificacion';
@@ -46,8 +49,12 @@ const Perfil: React.FC = () => {
     setTabActiva('detalle');
   };
 
+  const router = useIonRouter();
+  const { cerrarSesion } = useSesion();
+
   const handleCerrarSesion = () => {
-    // TODO: Lógica para cerrar sesión
+    cerrarSesion();
+    router.push(RUTAS.login, 'root', 'replace');
   };
 
   return (

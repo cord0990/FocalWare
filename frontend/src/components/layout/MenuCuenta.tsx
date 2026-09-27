@@ -17,7 +17,9 @@ import {
 import { useConexion } from '../../hooks/useConexion';
 import { usePendientes } from '../../hooks/usePendientes';
 import { RUTAS, rutaPerfil } from '../../routes/rutas';
-import { USUARIO_PRUEBA } from '../../services/usuarioService';
+import { useSesion } from '../../hooks/useSesion';
+import { NOMBRE_ROL, obtenerIniciales, primerNombre } from '../../services/sesionService';
+import { ACTIVIDAD_PRUEBA } from '../../services/usuarioService';
 import './MenuCuenta.css';
 
 export const ID_MENU_CUENTA = 'menu-cuenta';
@@ -60,10 +62,19 @@ const OpcionMenu: React.FC<OpcionMenuProps> = ({
 
 const MenuCuenta: React.FC<{ contentId: string }> = ({ contentId }) => {
   const router = useIonRouter();
-  const usuario = USUARIO_PRUEBA;
+  const { usuario, cerrarSesion } = useSesion();
+  const actividad = ACTIVIDAD_PRUEBA;
   const pendientes = usePendientes();
   const enLinea = useConexion();
   const irA = (ruta: string) => router.push(ruta, 'root');
+
+  // Sin sesión (login, registro) no hay menú de cuenta.
+  if (!usuario) return null;
+
+  const salir = () => {
+    cerrarSesion();
+    router.push(RUTAS.login, 'root', 'replace');
+  };
 
   return (
     <IonMenu
@@ -83,11 +94,11 @@ const MenuCuenta: React.FC<{ contentId: string }> = ({ contentId }) => {
                 onClick={() => irA(rutaPerfil('configuracion'))}
                 title="Ir a la configuración de la cuenta"
               >
-                <span className="cuenta-avatar">{usuario.iniciales}</span>
+                <span className="cuenta-avatar">{obtenerIniciales(usuario.nombre)}</span>
                 <span className="cuenta-saludo-texto">
-                  <strong>¡Hola, {usuario.nombre}!</strong>
+                  <strong>¡Hola, {primerNombre(usuario.nombre)}!</strong>
                   <small>
-                    {usuario.rol} · {usuario.sector}
+                    {NOMBRE_ROL[usuario.rol]} · {usuario.correo}
                   </small>
                 </span>
                 <IonIcon icon={chevronForwardOutline} className="cuenta-flecha" aria-hidden="true" />
@@ -97,15 +108,15 @@ const MenuCuenta: React.FC<{ contentId: string }> = ({ contentId }) => {
             <h2 className="cuenta-seccion">Tu aporte</h2>
             <div className="cuenta-impacto">
               <div>
-                <strong>{usuario.reportesCreados}</strong>
+                <strong>{actividad.reportesCreados}</strong>
                 <span>Reportes creados</span>
               </div>
               <div>
-                <strong>{usuario.votosDados}</strong>
+                <strong>{actividad.votosDados}</strong>
                 <span>Votos dados</span>
               </div>
               <div>
-                <strong>{usuario.apoyosRecibidos}</strong>
+                <strong>{actividad.apoyosRecibidos}</strong>
                 <span>Apoyos recibidos</span>
               </div>
             </div>
@@ -115,7 +126,7 @@ const MenuCuenta: React.FC<{ contentId: string }> = ({ contentId }) => {
               <OpcionMenu
                 icono={notificationsOutline}
                 texto="Notificaciones"
-                contador={usuario.notificacionesSinLeer}
+                contador={actividad.notificacionesSinLeer}
                 onClick={() => irA(rutaPerfil('notificaciones'))}
               />
               <OpcionMenu
@@ -155,7 +166,7 @@ const MenuCuenta: React.FC<{ contentId: string }> = ({ contentId }) => {
               <button
                 type="button"
                 className="cuenta-cerrar-sesion"
-                onClick={() => router.push(RUTAS.login, 'root', 'replace')}
+                onClick={salir}
               >
                 <IonIcon icon={logOutOutline} aria-hidden="true" />
                 Cerrar sesión

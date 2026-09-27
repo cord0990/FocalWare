@@ -14,7 +14,8 @@ import { CLAVE_ANCHO_MENU } from '../../context/MenuProvider';
 import { useAnchoRedimensionable } from '../../hooks/useAnchoRedimensionable';
 import { useMenu } from '../../hooks/useMenu';
 import { RUTAS } from '../../routes/rutas';
-import { USUARIO_PRUEBA } from '../../services/usuarioService';
+import { useSesion } from '../../hooks/useSesion';
+import { NOMBRE_ROL, obtenerIniciales } from '../../services/sesionService';
 import './AppLayout.css';
 
 interface AppLayoutProps {
@@ -24,6 +25,7 @@ interface AppLayoutProps {
 const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const router = useIonRouter();
   const menu = useMenu();
+  const { usuario } = useSesion();
   const divisorMenu = useAnchoRedimensionable({
     clave: CLAVE_ANCHO_MENU,
     minimo: 180,
@@ -52,10 +54,10 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             <button type="button" className="app-cuenta" aria-label="Abrir menú de mi cuenta">
               <span className="app-cuenta-texto">
                 <strong>Mi cuenta</strong>
-                <small>{USUARIO_PRUEBA.rol}</small>
+                <small>{usuario ? NOMBRE_ROL[usuario.rol] : ''}</small>
               </span>
               <span className="app-avatar" aria-hidden="true">
-                {USUARIO_PRUEBA.iniciales}
+                {usuario ? obtenerIniciales(usuario.nombre) : ''}
               </span>
               <IonIcon icon={chevronDownOutline} className="app-cuenta-flecha" aria-hidden="true" />
             </button>
