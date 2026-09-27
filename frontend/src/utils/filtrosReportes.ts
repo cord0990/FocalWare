@@ -1,5 +1,6 @@
 import type { Reporte } from '../services/reportesService';
 import { formatearFecha } from './fechas';
+import { normalizarTexto } from './texto';
 
 export type CriterioOrden = 'riesgo' | 'votos' | 'fecha';
 
@@ -36,8 +37,18 @@ const NOMBRES_ORDEN: Record<CriterioOrden, string> = {
   fecha: 'Fecha',
 };
 
+// "Mis reportes" muestra primero los más recientes.
+export const FILTROS_MIS_REPORTES: FiltrosReportes = {
+  ...FILTROS_INICIALES,
+  orden: 'fecha',
+};
+
 // Lista los filtros aplicados para mostrarlos como etiquetas que se pueden quitar una a una.
-export const listarFiltrosActivos = (filtros: FiltrosReportes): FiltroActivo[] => {
+// `base` es el estado sin filtros de cada pantalla: el orden solo cuenta si es distinto al de base.
+export const listarFiltrosActivos = (
+  filtros: FiltrosReportes,
+  base: FiltrosReportes = FILTROS_INICIALES,
+): FiltroActivo[] => {
   const activos: FiltroActivo[] = [];
 
   if (filtros.estado) {
@@ -67,18 +78,11 @@ export const listarFiltrosActivos = (filtros: FiltrosReportes): FiltroActivo[] =
       sinEste: { ...filtros, hasta: '' },
     });
   }
-  if (
-    filtros.orden !== FILTROS_INICIALES.orden ||
-    filtros.descendente !== FILTROS_INICIALES.descendente
-  ) {
+  if (filtros.orden !== base.orden || filtros.descendente !== base.descendente) {
     activos.push({
       clave: 'orden',
       texto: `Orden: ${NOMBRES_ORDEN[filtros.orden]} ${filtros.descendente ? '↓' : '↑'}`,
-      sinEste: {
-        ...filtros,
-        orden: FILTROS_INICIALES.orden,
-        descendente: FILTROS_INICIALES.descendente,
-      },
+      sinEste: { ...filtros, orden: base.orden, descendente: base.descendente },
     });
   }
 
@@ -103,3 +107,13 @@ export const aplicarFiltros = (reportes: Reporte[], filtros: FiltrosReportes): R
       const diferencia = valorOrden(a, filtros.orden) - valorOrden(b, filtros.orden);
       return filtros.descendente ? -diferencia : diferencia;
     });
+
+// Busca por sector, nombre o categoría, sin importar tildes ni mayúsculas.
+export const buscarReportes = (reportes: Reporte[], busqueda: string): Reporte[] => {
+  const termino = normalizarTexto(busqueda.trim());
+  return reportes.filter((reporte) =>
+    [reporte.sector, reporte.nombre, reporte.categoria].some((campo) =>
+      normalizarTexto(campo).includes(termino),
+    ),
+  );
+};

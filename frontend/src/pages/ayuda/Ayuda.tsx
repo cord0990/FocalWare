@@ -25,6 +25,7 @@ import {
 } from 'ionicons/icons';
 import AppLayout from '../../components/layout/AppLayout';
 import { RUTAS } from '../../routes/rutas';
+import { normalizarTexto } from '../../utils/texto';
 import './Ayuda.css';
 
 const SECCIONES = [
@@ -144,11 +145,6 @@ const EQUIPO = [
 
 const TECNOLOGIAS = ['Ionic', 'React', 'TypeScript', 'Node.js', 'PostgreSQL', 'Leaflet'];
 
-const normalizar = (texto: string) =>
-  texto
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase();
 
 const irASeccion = (clave: SeccionAyuda) =>
   document.getElementById(`seccion-${clave}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -168,9 +164,9 @@ const Ayuda: React.FC = () => {
     return () => clearTimeout(espera);
   }, [seccion]);
 
-  const termino = normalizar(busqueda.trim());
+  const termino = normalizarTexto(busqueda.trim());
   const preguntasFiltradas = PREGUNTAS.filter((item) =>
-    normalizar(`${item.pregunta} ${item.respuesta}`).includes(termino),
+    normalizarTexto(`${item.pregunta} ${item.respuesta}`).includes(termino),
   );
 
   const claseSeccion = (clave: SeccionAyuda) =>

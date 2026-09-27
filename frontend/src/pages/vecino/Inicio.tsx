@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { IonBadge, IonButton, IonIcon, IonSearchbar, IonSpinner } from '@ionic/react';
 import { funnelOutline, refreshOutline } from 'ionicons/icons';
 import AppLayout from '../../components/layout/AppLayout';
@@ -11,18 +12,12 @@ import { useAnchoRedimensionable } from '../../hooks/useAnchoRedimensionable';
 import { obtenerReportes, type Reporte } from '../../services/reportesService';
 import {
   aplicarFiltros,
+  buscarReportes,
   FILTROS_INICIALES,
   listarFiltrosActivos,
   type FiltrosReportes,
 } from '../../utils/filtrosReportes';
 import './Inicio.css';
-
-// Quita tildes y mayúsculas para que "valparaíso" y "Valparaiso" coincidan.
-const normalizar = (texto: string) =>
-  texto
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase();
 
 const valoresUnicos = (valores: string[]) =>
   [...new Set(valores)].sort((a, b) => a.localeCompare(b));
@@ -51,12 +46,27 @@ const Inicio: React.FC = () => {
     cargarReportes();
   }, []);
 
-  const termino = normalizar(busqueda.trim());
-  const reportesFiltrados = aplicarFiltros(reportes, filtros).filter((reporte) =>
-    [reporte.sector, reporte.nombre, reporte.categoria].some((campo) =>
-      normalizar(campo).includes(termino),
-    ),
-  );
+  // Desde "Mis reportes" se llega con /inicio?reporte=ID para ver ese reporte en el mapa.
+  const { search } = useLocation();
+  const reporteSolicitado = new URLSearchParams(search).get('reporte');
+
+  useEffect(() => {
+    if (!reporteSolicitado || cargando) return;
+    setBusqueda('');
+    setFiltros(FILTROS_INICIALES);
+    setSeleccionadoId(reporteSolicitado);
+    // Espera a que termine la animación de entrada antes de desplazar la lista.
+    const espera = setTimeout(
+      () =>
+        document
+          .getElementById(`reporte-${reporteSolicitado}`)
+          ?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }),
+      400,
+    );
+    return () => clearTimeout(espera);
+  }, [reporteSolicitado, cargando]);
+
+  const reportesFiltrados = buscarReportes(aplicarFiltros(reportes, filtros), busqueda);
   const seleccionado = reportesFiltrados.find((reporte) => reporte.id === seleccionadoId);
   const listaFiltrosActivos = listarFiltrosActivos(filtros);
   const filtrosActivos = listaFiltrosActivos.length;
