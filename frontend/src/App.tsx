@@ -7,7 +7,9 @@ import RecuperarContrasena from './pages/public/RecuperarContrasena';
 import Inicio from './pages/vecino/Inicio';
 import MisReportes from './pages/vecino/MisReportes';
 import Perfil from './pages/perfil/Perfil';
-import EnConstruccion from './pages/vecino/EnConstruccion';
+import CrearReporte from './pages/vecino/CrearReporte';
+import DetalleReporte from './pages/vecino/DetalleReporte';
+import EditarReporte from './pages/vecino/EditarReporte';
 import Ayuda from './pages/ayuda/Ayuda';
 import MenuProvider from './context/MenuProvider';
 import MenuCuenta from './components/layout/MenuCuenta';
@@ -58,7 +60,9 @@ const App: React.FC = () => (
           <Route path={RUTAS.recuperar} element={<RecuperarContrasena />} />
           <Route path={RUTAS.inicio} element={<Inicio />} />
           <Route path={RUTAS.misReportes} element={<MisReportes />} />
-          <Route path={RUTAS.crearReporte} element={<EnConstruccion titulo="Crear reporte" />} />
+          <Route path={RUTAS.crearReporte} element={<CrearReporte />} />
+          <Route path={RUTAS.detalleReporte} element={<DetalleReporte />} />
+          <Route path={RUTAS.editarReporte} element={<EditarReporte />} />
           <Route path={RUTAS.perfil} element={<Perfil />} />
           <Route path={RUTAS.ayuda} element={<Ayuda />} />
           <Route path="/" element={<Navigate to={RUTAS.login} replace />} />

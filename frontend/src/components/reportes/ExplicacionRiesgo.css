@@ -1,0 +1,217 @@
+/* Botón "?" en la esquina superior derecha de las tarjetas de riesgo */
+.boton-ayuda-riesgo {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+  color: inherit;
+  font-size: 1.6rem;
+  cursor: pointer;
+}
+
+.boton-ayuda-riesgo:hover {
+  background: rgba(255, 255, 255, 0.38);
+}
+
+.modal-explicacion {
+  --width: min(1040px, calc(100% - 32px));
+  --height: min(700px, calc(100% - 32px));
+  --border-radius: 24px;
+  --backdrop-opacity: 0.6;
+}
+
+.explicacion-contenido {
+  --background: #fff;
+}
+
+.explicacion {
+  padding: 26px 34px 30px;
+  color: #1f1f1f;
+}
+
+/* PC: factores a la izquierda; clima y resultado a la derecha */
+.explicacion-columnas {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 36px;
+}
+
+.explicacion-columna-derecha {
+  display: flex;
+  flex-direction: column;
+}
+
+.explicacion-encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.explicacion-encabezado h2 {
+  margin: 0;
+  font-size: 1.7rem;
+  font-weight: 600;
+}
+
+.explicacion-encabezado ion-button {
+  --color: #1f1f1f;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+}
+
+.explicacion h3 {
+  margin: 24px 0 14px;
+  color: #e0283a;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.explicacion-formula {
+  margin: 12px 0 8px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: #f4efdc;
+  font-family: ui-monospace, 'Cascadia Code', monospace;
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+
+.explicacion-texto,
+.explicacion-nota {
+  margin: 0;
+  color: #4a3d3d;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.explicacion-factores,
+.explicacion-clima {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.explicacion-factores li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 130px 66px;
+  align-items: center;
+  gap: 16px;
+  font-size: 1.05rem;
+}
+
+.explicacion-factor-texto {
+  display: flex;
+  flex-direction: column;
+}
+
+.explicacion-factor-texto span {
+  color: #6b5a5a;
+  font-size: 0.88rem;
+}
+
+.explicacion-barra {
+  height: 10px;
+  border-radius: 5px;
+  background: #ecdfdf;
+  overflow: hidden;
+}
+
+.explicacion-barra span {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: #e0283a;
+}
+
+.explicacion-factores b {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.explicacion-subtotal {
+  margin: 14px 0 0;
+  font-size: 1.05rem;
+  padding-top: 10px;
+  border-top: 1px solid #eadfdf;
+  text-align: right;
+}
+
+.explicacion-clima li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #6b5a5a;
+  font-size: 1.05rem;
+}
+
+.explicacion-clima ion-icon {
+  font-size: 1.3rem;
+}
+
+.explicacion-clima li.cumple {
+  color: #1f1f1f;
+  font-weight: 600;
+}
+
+.explicacion-clima li.cumple ion-icon {
+  color: #e0283a;
+}
+
+.explicacion-resultado {
+  margin: 26px 0 16px;
+  padding: 22px 18px;
+  border-radius: 16px;
+  background: #ecdfdf;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.explicacion-resultado b {
+  margin: 0 4px;
+  font-size: 2.2rem;
+  vertical-align: middle;
+}
+
+.explicacion-resultado-nivel {
+  display: block;
+  margin-top: 6px;
+  font-weight: 700;
+}
+
+.explicacion-nota {
+  margin-top: 18px;
+  font-size: 0.88rem;
+}
+
+@media (max-width: 860px) {
+  .explicacion-columnas {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .explicacion {
+    padding: 16px;
+  }
+
+  .explicacion-factores li {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .explicacion-barra {
+    display: none;
+  }
+}
