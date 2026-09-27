@@ -1,13 +1,53 @@
 /* Escritorio: barra y mapa a la izquierda, lista de reportes a la derecha */
 .inicio {
+  /* Ancho por defecto de la lista: 30 % de la pantalla, entre 380 y 560 px.
+     Si el usuario arrastra el divisor, se usa --ancho-lista (nunca más del 60 %). */
+  --ancho-lista-defecto: clamp(380px, 30vw, 560px);
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 380px;
+  grid-template-columns: minmax(0, 1fr) 16px min(var(--ancho-lista, var(--ancho-lista-defecto)), 60%);
   grid-template-rows: auto minmax(0, 1fr);
   grid-template-areas:
-    'barra lista'
-    'mapa lista';
-  gap: 12px 20px;
+    'barra divisor lista'
+    'mapa divisor lista';
+  gap: 12px 6px;
   height: 100%;
+}
+
+.inicio.arrastrando {
+  cursor: col-resize;
+  user-select: none;
+}
+
+.inicio-divisor {
+  grid-area: divisor;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.inicio-divisor span {
+  width: 6px;
+  height: 56px;
+  border-radius: 3px;
+  background: #d9b8b8;
+  transition:
+    background 0.15s ease,
+    height 0.15s ease;
+}
+
+.inicio-divisor:hover span,
+.inicio-divisor:focus-visible span,
+.inicio.arrastrando .inicio-divisor span {
+  height: 96px;
+  background: #e0283a;
+}
+
+.inicio-divisor:focus-visible {
+  outline: 2px solid #e0283a;
+  outline-offset: 2px;
 }
 
 .inicio-barra {
@@ -42,23 +82,43 @@
 
 .inicio-lista {
   grid-area: lista;
+  /* Las tarjetas cambian su diseño según el ancho de la lista (ver TarjetaReporte.css) */
+  container: lista-reportes / inline-size;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   min-height: 0;
   padding-right: 6px;
   overflow-y: auto;
 }
 
 .inicio-conteo {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
   margin: 0;
+  padding: 10px 16px;
+  border-left: 5px solid #e0283a;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(70, 62, 62, 0.1);
   color: #5a4545;
-  font-size: 0.9rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.inicio-conteo strong {
+  color: #e0283a;
+  font-size: 1.6rem;
+  line-height: 1;
 }
 
 @media (max-width: 1100px) {
   .inicio {
-    grid-template-columns: minmax(0, 1fr) 320px;
+    --ancho-lista-defecto: 340px;
   }
 }
 
@@ -72,6 +132,10 @@
       'mapa'
       'lista';
     height: auto;
+  }
+
+  .inicio-divisor {
+    display: none;
   }
 
   .inicio-mapa {

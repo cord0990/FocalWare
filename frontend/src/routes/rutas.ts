@@ -6,4 +6,5 @@ export const RUTAS = {
   misReportes: '/mis-reportes',
   crearReporte: '/crear-reporte',
   perfil: '/perfil',
+  ayuda: '/ayuda',
 } as const;

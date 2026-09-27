@@ -9,7 +9,10 @@
   display: flex;
   align-items: center;
   gap: 20px;
+  width: fit-content;
   color: #fff;
+  text-decoration: none;
+  cursor: pointer;
   font-size: 2.2rem;
   font-weight: 500;
   letter-spacing: 0.12em;
@@ -82,11 +85,6 @@
   --background: #fdeeee;
 }
 
-.app-cuerpo {
-  display: flex;
-  height: 100%;
-}
-
 .app-principal {
   flex: 1;
   min-width: 0;
@@ -95,47 +93,80 @@
   color: #1f1f1f;
 }
 
-.menu-lateral {
+.app-cuerpo {
+  /* Ancho por defecto del menú: crece con la pantalla entre 220 y 300 px.
+     Si el usuario arrastra el borde, se usa --ancho-menu. */
+  --ancho-menu-defecto: clamp(220px, 16vw, 300px);
   display: flex;
+  height: 100%;
+}
+
+.app-cuerpo.arrastrando {
+  cursor: col-resize;
+  user-select: none;
+}
+
+.menu-lateral {
+  /* Los botones cambian de tamaño según el ancho del menú (ver @container más abajo) */
+  container: menu-lateral / inline-size;
+  display: flex;
+  flex-shrink: 0;
   flex-direction: column;
-  gap: 12px;
-  width: 220px;
-  padding: 16px 12px;
+  width: var(--ancho-menu, var(--ancho-menu-defecto));
+  padding: 16px 14px;
   background: #e3d6d6;
   transition: width 0.2s ease;
 }
 
+/* Mientras se arrastra no hay animación, para que el menú siga al mouse sin retraso */
+.app-cuerpo.arrastrando .menu-lateral {
+  transition: none;
+}
+
 .menu-lateral.colapsado {
-  width: 76px;
+  width: 84px;
 }
 
 .menu-alternar {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   margin-left: auto;
   border: 0;
-  border-radius: 10px;
+  border-radius: 12px;
   background: transparent;
   color: #5a4545;
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   cursor: pointer;
+}
+
+.menu-alternar:hover {
+  background: rgba(139, 107, 107, 0.15);
 }
 
 .menu-lateral.colapsado .menu-alternar {
   margin: 0 auto;
 }
 
+/* Las opciones quedan centradas en el alto del menú */
+.menu-opciones {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: auto 0;
+  padding-bottom: 48px;
+}
+
 .menu-opcion {
   display: flex;
   align-items: center;
   gap: 12px;
-  min-height: 48px;
-  padding: 0 14px;
+  min-height: 52px;
+  padding: 0 16px;
   border: 2px solid transparent;
-  border-radius: 24px;
+  border-radius: 26px;
   background: #8b6b6b;
   color: #fff;
   font-size: 1rem;
@@ -143,6 +174,14 @@
   text-decoration: none;
   white-space: nowrap;
   overflow: hidden;
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+
+.menu-opcion:hover {
+  background: #7a5c5c;
+  transform: translateX(3px);
 }
 
 .menu-opcion ion-icon {
@@ -165,8 +204,83 @@
   padding: 0;
 }
 
+.menu-lateral.colapsado .menu-opcion:hover {
+  transform: none;
+}
+
 .menu-lateral.colapsado .menu-texto {
   display: none;
+}
+
+/* Menú ancho: botones más grandes */
+@container menu-lateral (min-width: 250px) {
+  .menu-opcion {
+    gap: 14px;
+    min-height: 60px;
+    padding: 0 20px;
+    border-radius: 30px;
+    font-size: 1.1rem;
+  }
+
+  .menu-opcion ion-icon {
+    font-size: 1.7rem;
+  }
+}
+
+@container menu-lateral (min-width: 310px) {
+  .menu-opciones {
+    gap: 16px;
+  }
+
+  .menu-opcion {
+    gap: 16px;
+    min-height: 68px;
+    padding: 0 24px;
+    border-radius: 34px;
+    font-size: 1.2rem;
+  }
+
+  .menu-opcion ion-icon {
+    font-size: 1.9rem;
+  }
+}
+
+/* Borde del menú que se arrastra para cambiar su ancho */
+.app-divisor {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  width: 8px;
+  margin-left: -4px;
+  margin-right: -4px;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.app-divisor::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 2px;
+  width: 4px;
+  height: 56px;
+  border-radius: 2px;
+  background: #c9b0b0;
+  transform: translateY(-50%);
+  transition:
+    background 0.15s ease,
+    height 0.15s ease;
+}
+
+.app-divisor:hover::after,
+.app-divisor:focus-visible::after,
+.app-cuerpo.arrastrando .app-divisor::after {
+  height: 96px;
+  background: #e0283a;
+}
+
+.app-divisor:focus-visible {
+  outline: none;
 }
 
 /* Celular: el menú pasa a ser una barra inferior */
@@ -219,8 +333,14 @@
     box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.12);
   }
 
-  .menu-alternar {
+  .menu-alternar,
+  .app-divisor {
     display: none;
+  }
+
+  /* Las opciones pasan a ser parte directa de la barra inferior */
+  .menu-opciones {
+    display: contents;
   }
 
   .menu-opcion,
@@ -233,6 +353,7 @@
     padding: 4px;
     border-radius: 12px;
     font-size: 0.7rem;
+    transform: none;
     white-space: normal;
     text-align: center;
     line-height: 1.1;

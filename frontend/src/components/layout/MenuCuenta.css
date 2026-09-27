@@ -1,0 +1,215 @@
+.menu-cuenta {
+  --width: 380px;
+  --max-width: 100%;
+  --backdrop-opacity: 0.55;
+}
+
+.cuenta-contenido {
+  --background: #463e3e;
+  --padding-top: 16px;
+  --padding-bottom: 24px;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  color: #1f1f1f;
+}
+
+.cuenta-saludo,
+.cuenta-opcion,
+.cuenta-cerrar-sesion {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.cuenta-saludo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 18px;
+  border: 0;
+  border-radius: 22px;
+  background: #f4efdc;
+  color: #1f1f1f;
+  text-align: left;
+}
+
+.cuenta-avatar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #2b2b2b;
+  color: #fff;
+  font-weight: 600;
+}
+
+.cuenta-saludo-texto {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cuenta-saludo-texto strong {
+  font-size: 1.2rem;
+}
+
+.cuenta-saludo-texto small {
+  color: #5a4545;
+  font-size: 0.85rem;
+}
+
+.cuenta-seccion {
+  margin: 22px 6px 8px;
+  color: #f4efdc;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.cuenta-impacto {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.cuenta-impacto div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 14px 6px;
+  border-radius: 16px;
+  background: #f4efdc;
+  text-align: center;
+}
+
+.cuenta-impacto strong {
+  color: #e0283a;
+  font-size: 1.5rem;
+}
+
+.cuenta-impacto span {
+  color: #5a4545;
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
+.cuenta-grupo {
+  overflow: hidden;
+  border-radius: 22px;
+  background: #f4efdc;
+}
+
+.cuenta-grupo ion-menu-toggle + ion-menu-toggle .cuenta-opcion {
+  border-top: 1px solid #ddd3bd;
+}
+
+.cuenta-opcion {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 64px;
+  padding: 10px 16px;
+  border: 0;
+  background: transparent;
+  color: #1f1f1f;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+.cuenta-opcion:hover,
+.cuenta-saludo:hover {
+  background: #ece5cc;
+}
+
+.cuenta-opcion-icono {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #2b2b2b;
+  color: #fff;
+  font-size: 1.2rem;
+}
+
+.cuenta-opcion-texto {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.cuenta-opcion-texto small {
+  color: #8a5a00;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.cuenta-flecha {
+  flex-shrink: 0;
+  color: #5a4545;
+  font-size: 1.1rem;
+}
+
+.cuenta-contador {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 14px;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.cuenta-contador.rojo {
+  background: #e0283a;
+}
+
+.cuenta-contador.cafe {
+  background: #8a5a00;
+}
+
+.cuenta-cerrar-sesion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 52px;
+  margin-top: 24px;
+  border: 2px solid #f4efdc;
+  border-radius: 16px;
+  background: transparent;
+  color: #f4efdc;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.cuenta-cerrar-sesion:hover {
+  background: rgba(244, 239, 220, 0.12);
+}
+
+/* En PC el menú es más ancho y deja un margen a la derecha */
+@media (min-width: 768px) {
+  .menu-cuenta {
+    --width: 460px;
+  }
+
+  .cuenta-contenido {
+    --padding-start: 24px;
+    --padding-end: 32px;
+    --padding-top: 24px;
+  }
+}
