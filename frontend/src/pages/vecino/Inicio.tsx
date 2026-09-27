@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { IonBadge, IonButton, IonIcon, IonSearchbar, IonSpinner } from '@ionic/react';
 import { funnelOutline, refreshOutline } from 'ionicons/icons';
 import AppLayout from '../../components/layout/AppLayout';
@@ -7,21 +8,16 @@ import FiltrosReportesModal from '../../components/reportes/FiltrosReportesModal
 import MapaReportes from '../../components/reportes/MapaReportes';
 import SinResultados from '../../components/reportes/SinResultados';
 import TarjetaReporte from '../../components/reportes/TarjetaReporte';
+import { useAnchoRedimensionable } from '../../hooks/useAnchoRedimensionable';
 import { obtenerReportes, type Reporte } from '../../services/reportesService';
 import {
   aplicarFiltros,
+  buscarReportes,
   FILTROS_INICIALES,
   listarFiltrosActivos,
   type FiltrosReportes,
 } from '../../utils/filtrosReportes';
 import './Inicio.css';
-
-// Quita tildes y mayúsculas para que "valparaíso" y "Valparaiso" coincidan.
-const normalizar = (texto: string) =>
-  texto
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase();
 
 const valoresUnicos = (valores: string[]) =>
   [...new Set(valores)].sort((a, b) => a.localeCompare(b));
@@ -34,6 +30,11 @@ const Inicio: React.FC = () => {
   const [filtrosAbiertos, setFiltrosAbiertos] = useState(false);
   const [seleccionadoId, setSeleccionadoId] = useState<string>();
   const [votados, setVotados] = useState<Set<string>>(new Set());
+  const divisor = useAnchoRedimensionable({
+    clave: 'focalware-ancho-lista',
+    minimo: 320,
+    maximoProporcion: 0.6,
+  });
 
   const cargarReportes = async () => {
     setCargando(true);
@@ -45,12 +46,27 @@ const Inicio: React.FC = () => {
     cargarReportes();
   }, []);
 
-  const termino = normalizar(busqueda.trim());
-  const reportesFiltrados = aplicarFiltros(reportes, filtros).filter((reporte) =>
-    [reporte.sector, reporte.nombre, reporte.categoria].some((campo) =>
-      normalizar(campo).includes(termino),
-    ),
-  );
+  // Desde "Mis reportes" se llega con /inicio?reporte=ID para ver ese reporte en el mapa.
+  const { search } = useLocation();
+  const reporteSolicitado = new URLSearchParams(search).get('reporte');
+
+  useEffect(() => {
+    if (!reporteSolicitado || cargando) return;
+    setBusqueda('');
+    setFiltros(FILTROS_INICIALES);
+    setSeleccionadoId(reporteSolicitado);
+    // Espera a que termine la animación de entrada antes de desplazar la lista.
+    const espera = setTimeout(
+      () =>
+        document
+          .getElementById(`reporte-${reporteSolicitado}`)
+          ?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }),
+      400,
+    );
+    return () => clearTimeout(espera);
+  }, [reporteSolicitado, cargando]);
+
+  const reportesFiltrados = buscarReportes(aplicarFiltros(reportes, filtros), busqueda);
   const seleccionado = reportesFiltrados.find((reporte) => reporte.id === seleccionadoId);
   const listaFiltrosActivos = listarFiltrosActivos(filtros);
   const filtrosActivos = listaFiltrosActivos.length;
@@ -77,7 +93,13 @@ const Inicio: React.FC = () => {
 
   return (
     <AppLayout>
-      <div className="inicio">
+      <div
+        ref={divisor.contenedor}
+        className={divisor.arrastrando ? 'inicio arrastrando' : 'inicio'}
+        style={
+          divisor.ancho ? ({ '--ancho-lista': `${divisor.ancho}px` } as React.CSSProperties) : undefined
+        }
+      >
         <div className="inicio-barra">
           <IonButton
             fill="clear"
@@ -120,11 +142,32 @@ const Inicio: React.FC = () => {
           />
         </section>
 
-        <section className="inicio-lista" aria-label="Lista de reportes">
-          <p className="inicio-conteo">
-            {cargando
-              ? 'Cargando reportes...'
-              : `${reportesFiltrados.length} reporte${reportesFiltrados.length === 1 ? '' : 's'}`}
+        {/* Solo se muestra en PC: se arrastra para cambiar el ancho de la lista */}
+        <div
+          className="inicio-divisor"
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="Cambiar el ancho de la lista de reportes"
+          tabIndex={0}
+          title="Arrastra para cambiar el ancho. Doble clic para restablecer."
+          onPointerDown={divisor.alPresionar}
+          onKeyDown={divisor.alTeclado}
+          onDoubleClick={divisor.restablecer}
+        >
+          <span aria-hidden="true" />
+        </div>
+
+        <section ref={divisor.panel} className="inicio-lista" aria-label="Lista de reportes">
+          <p className="inicio-conteo" aria-live="polite">
+            {cargando ? (
+              'Cargando reportes...'
+            ) : (
+              <>
+                <strong>{reportesFiltrados.length}</strong>
+                {reportesFiltrados.length === 1 ? 'reporte' : 'reportes'}
+                {busqueda.trim() || filtrosActivos > 0 ? ' encontrados' : ' en el mapa'}
+              </>
+            )}
           </p>
 
           <FiltrosActivos activos={listaFiltrosActivos} onCambiar={setFiltros} />

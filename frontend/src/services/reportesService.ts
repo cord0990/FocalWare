@@ -16,6 +16,8 @@ export interface Reporte {
   latitud: number;
   longitud: number;
   imagen?: string;
+  // Recién enviado: el sistema todavía no calcula su índice de riesgo.
+  riesgoEnCalculo?: boolean;
 }
 
 const REPORTES_PRUEBA: Reporte[] = [
@@ -132,4 +134,66 @@ const REPORTES_PRUEBA: Reporte[] = [
 export const obtenerReportes = (): Promise<Reporte[]> =>
   new Promise((resolver) =>
     setTimeout(() => resolver([...REPORTES_PRUEBA]), 500),
+  );
+
+// Reportes creados por el usuario de prueba (ver usuarioService).
+const IDS_MIS_REPORTES = ['R-001', 'R-003', 'R-004', 'R-006', 'R-008', 'R-009'];
+
+// Reportes que el usuario envió desde "Pendientes de envío". Se guardan en el navegador
+// para que sigan apareciendo al recargar la página.
+const CLAVE_ENVIADOS = 'focalware-reportes-enviados';
+let enviadosEnMemoria: Reporte[] | null = null;
+
+const leerEnviados = (): Reporte[] => {
+  if (enviadosEnMemoria) return enviadosEnMemoria;
+  try {
+    enviadosEnMemoria = JSON.parse(localStorage.getItem(CLAVE_ENVIADOS) ?? '[]');
+  } catch {
+    enviadosEnMemoria = [];
+  }
+  return enviadosEnMemoria ?? [];
+};
+
+const hoy = () => {
+  const fecha = new Date();
+  const dosDigitos = (numero: number) => String(numero).padStart(2, '0');
+  return `${fecha.getFullYear()}-${dosDigitos(fecha.getMonth() + 1)}-${dosDigitos(fecha.getDate())}`;
+};
+
+export interface DatosReporteEnviado {
+  id: string;
+  nombre: string;
+  sector: string;
+  categoria: string;
+  latitud: number;
+  longitud: number;
+}
+
+export const registrarReportesEnviados = (enviados: DatosReporteEnviado[]) => {
+  const nuevos: Reporte[] = enviados.map((datos) => ({
+    ...datos,
+    estado: 'Pendiente',
+    fecha: hoy(),
+    riesgo: 0,
+    riesgoEnCalculo: true,
+    votos: 0,
+  }));
+  enviadosEnMemoria = [...nuevos, ...leerEnviados()];
+  try {
+    localStorage.setItem(CLAVE_ENVIADOS, JSON.stringify(enviadosEnMemoria));
+  } catch {
+    // Sin almacenamiento local se ven solo mientras la app esté abierta.
+  }
+};
+
+export const obtenerMisReportes = (): Promise<Reporte[]> =>
+  new Promise((resolver) =>
+    setTimeout(
+      () =>
+        resolver([
+          ...leerEnviados(),
+          ...REPORTES_PRUEBA.filter((reporte) => IDS_MIS_REPORTES.includes(reporte.id)),
+        ]),
+      500,
+    ),
   );

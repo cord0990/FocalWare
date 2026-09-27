@@ -1,0 +1,366 @@
+.mis-reportes {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  /* Ocupa todo el alto disponible y hasta 1680 px de ancho, centrado */
+  max-width: 1680px;
+  min-height: 100%;
+  margin: 0 auto;
+  padding-bottom: 16px;
+}
+
+/* Encabezado de la página */
+.mis-reportes-encabezado {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
+
+.mis-reportes-volver {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: #2b2b2b;
+  color: #fff;
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+.mis-reportes-icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #e8283f, #f7924f);
+  color: #fff;
+  font-size: 1.7rem;
+}
+
+.mis-reportes-titulo {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+.mis-reportes-titulo h1 {
+  margin: 0;
+  font-size: 1.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.mis-reportes-titulo p {
+  margin: 2px 0 0;
+  color: #6b5a5a;
+  font-size: 0.95rem;
+}
+
+.mis-reportes-nuevo {
+  --background: #e0283a;
+  --background-hover: #c81f33;
+  --border-radius: 14px;
+  --box-shadow: none;
+  min-height: 48px;
+  margin: 0;
+  font-weight: 700;
+  text-transform: none;
+}
+
+/* Reportes pendientes de envío */
+.pendientes {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 2px solid #f4a3a3;
+  border-radius: 22px;
+  background: #fff6f4;
+}
+
+.pendientes.sin-conexion {
+  border-color: #e0a860;
+  background: #fff8ec;
+}
+
+.pendientes-aviso {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
+
+.pendientes-aviso-icono {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #e0283a;
+  color: #fff;
+  font-size: 1.5rem;
+}
+
+.sin-conexion .pendientes-aviso-icono {
+  background: #8a5a00;
+}
+
+.pendientes-aviso-texto {
+  display: flex;
+  flex: 1 1 240px;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.pendientes-aviso-texto strong {
+  color: #c81f33;
+  font-size: 1.1rem;
+}
+
+.sin-conexion .pendientes-aviso-texto strong {
+  color: #8a5a00;
+}
+
+.pendientes-aviso-texto span {
+  color: #5a4545;
+  font-size: 0.9rem;
+}
+
+.pendientes-reintentar {
+  --background: #e0283a;
+  --background-hover: #c81f33;
+  --border-radius: 12px;
+  --box-shadow: none;
+  min-width: 140px;
+  min-height: 46px;
+  margin: 0;
+  font-weight: 700;
+  text-transform: none;
+}
+
+.pendientes-lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+  gap: 10px;
+}
+
+/* Panel con los reportes enviados */
+.mis-reportes-panel {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  border-radius: 26px;
+  background: #ecdfdf;
+}
+
+.mis-reportes-estados {
+  display: flex;
+  justify-content: safe center;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.estado-pestana {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 2px solid transparent;
+  border-radius: 22px;
+  background: #fff;
+  color: #1f1f1f;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.estado-pestana span {
+  min-width: 24px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: #f1e8e8;
+  color: var(--color-estado);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.estado-pestana.activa {
+  border-color: var(--color-estado);
+  background: var(--color-estado);
+  color: #fff;
+}
+
+.estado-pestana.activa span {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+}
+
+.mis-reportes-barra {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.mis-reportes-filtro {
+  --border-color: #e0283a;
+  --border-width: 2px;
+  --border-radius: 26px;
+  --color: #e0283a;
+  --background-hover: #fdeeee;
+  --padding-start: 20px;
+  --padding-end: 20px;
+  position: relative;
+  flex-shrink: 0;
+  min-height: 52px;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: none;
+}
+
+.mis-reportes-filtro ion-icon {
+  font-size: 1.4rem;
+}
+
+.mis-reportes-contador-filtros {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  --background: #e0283a;
+  --color: #fff;
+  font-size: 0.75rem;
+}
+
+.mis-reportes-buscador {
+  --background: #fff;
+  --border-radius: 26px;
+  --box-shadow: 0 0 0 2px #e0283a;
+  --color: #1f1f1f;
+  --placeholder-color: #8a8a8a;
+  --icon-color: #1f1f1f;
+  flex: 0 1 560px;
+  min-height: 52px;
+  padding: 0;
+}
+
+.mis-reportes-cargando {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 40px;
+  color: #5a4545;
+}
+
+/* Las tarjetas se acomodan en tantas columnas como quepan */
+.mis-reportes-grilla {
+  display: grid;
+  /* Máximo 3 columnas: cada tarjeta mide al menos un tercio del ancho (y nunca menos de 380 px) */
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, max(380px, calc((100% - 44px) / 3))), 1fr));
+  gap: 22px;
+}
+
+/* Cada celda es un contenedor para que la tarjeta ajuste su diseño a su propio ancho */
+.mis-reportes-celda {
+  container: lista-reportes / inline-size;
+}
+
+.mis-reportes-celda .tarjeta-reporte {
+  height: 100%;
+}
+
+/* PC: la página ocupa exactamente el alto de la pantalla y solo la grilla de reportes hace scroll */
+@media (min-width: 768px) {
+  .mis-reportes {
+    height: 100%;
+    min-height: 0;
+    padding-bottom: 0;
+  }
+
+  .mis-reportes-panel {
+    min-height: 0;
+  }
+
+  .mis-reportes-grilla {
+    flex: 1;
+    align-content: start;
+    min-height: 0;
+    padding: 4px 8px 8px 4px;
+    overflow-y: auto;
+  }
+
+  /* Si hay muchos pendientes, su lista hace scroll para no quitarle todo el espacio a la grilla */
+  .pendientes-lista {
+    max-height: 190px;
+    overflow-y: auto;
+  }
+
+  .mis-reportes-celda .tarjeta-reporte {
+    gap: 20px;
+    padding: 18px;
+  }
+
+  .mis-reportes-celda .tarjeta-imagen {
+    min-height: 250px;
+  }
+
+  .mis-reportes-celda .tarjeta-info {
+    gap: 10px;
+  }
+
+  .mis-reportes-celda .tarjeta-info h3 {
+    font-size: 1.25rem;
+  }
+
+  .mis-reportes-celda .tarjeta-sector {
+    font-size: 0.95rem;
+  }
+
+  .mis-reportes-celda .etiqueta {
+    padding: 5px 12px;
+    font-size: 0.88rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .mis-reportes-titulo h1 {
+    font-size: 1.4rem;
+  }
+
+  .mis-reportes-nuevo {
+    width: 100%;
+  }
+
+  .mis-reportes-panel {
+    padding: 14px;
+    border-radius: 20px;
+  }
+
+  .mis-reportes-buscador {
+    flex: 1 1 auto;
+  }
+
+  .mis-reportes-filtro {
+    --padding-start: 14px;
+    --padding-end: 14px;
+  }
+
+  .pendientes-reintentar {
+    width: 100%;
+  }
+}
