@@ -95,25 +95,63 @@
 .inicio-conteo {
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 2;
   display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin: 0;
-  padding: 10px 16px;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 16px;
   border-left: 5px solid #e0283a;
   border-radius: 12px;
   background: #fff;
   box-shadow: 0 2px 8px rgba(70, 62, 62, 0.1);
+}
+
+.inicio-conteo p {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
   color: #5a4545;
   font-size: 1rem;
   font-weight: 600;
 }
 
-.inicio-conteo strong {
+.inicio-conteo p strong {
   color: #e0283a;
   font-size: 1.6rem;
   line-height: 1;
+}
+
+/* Escala de colores del riesgo: de bajo a crítico */
+.inicio-escala {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.inicio-escala li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px 4px;
+  font-size: 0.72rem;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.inicio-escala li:first-child {
+  border-radius: 8px 0 0 8px;
+}
+
+.inicio-escala li:last-child {
+  border-radius: 0 8px 8px 0;
+}
+
+.inicio-escala strong {
+  font-size: 0.8rem;
 }
 
 @media (max-width: 1100px) {

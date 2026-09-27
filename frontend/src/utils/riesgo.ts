@@ -11,3 +11,10 @@ export type NivelRiesgo = (typeof NIVELES_RIESGO)[number];
 export const obtenerNivelRiesgo = (porcentaje: number): NivelRiesgo =>
   NIVELES_RIESGO.find((nivel) => porcentaje >= nivel.desde) ??
   NIVELES_RIESGO[NIVELES_RIESGO.length - 1];
+
+// Texto del rango de porcentajes de un nivel, por ejemplo "30-59%".
+export const rangoNivel = (nivel: NivelRiesgo): string => {
+  const indice = NIVELES_RIESGO.indexOf(nivel);
+  const hasta = indice === 0 ? 100 : NIVELES_RIESGO[indice - 1].desde - 1;
+  return `${nivel.desde}-${hasta}%`;
+};

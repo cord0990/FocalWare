@@ -1,15 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
 import { IonIcon } from '@ionic/react';
-import { layersOutline } from 'ionicons/icons';
+import { caretUp, flameOutline, imageOutline, layersOutline } from 'ionicons/icons';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { obtenerHistorial } from '../../services/historialService';
 import type { Reporte } from '../../services/reportesService';
+import CapaCalor from './CapaCalor';
 import { NIVELES_RIESGO, obtenerNivelRiesgo } from '../../utils/riesgo';
 import './MapaReportes.css';
 
 const CENTRO_VALPARAISO: [number, number] = [-33.045, -71.615];
 const CLAVE_ESTILO_MAPA = 'focalware-estilo-mapa';
+const CLAVE_MAPA_CALOR = 'focalware-mapa-calor';
+const HISTORIAL = obtenerHistorial();
 
 // Estilos de mapa disponibles. "Simple" muestra menos detalles para que resalten los reportes.
 const ESTILOS_MAPA = {
@@ -43,6 +47,22 @@ const guardarEstilo = (estilo: EstiloMapa) => {
   }
 };
 
+const leerCalorGuardado = () => {
+  try {
+    return localStorage.getItem(CLAVE_MAPA_CALOR) === 'si';
+  } catch {
+    return false;
+  }
+};
+
+const guardarCalor = (activo: boolean) => {
+  try {
+    localStorage.setItem(CLAVE_MAPA_CALOR, activo ? 'si' : 'no');
+  } catch {
+    // Si el navegador no permite guardar, el mapa funciona igual.
+  }
+};
+
 const crearIcono = (color: string) =>
   L.divIcon({
     className: 'marcador-reporte',
@@ -60,7 +80,11 @@ const AjustarTamano: React.FC = () => {
   const mapa = useMap();
 
   useEffect(() => {
-    const observador = new ResizeObserver(() => mapa.invalidateSize());
+    const observador = new ResizeObserver(() => {
+      // Si la pantalla está oculta el mapa mide 0 px; en ese caso no hay nada que recalcular.
+      const contenedor = mapa.getContainer();
+      if (contenedor.clientWidth > 0 && contenedor.clientHeight > 0) mapa.invalidateSize();
+    });
     observador.observe(mapa.getContainer());
     return () => observador.disconnect();
   }, [mapa]);
@@ -76,8 +100,12 @@ const EnfocarReporte: React.FC<{ reporte?: Reporte; marcadores: Map<string, L.Ma
 
   useEffect(() => {
     if (!reporte) return;
-    mapa.flyTo([reporte.latitud, reporte.longitud], Math.max(mapa.getZoom(), 15));
-    marcadores.get(reporte.id)?.openPopup();
+    // Se centra el mapa 120 px por encima del pin para que el globo (con su imagen) quepa arriba.
+    const zoom = Math.max(mapa.getZoom(), 15);
+    const punto = mapa.project([reporte.latitud, reporte.longitud], zoom).subtract([0, 120]);
+    mapa.flyTo(mapa.unproject(punto, zoom), zoom);
+    // El globo se abre al terminar el movimiento para que Leaflet lo acomode dentro del mapa.
+    mapa.once('moveend', () => marcadores.get(reporte.id)?.openPopup());
   }, [reporte, marcadores, mapa]);
 
   return null;
@@ -100,6 +128,12 @@ const MapaReportes: React.FC<MapaReportesProps> = ({ reportes, seleccionado, onS
     guardarEstilo(otroEstilo);
   };
 
+  const [calor, setCalor] = useState(leerCalorGuardado);
+  const alternarCalor = () => {
+    setCalor(!calor);
+    guardarCalor(!calor);
+  };
+
   return (
     <div className="mapa-reportes">
       <MapContainer center={CENTRO_VALPARAISO} zoom={13} className="mapa-contenedor">
@@ -110,6 +144,7 @@ const MapaReportes: React.FC<MapaReportesProps> = ({ reportes, seleccionado, onS
           url={capa.url}
         />
         <AjustarTamano />
+        {calor && <CapaCalor puntos={HISTORIAL} />}
         <EnfocarReporte reporte={seleccionado} marcadores={marcadores.current} />
 
         {reportes.map((reporte) => {
@@ -126,25 +161,68 @@ const MapaReportes: React.FC<MapaReportesProps> = ({ reportes, seleccionado, onS
                 else marcadores.current.delete(reporte.id);
               }}
             >
-              <Popup>
-                <strong>{reporte.nombre}</strong>
-                <br />
-                {reporte.sector} · Riesgo {nivel.etiqueta.toLowerCase()} ({reporte.riesgo}%)
+              <Popup className="popup-reporte" minWidth={240} maxWidth={260} autoPanPadding={[16, 16]}>
+                <div className="popup-imagen">
+                  {reporte.imagen ? (
+                    <img src={reporte.imagen} alt={reporte.nombre} />
+                  ) : (
+                    <>
+                      <IonIcon icon={imageOutline} aria-hidden="true" />
+                      <span>Sin fotografía</span>
+                    </>
+                  )}
+                </div>
+                <div className="popup-datos">
+                  <strong>{reporte.nombre}</strong>
+                  <span>
+                    {reporte.sector} · {reporte.categoria}
+                  </span>
+                  <div className="popup-fila">
+                    <span className="popup-riesgo" style={{ background: nivel.color, color: nivel.texto }}>
+                      Riesgo {nivel.etiqueta.toLowerCase()} {reporte.riesgo}%
+                    </span>
+                    <span className="popup-votos">
+                      <IonIcon icon={caretUp} aria-hidden="true" /> {reporte.votos}
+                    </span>
+                  </div>
+                </div>
               </Popup>
             </Marker>
           );
         })}
       </MapContainer>
 
-      <button
-        type="button"
-        className="mapa-boton-estilo"
-        onClick={cambiarEstilo}
-        title={`Cambiar a ${ESTILOS_MAPA[otroEstilo].nombre.toLowerCase()}`}
-      >
-        <IonIcon icon={layersOutline} aria-hidden="true" />
-        {ESTILOS_MAPA[otroEstilo].nombre}
-      </button>
+      <div className="mapa-controles">
+        <button
+          type="button"
+          className="mapa-boton-estilo"
+          onClick={cambiarEstilo}
+          title={`Cambiar a ${ESTILOS_MAPA[otroEstilo].nombre.toLowerCase()}`}
+        >
+          <IonIcon icon={layersOutline} aria-hidden="true" />
+          {ESTILOS_MAPA[otroEstilo].nombre}
+        </button>
+        <button
+          type="button"
+          className={calor ? 'mapa-boton-estilo activo' : 'mapa-boton-estilo'}
+          onClick={alternarCalor}
+          aria-pressed={calor}
+          title="Muestra las zonas con más reportes de los últimos 12 meses"
+        >
+          <IonIcon icon={flameOutline} aria-hidden="true" />
+          Mapa de calor
+        </button>
+        {calor && (
+          <div className="mapa-calor-leyenda">
+            <span>Concentración de reportes (12 meses)</span>
+            <div className="mapa-calor-barra" aria-hidden="true" />
+            <div className="mapa-calor-extremos">
+              <span>Baja</span>
+              <span>Alta</span>
+            </div>
+          </div>
+        )}
+      </div>
 
       <ul className="mapa-leyenda" aria-label="Niveles de riesgo">
         {NIVELES_RIESGO.map((nivel) => (

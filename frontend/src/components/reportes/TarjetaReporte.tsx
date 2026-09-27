@@ -1,5 +1,5 @@
 import { IonButton, IonIcon } from '@ionic/react';
-import { caretUp, imageOutline } from 'ionicons/icons';
+import { caretUp, imageOutline, locationOutline } from 'ionicons/icons';
 import type { Reporte } from '../../services/reportesService';
 import { ESTILO_ESTADO } from '../../utils/estados';
 import { formatearFecha } from '../../utils/fechas';
@@ -34,7 +34,14 @@ const TarjetaReporte: React.FC<TarjetaReporteProps> = ({
     <article
       id={`reporte-${reporte.id}`}
       className={seleccionada ? 'tarjeta-reporte seleccionada' : 'tarjeta-reporte'}
+      aria-current={seleccionada ? 'true' : undefined}
     >
+      {seleccionada && (
+        <span className="tarjeta-seleccionada-aviso">
+          <IonIcon icon={locationOutline} aria-hidden="true" />
+          Viendo en el mapa
+        </span>
+      )}
       <div className="tarjeta-imagen">
         {reporte.imagen ? (
           <img src={reporte.imagen} alt={reporte.nombre} />
