@@ -153,7 +153,6 @@ const EditarReporte: React.FC = () => {
 
   const errores = validarReporte({
     titulo,
-    tituloObligatorio: true,
     sector,
     ubicacion,
     categoria,

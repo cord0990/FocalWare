@@ -6,8 +6,6 @@ export const MAXIMO_TITULO = 80;
 
 interface DatosFormulario {
   titulo: string;
-  // Al crear, el título es opcional: si queda vacío se genera con la categoría y el sector.
-  tituloObligatorio: boolean;
   sector: string;
   ubicacion: unknown;
   categoria: string;
@@ -17,15 +15,15 @@ interface DatosFormulario {
   descripcion: string;
 }
 
-const validarTitulo = (titulo: string, obligatorio: boolean) => {
+const validarTitulo = (titulo: string) => {
   const largo = titulo.trim().length;
-  if (largo === 0) return obligatorio ? 'Escribe un título para el reporte.' : '';
+  if (largo === 0) return 'Escribe un título para el reporte.';
   return largo < MINIMO_TITULO ? `El título debe tener al menos ${MINIMO_TITULO} caracteres.` : '';
 };
 
 // Devuelve el mensaje de error de cada campo, o un texto vacío si está bien.
 export const validarReporte = (datos: DatosFormulario) => ({
-  titulo: validarTitulo(datos.titulo, datos.tituloObligatorio),
+  titulo: validarTitulo(datos.titulo),
   sector: datos.sector.trim().length < 3 ? 'Escribe el sector o la dirección aproximada.' : '',
   ubicacion: !datos.ubicacion ? 'Marca en el mapa dónde está el problema.' : '',
   categoria: !datos.categoria ? 'Elige una categoría.' : '',

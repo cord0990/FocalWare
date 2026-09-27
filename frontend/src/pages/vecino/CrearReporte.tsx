@@ -75,7 +75,6 @@ const CrearReporte: React.FC = () => {
 
   const errores = validarReporte({
     titulo,
-    tituloObligatorio: false,
     sector,
     ubicacion,
     categoria,
@@ -119,7 +118,7 @@ const CrearReporte: React.FC = () => {
     }
 
     const datos: DatosNuevoReporte = {
-      nombre: titulo.trim() || `${categoria} en ${sector.trim()}`,
+      nombre: titulo.trim(),
       sector: sector.trim(),
       categoria,
       volumen,
@@ -285,14 +284,10 @@ const CrearReporte: React.FC = () => {
           </button>
 
           <IonInput
-            label="Título del reporte (opcional)"
+            label="Título del reporte"
             labelPlacement="stacked"
             fill="outline"
-            placeholder={
-              categoria && sector.trim()
-                ? `Si lo dejas vacío: "${categoria} en ${sector.trim()}"`
-                : 'Ej: Basura acumulada en la escalera Fischer'
-            }
+            placeholder="Ej: Basura acumulada en la escalera Fischer"
             value={titulo}
             maxlength={MAXIMO_TITULO}
             counter
