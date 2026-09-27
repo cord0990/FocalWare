@@ -1,5 +1,6 @@
 /* Lista ancha: imagen grande a la izquierda y datos a la derecha */
 .tarjeta-reporte {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(130px, 40%) minmax(0, 1fr);
   gap: 16px;
@@ -7,11 +8,39 @@
   border: 3px solid #d9b8b8;
   border-radius: 22px;
   background: #e8dada;
-  transition: border-color 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
+/* Reporte seleccionado en el mapa: fondo blanco, borde rojo grueso, brillo y una etiqueta */
 .tarjeta-reporte.seleccionada {
+  margin-top: 14px;
+  border-width: 4px;
   border-color: #e0283a;
+  background: #fff;
+  box-shadow:
+    0 0 0 5px rgba(224, 40, 58, 0.18),
+    0 10px 24px rgba(224, 40, 58, 0.25);
+  transform: scale(1.01);
+}
+
+.tarjeta-seleccionada-aviso {
+  position: absolute;
+  top: -15px;
+  left: 18px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 14px;
+  background: #e0283a;
+  box-shadow: 0 3px 8px rgba(224, 40, 58, 0.35);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
 }
 
 .tarjeta-imagen {
@@ -103,19 +132,25 @@
   gap: 4px;
   min-width: 64px;
   min-height: 46px;
-  border: 2px solid #e8293f;
+  /* Amarillo dorado: color propio de los votos, distinto del rojo de riesgo y de Detalles */
+  border: 2px solid #d4a017;
   border-radius: 8px;
   background: #fff;
-  color: #e8293f;
+  color: #8a6400;
   font-family: inherit;
   font-size: 0.95rem;
   font-weight: 700;
   cursor: pointer;
 }
 
+.btn-voto:hover:not(:disabled) {
+  background: #fff6dc;
+}
+
 .btn-voto.votado {
-  background: #e8293f;
-  color: #fff;
+  border-color: #d4a017;
+  background: #e8b62c;
+  color: #3d2a00;
 }
 
 /* Lista angosta (o celular): la imagen pasa arriba y ocupa todo el ancho de la tarjeta */

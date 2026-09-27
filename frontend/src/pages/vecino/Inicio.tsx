@@ -9,6 +9,7 @@ import MapaReportes from '../../components/reportes/MapaReportes';
 import SinResultados from '../../components/reportes/SinResultados';
 import TarjetaReporte from '../../components/reportes/TarjetaReporte';
 import { useAnchoRedimensionable } from '../../hooks/useAnchoRedimensionable';
+import { NIVELES_RIESGO, rangoNivel } from '../../utils/riesgo';
 import { obtenerReportes, type Reporte } from '../../services/reportesService';
 import {
   aplicarFiltros,
@@ -60,7 +61,7 @@ const Inicio: React.FC = () => {
       () =>
         document
           .getElementById(`reporte-${reporteSolicitado}`)
-          ?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }),
+          ?.scrollIntoView({ behavior: 'smooth', block: 'center' }),
       400,
     );
     return () => clearTimeout(espera);
@@ -75,7 +76,7 @@ const Inicio: React.FC = () => {
     setSeleccionadoId(id);
     document
       .getElementById(`reporte-${id}`)
-      ?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
 
   const alternarVoto = (id: string) =>
@@ -158,17 +159,27 @@ const Inicio: React.FC = () => {
         </div>
 
         <section ref={divisor.panel} className="inicio-lista" aria-label="Lista de reportes">
-          <p className="inicio-conteo" aria-live="polite">
-            {cargando ? (
-              'Cargando reportes...'
-            ) : (
-              <>
-                <strong>{reportesFiltrados.length}</strong>
-                {reportesFiltrados.length === 1 ? 'reporte' : 'reportes'}
-                {busqueda.trim() || filtrosActivos > 0 ? ' encontrados' : ' en el mapa'}
-              </>
-            )}
-          </p>
+          <div className="inicio-conteo">
+            <p aria-live="polite">
+              {cargando ? (
+                'Cargando reportes...'
+              ) : (
+                <>
+                  <strong>{reportesFiltrados.length}</strong>
+                  {reportesFiltrados.length === 1 ? 'reporte' : 'reportes'}
+                  {busqueda.trim() || filtrosActivos > 0 ? ' encontrados' : ' en el mapa'}
+                </>
+              )}
+            </p>
+            <ul className="inicio-escala" aria-label="Escala de riesgo">
+              {[...NIVELES_RIESGO].reverse().map((nivel) => (
+                <li key={nivel.nivel} style={{ background: nivel.color, color: nivel.texto }}>
+                  <strong>{nivel.etiqueta}</strong>
+                  <span>{rangoNivel(nivel)}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
 
           <FiltrosActivos activos={listaFiltrosActivos} onCambiar={setFiltros} />
 
