@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import {
-  IonPage,
-  IonContent,
   IonSegment,
   IonSegmentButton,
   IonIcon,
@@ -11,12 +9,11 @@ import {
   mailOutline,
   mailUnreadOutline,
   settingsOutline,
-  informationCircleOutline,
-  logOutOutline
+  informationCircleOutline
 } from 'ionicons/icons';
 
 import AppLayout from '../../components/layout/AppLayout';
-import Notificaciones from './Notificaciones';
+import Notificaciones, { Notificacion } from './Notificaciones';
 import Configuracion from './Configuracion';
 import DetalleNotificacion from './DetalleNotificacion';
 import InformacionTab from './Informacion';
@@ -26,16 +23,16 @@ type TabPerfil = 'notificaciones' | 'configuracion' | 'info' | 'detalle';
 
 const Perfil: React.FC = () => {
   const [tabActiva, setTabActiva] = useState<TabPerfil>('notificaciones');
-  const [notificacionSeleccionadaId, setNotificacionSeleccionadaId] = useState<string | null>(null);
-  const [tieneNotificaciones, setTieneNotificaciones] = useState<boolean>(true);
+  const [notificacionSeleccionada, setNotificacionSeleccionada] = useState<Notificacion | null>(null);
+  const [tieneNotificaciones] = useState<boolean>(true);
 
-  const handleVerDetalle = (id: string) => {
-    setNotificacionSeleccionadaId(id);
+  const handleVerDetalle = (notif: Notificacion) => {
+    setNotificacionSeleccionada(notif);
     setTabActiva('detalle');
   };
 
   const handleCerrarSesion = () => {
-    // TODO: Lógica para cerrar sesión.
+    // TODO: Lógica para cerrar sesión
   };
 
   return (
@@ -83,7 +80,7 @@ const Perfil: React.FC = () => {
 
         {tabActiva === 'detalle' && (
           <DetalleNotificacion
-            notificacionId={notificacionSeleccionadaId}
+            notificacion={notificacionSeleccionada}
             onVolver={() => setTabActiva('notificaciones')}
           />
         )}

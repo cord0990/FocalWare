@@ -9,35 +9,44 @@ import {
 import { filterOutline, arrowForwardOutline } from 'ionicons/icons';
 import './Notificaciones.css';
 
-interface Notificacion {
+export interface Notificacion {
   id: string;
   reporteId: string;
   mensaje: string;
   estado: 'controlado' | 'aceptado' | 'rechazado';
+  fechaCreacion: string;
+  fechaAprobacion?: string;
+  fechaControl?: string;
 }
 
 interface Props {
-  onVerDetalles: (id: string) => void;
+  onVerDetalles: (notificacion: Notificacion) => void;
 }
 
-const MOCK_NOTIFICACIONES: Notificacion[] = [
+export const MOCK_NOTIFICACIONES: Notificacion[] = [
   {
-    id: '1',
-    reporteId: 'XXXX',
-    mensaje: '¡Tu reporte a sido controlado!, ¡Gracias por ayudar a la comunidad!',
-    estado: 'controlado'
+    id: 'notif-8f3a91b2',
+    reporteId: 'REP-2026-0482',
+    mensaje: '¡Tu reporte ha sido controlado!, ¡Gracias por ayudar a la comunidad!',
+    estado: 'controlado',
+    fechaCreacion: '12/03/2026',
+    fechaAprobacion: '14/03/2026',
+    fechaControl: '20/03/2026'
   },
   {
-    id: '2',
-    reporteId: 'XXXX',
-    mensaje: '¡Tu reporte a pasado a sido aceptado!',
-    estado: 'aceptado'
+    id: 'notif-4c1e78a9',
+    reporteId: 'REP-2026-0391',
+    mensaje: '¡Tu reporte ha sido aceptado!',
+    estado: 'aceptado',
+    fechaCreacion: '01/03/2026',
+    fechaAprobacion: '05/03/2026'
   },
   {
-    id: '3',
-    reporteId: 'XXXX',
-    mensaje: 'Tu reporte a sido rechazado :(.',
-    estado: 'rechazado'
+    id: 'notif-1b9d45e3',
+    reporteId: 'REP-2026-0215',
+    mensaje: 'Tu reporte ha sido rechazado.',
+    estado: 'rechazado',
+    fechaCreacion: '10/02/2026'
   }
 ];
 
@@ -75,18 +84,16 @@ const Notificaciones: React.FC<Props> = ({ onVerDetalles }) => {
               <div className="notificacion-body">
                 <p className="notificacion-mensaje">{notif.mensaje}</p>
 
-                {notif.estado === 'controlado' && (
-                  <div className="notificacion-accion">
-                    <IonButton
-                      fill="clear"
-                      className="btn-ver-detalles"
-                      onClick={() => onVerDetalles(notif.id)}
-                    >
-                      Ver detalles...
-                      <IonIcon icon={arrowForwardOutline} slot="end" />
-                    </IonButton>
-                  </div>
-                )}
+                <div className="notificacion-accion">
+                  <IonButton
+                    fill="clear"
+                    className="btn-ver-detalles"
+                    onClick={() => onVerDetalles(notif)}
+                  >
+                    Ver detalles...
+                    <IonIcon icon={arrowForwardOutline} slot="end" />
+                  </IonButton>
+                </div>
               </div>
             </IonCardContent>
           </IonCard>

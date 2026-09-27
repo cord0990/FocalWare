@@ -1,48 +1,114 @@
 import React from 'react';
-import {
-  IonButton,
-  IonIcon,
-  IonCard,
-  IonCardContent,
-  IonBadge
-} from '@ionic/react';
-import { arrowBackOutline, checkmarkCircleOutline } from 'ionicons/icons';
+import { IonIcon } from '@ionic/react';
+import { arrowBack, arrowForward } from 'ionicons/icons';
+import { Notificacion, MOCK_NOTIFICACIONES } from './Notificaciones';
 import './DetalleNotificacion.css';
 
 interface Props {
-  notificacionId: string | null;
+  notificacion?: Notificacion | null;
+  notificacionId?: string | null;
   onVolver: () => void;
+  onIrADetallesReporte?: () => void;
 }
 
-const DetalleNotificacion: React.FC<Props> = ({ notificacionId, onVolver }) => {
+const DetalleNotificacion: React.FC<Props> = ({
+  notificacion,
+  notificacionId,
+  onVolver,
+  onIrADetallesReporte
+}) => {
+  // Resolvemos la notificación activa ya sea desde la prop directa o buscándola por ID
+  const notifActiva =
+    notificacion ||
+    MOCK_NOTIFICACIONES.find((n) => n.id === notificacionId) ||
+    null;
+
+  if (!notifActiva) {
+    return (
+      <div className="detalle-notificacion-container">
+        <p>No se encontró información de la notificación.</p>
+        <button onClick={onVolver}>Volver</button>
+      </div>
+    );
+  }
+
+  const { estado, fechaCreacion, fechaAprobacion, fechaControl, reporteId } = notifActiva;
+
+  const esRechazado = estado === 'rechazado';
+  const esAceptado = estado === 'aceptado' || estado === 'controlado';
+  const esControlado = estado === 'controlado';
+
+  const getStepClass = (etapa: 'creacion' | 'aprobacion' | 'control') => {
+    if (etapa === 'creacion') return 'step-completado';
+
+    if (etapa === 'aprobacion') {
+      if (esRechazado) return 'step-rechazado';
+      if (esAceptado) return 'step-completado';
+      return 'step-pendiente';
+    }
+
+    if (etapa === 'control') {
+      if (esControlado) return 'step-actual';
+      return 'step-pendiente';
+    }
+
+    return '';
+  };
+
   return (
     <div className="detalle-notificacion-container">
-      <IonButton fill="clear" className="btn-volver" onClick={onVolver}>
-        <IonIcon icon={arrowBackOutline} slot="start" />
-        Volver a notificaciones
-      </IonButton>
+      <div className="tarjeta-detalle-custom">
+        <button className="btn-volver-link" onClick={onVolver}>
+          <span className="icon-circle">
+            <IonIcon icon={arrowBack} />
+          </span>
+          <span>Volver a notificaciones....</span>
+        </button>
 
-      <IonCard className="tarjeta-detalle">
-        <IonCardContent>
-          <div className="detalle-header">
-            <IonBadge color="success" className="badge-estado">
-              <IonIcon icon={checkmarkCircleOutline} />
-              Controlado
-            </IonBadge>
-            <span className="detalle-id">ID Reporte: {notificacionId || 'N/A'}</span>
+        <div className="detalle-header-row">
+          <div className="badge-reporte-id">
+            Reporte ID: {reporteId}
           </div>
+          <button className="btn-ir-reporte" onClick={onIrADetallesReporte}>
+            <span>Ir a detalles del reporte...</span>
+            <span className="icon-circle">
+              <IonIcon icon={arrowForward} />
+            </span>
+          </button>
+        </div>
 
-          <h3 className="detalle-titulo">Estado del reporte de incidentes</h3>
-          <p className="detalle-texto">
-            El reporte ha sido revisado por las autoridades correspondientes y la situación fue controlada en el sector asignado.
-          </p>
+        <div className="timeline-section">
+          <div className="timeline-badge-title">Linea de tiempo:</div>
 
-          <div className="detalle-meta">
-            <p><strong>Fecha de actualización:</strong> 26/09/2026</p>
-            <p><strong>Ubicación:</strong> Sector Centro</p>
+          <div className="timeline-track-container">
+            <div className="timeline-line" />
+
+            <div className={`timeline-step ${getStepClass('creacion')}`}>
+              <span className="step-label">Fecha de creación</span>
+              <div className="step-circle" />
+              <span className="step-date">{fechaCreacion || '--/--/----'}</span>
+            </div>
+
+            <div className={`timeline-step ${getStepClass('aprobacion')}`}>
+              <span className="step-label">
+                {esRechazado ? 'Fecha de rechazo' : 'Fecha de aprobación'}
+              </span>
+              <div className="step-circle" />
+              <span className="step-date">{fechaAprobacion || '--/--/----'}</span>
+            </div>
+
+            <div className={`timeline-step ${getStepClass('control')}`}>
+              <span className="step-label">Fecha de control</span>
+              <div className="step-circle" />
+              <span className="step-date">{fechaControl || '--/--/----'}</span>
+            </div>
           </div>
-        </IonCardContent>
-      </IonCard>
+        </div>
+
+        <h2 className="mensaje-agradecimiento">
+          ¡Gracias por contribuir a la comunidad!
+        </h2>
+      </div>
     </div>
   );
 };
