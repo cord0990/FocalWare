@@ -22,6 +22,8 @@ interface FiltrosReportesModalProps {
   filtros: FiltrosReportes;
   sectores: string[];
   categorias: string[];
+  // Estado sin filtros al que vuelve "Quitar filtros".
+  base?: FiltrosReportes;
   onCerrar: () => void;
   onAplicar: (filtros: FiltrosReportes) => void;
 }
@@ -31,6 +33,7 @@ const FiltrosReportesModal: React.FC<FiltrosReportesModalProps> = ({
   filtros,
   sectores,
   categorias,
+  base = FILTROS_INICIALES,
   onCerrar,
   onAplicar,
 }) => {
@@ -176,7 +179,7 @@ const FiltrosReportesModal: React.FC<FiltrosReportesModalProps> = ({
           <div className="filtros-acciones">
             <IonButton
               className="btn-limpiar"
-              onClick={() => onAplicar(FILTROS_INICIALES)}
+              onClick={() => onAplicar(base)}
             >
               Quitar filtros
             </IonButton>

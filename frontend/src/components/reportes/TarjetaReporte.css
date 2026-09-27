@@ -67,6 +67,12 @@
   font-weight: 600;
 }
 
+.etiqueta-calculando {
+  border: 1.5px dashed #8b6b6b;
+  background: #fff;
+  color: #5a4545;
+}
+
 .etiqueta-categoria {
   background: #c9b0b0;
   color: #1f1f1f;
@@ -123,4 +129,42 @@
     min-height: 0;
     aspect-ratio: 16 / 9;
   }
+}
+
+.tarjeta-estado-fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.tarjeta-estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border: 2px solid;
+  border-radius: 16px;
+  background: #fff;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.tarjeta-estado ion-icon {
+  font-size: 1.1rem;
+}
+
+.tarjeta-fecha {
+  color: #5a4545;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* En "Mis reportes" el botón de votos solo muestra cuántos recibió el reporte */
+.btn-voto:disabled {
+  border-color: #c9b0b0;
+  background: #f6f0f0;
+  color: #6b5a5a;
+  cursor: default;
 }

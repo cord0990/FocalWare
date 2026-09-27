@@ -1,0 +1,66 @@
+/* Borde punteado para que se note que es un borrador aún no enviado */
+.tarjeta-pendiente {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 2px dashed #e0a0a0;
+  border-radius: 18px;
+  background: #fff;
+}
+
+.tarjeta-pendiente-icono {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: #fde6c8;
+  color: #8a5a00;
+  font-size: 1.4rem;
+}
+
+.tarjeta-pendiente-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.tarjeta-pendiente-info h3 {
+  margin: 0;
+  color: #1f1f1f;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.tarjeta-pendiente-info p {
+  margin: 2px 0;
+  color: #5a4545;
+  font-size: 0.85rem;
+}
+
+.tarjeta-pendiente-info small {
+  color: #8b6b6b;
+  font-size: 0.78rem;
+}
+
+.tarjeta-pendiente-eliminar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: #8b6b6b;
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+.tarjeta-pendiente-eliminar:hover {
+  background: #fdeeee;
+  color: #e0283a;
+}

@@ -14,6 +14,8 @@ import {
   logOutOutline,
   notificationsOutline,
 } from 'ionicons/icons';
+import { useConexion } from '../../hooks/useConexion';
+import { usePendientes } from '../../hooks/usePendientes';
 import { RUTAS } from '../../routes/rutas';
 import { USUARIO_PRUEBA } from '../../services/usuarioService';
 import './MenuCuenta.css';
@@ -59,6 +61,8 @@ const OpcionMenu: React.FC<OpcionMenuProps> = ({
 const MenuCuenta: React.FC<{ contentId: string }> = ({ contentId }) => {
   const router = useIonRouter();
   const usuario = USUARIO_PRUEBA;
+  const pendientes = usePendientes();
+  const enLinea = useConexion();
   const irA = (ruta: string) => router.push(ruta, 'root');
 
   return (
@@ -111,8 +115,12 @@ const MenuCuenta: React.FC<{ contentId: string }> = ({ contentId }) => {
             <OpcionMenu
               icono={cloudUploadOutline}
               texto="Pendientes de envío"
-              detalle={`Sin conexión · ${usuario.reportesSinEnviar} esperando`}
-              contador={usuario.reportesSinEnviar}
+              detalle={
+                pendientes.length === 0
+                  ? 'Todo enviado'
+                  : `${enLinea ? 'Listos para enviar' : 'Sin conexión'} · ${pendientes.length} esperando`
+              }
+              contador={pendientes.length}
               tipoContador="cafe"
               onClick={() => irA(RUTAS.misReportes)}
             />

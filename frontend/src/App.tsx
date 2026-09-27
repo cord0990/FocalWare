@@ -5,6 +5,7 @@ import Login from './pages/public/Login';
 import Registro from './pages/public/Registro';
 import RecuperarContrasena from './pages/public/RecuperarContrasena';
 import Inicio from './pages/vecino/Inicio';
+import MisReportes from './pages/vecino/MisReportes';
 import EnConstruccion from './pages/vecino/EnConstruccion';
 import Ayuda from './pages/ayuda/Ayuda';
 import MenuProvider from './context/MenuProvider';
@@ -55,7 +56,7 @@ const App: React.FC = () => (
           <Route path={RUTAS.registro} element={<Registro />} />
           <Route path={RUTAS.recuperar} element={<RecuperarContrasena />} />
           <Route path={RUTAS.inicio} element={<Inicio />} />
-          <Route path={RUTAS.misReportes} element={<EnConstruccion titulo="Mis reportes" />} />
+          <Route path={RUTAS.misReportes} element={<MisReportes />} />
           <Route path={RUTAS.crearReporte} element={<EnConstruccion titulo="Crear reporte" />} />
           <Route path={RUTAS.perfil} element={<EnConstruccion titulo="Mi perfil" />} />
           <Route path={RUTAS.ayuda} element={<Ayuda />} />

@@ -9,10 +9,16 @@ import './FiltrosActivos.css';
 
 interface FiltrosActivosProps {
   activos: FiltroActivo[];
+  // Estado sin filtros al que vuelve "Quitar todos".
+  base?: FiltrosReportes;
   onCambiar: (filtros: FiltrosReportes) => void;
 }
 
-const FiltrosActivos: React.FC<FiltrosActivosProps> = ({ activos, onCambiar }) => {
+const FiltrosActivos: React.FC<FiltrosActivosProps> = ({
+  activos,
+  base = FILTROS_INICIALES,
+  onCambiar,
+}) => {
   if (activos.length === 0) return null;
 
   return (
@@ -33,7 +39,7 @@ const FiltrosActivos: React.FC<FiltrosActivosProps> = ({ activos, onCambiar }) =
         <button
           type="button"
           className="filtros-quitar-todos"
-          onClick={() => onCambiar(FILTROS_INICIALES)}
+          onClick={() => onCambiar(base)}
         >
           Quitar todos
         </button>

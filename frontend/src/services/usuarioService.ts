@@ -9,7 +9,6 @@ export interface ResumenUsuario {
   votosDados: number;
   apoyosRecibidos: number;
   notificacionesSinLeer: number;
-  reportesSinEnviar: number;
 }
 
 export const USUARIO_PRUEBA: ResumenUsuario = {
@@ -17,9 +16,8 @@ export const USUARIO_PRUEBA: ResumenUsuario = {
   iniciales: 'VR',
   rol: 'Vecina',
   sector: 'Cerro Cordillera',
-  reportesCreados: 4,
+  reportesCreados: 6,
   votosDados: 12,
   apoyosRecibidos: 128,
   notificacionesSinLeer: 3,
-  reportesSinEnviar: 2,
 };
