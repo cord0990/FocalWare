@@ -25,6 +25,7 @@ export interface Notificacion {
   fechaCreacion: string;
   fechaAprobacion?: string;
   fechaControl?: string;
+  fechaRechazo?: string;
 }
 
 interface Props {
@@ -55,8 +56,22 @@ export const MOCK_NOTIFICACIONES: Notificacion[] = [
     mensaje: 'Tu reporte ha sido rechazado.',
     estado: 'rechazado',
     fechaCreacion: '10/02/2026',
+    fechaRechazo: '10/02/2026',
   },
 ];
+
+const parseFechaString = (fechaStr: string): Date | null => {
+  if (!fechaStr) return null;
+  const partes = fechaStr.split('/');
+  if (partes.length === 3) {
+    const dia = parseInt(partes[0], 10);
+    const mes = parseInt(partes[1], 10) - 1;
+    const anio = parseInt(partes[2], 10);
+    return new Date(anio, mes, dia);
+  }
+  const fecha = new Date(fechaStr);
+  return isNaN(fecha.getTime()) ? null : fecha;
+};
 
 const Notificaciones: React.FC<Props> = ({ onVerDetalles }) => {
   const [busqueda, setBusqueda] = useState('');
@@ -72,11 +87,34 @@ const Notificaciones: React.FC<Props> = ({ onVerDetalles }) => {
       normalizarTexto(n.mensaje).includes(termino) ||
       normalizarTexto(n.reporteId).includes(termino);
 
-    const coincideEstado =
-      !filtros.estado ||
-      normalizarTexto(n.estado) === normalizarTexto(filtros.estado);
+    if (!coincideTexto) return false;
 
-    return coincideTexto && coincideEstado;
+    if (filtros.estado) {
+      const estadoFiltro = normalizarTexto(filtros.estado);
+      const estadoNotif = normalizarTexto(n.estado);
+
+      const coincideEstado =
+        (estadoFiltro === 'aprobado' || estadoFiltro === 'aceptado')
+          ? (estadoNotif === 'aceptado' || estadoNotif === 'controlado')
+          : estadoNotif === estadoFiltro;
+
+      if (!coincideEstado) return false;
+    }
+
+    const fechaNotif = parseFechaString(n.fechaCreacion);
+    if (fechaNotif) {
+      if (filtros.desde) {
+        const fechaDesde = parseFechaString(filtros.desde);
+        if (fechaDesde && fechaNotif < fechaDesde) return false;
+      }
+
+      if (filtros.hasta) {
+        const fechaHasta = parseFechaString(filtros.hasta);
+        if (fechaHasta && fechaNotif > fechaHasta) return false;
+      }
+    }
+
+    return true;
   });
 
   return (
