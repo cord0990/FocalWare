@@ -111,7 +111,7 @@ Es el usuario final comunitario; cualquier habitante o residente de los cerros, 
 
 * **Nivel:** Medio a básico.
 * **Justificación e impacto en el diseño:** La mayoría de los usuarios utiliza smartphones primordialmente para mensajería instantánea (WhatsApp) y redes sociales. El diseño debe minimizar la fricción:
-  * Proceso de reporte guiado en máximo 3 pasos (RNF-01).
+  * Proceso de reporte guiado en máximo 2 pasos (RNF-01).
   * Elementos táctiles amplios (mínimo 44 × 44 píxeles) para facilitar la pulsación en terreno y favorecer a usuarios con menor motricidad fina.
   * Compresión automática de imágenes a un peso no superior a 300 KB (RNF-06) para no consumir cuotas de datos ni colapsar la subida en conexiones débiles.
 
