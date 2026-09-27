@@ -6,7 +6,9 @@ import Registro from './pages/public/Registro';
 import RecuperarContrasena from './pages/public/RecuperarContrasena';
 import Inicio from './pages/vecino/Inicio';
 import EnConstruccion from './pages/vecino/EnConstruccion';
+import Ayuda from './pages/ayuda/Ayuda';
 import MenuProvider from './context/MenuProvider';
+import MenuCuenta from './components/layout/MenuCuenta';
 import { RUTAS } from './routes/rutas';
 
 /* Core CSS required for Ionic components to work properly */
@@ -34,7 +36,9 @@ import '@ionic/react/css/display.css';
 
 /* import '@ionic/react/css/palettes/dark.always.css'; */
 /* import '@ionic/react/css/palettes/dark.class.css'; */
-import '@ionic/react/css/palettes/dark.system.css';
+/* Desactivado hasta diseñar el modo oscuro: con esta paleta activa, los componentes
+   de Ionic se ven negros cuando el sistema del usuario está en modo oscuro. */
+/* import '@ionic/react/css/palettes/dark.system.css'; */
 
 /* Theme variables */
 import './theme/variables.css';
@@ -45,7 +49,8 @@ const App: React.FC = () => (
   <IonApp>
     <MenuProvider>
       <IonReactRouter>
-        <IonRouterOutlet>
+        <MenuCuenta contentId="contenido-principal" />
+        <IonRouterOutlet id="contenido-principal">
           <Route path={RUTAS.login} element={<Login />} />
           <Route path={RUTAS.registro} element={<Registro />} />
           <Route path={RUTAS.recuperar} element={<RecuperarContrasena />} />
@@ -53,6 +58,7 @@ const App: React.FC = () => (
           <Route path={RUTAS.misReportes} element={<EnConstruccion titulo="Mis reportes" />} />
           <Route path={RUTAS.crearReporte} element={<EnConstruccion titulo="Crear reporte" />} />
           <Route path={RUTAS.perfil} element={<EnConstruccion titulo="Mi perfil" />} />
+          <Route path={RUTAS.ayuda} element={<Ayuda />} />
           <Route path="/" element={<Navigate to={RUTAS.login} replace />} />
           <Route path="*" element={<Navigate to={RUTAS.login} replace />} />
         </IonRouterOutlet>

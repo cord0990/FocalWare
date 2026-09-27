@@ -41,19 +41,21 @@ const MenuLateral: React.FC = () => {
         <IonIcon icon={colapsado ? menuOutline : chevronBackOutline} />
       </button>
 
-      {OPCIONES.map((opcion) => (
-        <a
-          key={opcion.ruta}
-          href={opcion.ruta}
-          onClick={(evento) => navegar(evento, opcion.ruta)}
-          className={pathname === opcion.ruta ? 'menu-opcion activa' : 'menu-opcion'}
-          aria-current={pathname === opcion.ruta ? 'page' : undefined}
-          title={opcion.texto}
-        >
-          <IonIcon icon={opcion.icono} aria-hidden="true" />
-          <span className="menu-texto">{opcion.texto}</span>
-        </a>
-      ))}
+      <div className="menu-opciones">
+        {OPCIONES.map((opcion) => (
+          <a
+            key={opcion.ruta}
+            href={opcion.ruta}
+            onClick={(evento) => navegar(evento, opcion.ruta)}
+            className={pathname === opcion.ruta ? 'menu-opcion activa' : 'menu-opcion'}
+            aria-current={pathname === opcion.ruta ? 'page' : undefined}
+            title={opcion.texto}
+          >
+            <IonIcon icon={opcion.icono} aria-hidden="true" />
+            <span className="menu-texto">{opcion.texto}</span>
+          </a>
+        ))}
+      </div>
     </nav>
   );
 };

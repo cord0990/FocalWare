@@ -7,6 +7,7 @@ import FiltrosReportesModal from '../../components/reportes/FiltrosReportesModal
 import MapaReportes from '../../components/reportes/MapaReportes';
 import SinResultados from '../../components/reportes/SinResultados';
 import TarjetaReporte from '../../components/reportes/TarjetaReporte';
+import { useAnchoRedimensionable } from '../../hooks/useAnchoRedimensionable';
 import { obtenerReportes, type Reporte } from '../../services/reportesService';
 import {
   aplicarFiltros,
@@ -34,6 +35,11 @@ const Inicio: React.FC = () => {
   const [filtrosAbiertos, setFiltrosAbiertos] = useState(false);
   const [seleccionadoId, setSeleccionadoId] = useState<string>();
   const [votados, setVotados] = useState<Set<string>>(new Set());
+  const divisor = useAnchoRedimensionable({
+    clave: 'focalware-ancho-lista',
+    minimo: 320,
+    maximoProporcion: 0.6,
+  });
 
   const cargarReportes = async () => {
     setCargando(true);
@@ -77,7 +83,13 @@ const Inicio: React.FC = () => {
 
   return (
     <AppLayout>
-      <div className="inicio">
+      <div
+        ref={divisor.contenedor}
+        className={divisor.arrastrando ? 'inicio arrastrando' : 'inicio'}
+        style={
+          divisor.ancho ? ({ '--ancho-lista': `${divisor.ancho}px` } as React.CSSProperties) : undefined
+        }
+      >
         <div className="inicio-barra">
           <IonButton
             fill="clear"
@@ -120,11 +132,32 @@ const Inicio: React.FC = () => {
           />
         </section>
 
-        <section className="inicio-lista" aria-label="Lista de reportes">
-          <p className="inicio-conteo">
-            {cargando
-              ? 'Cargando reportes...'
-              : `${reportesFiltrados.length} reporte${reportesFiltrados.length === 1 ? '' : 's'}`}
+        {/* Solo se muestra en PC: se arrastra para cambiar el ancho de la lista */}
+        <div
+          className="inicio-divisor"
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="Cambiar el ancho de la lista de reportes"
+          tabIndex={0}
+          title="Arrastra para cambiar el ancho. Doble clic para restablecer."
+          onPointerDown={divisor.alPresionar}
+          onKeyDown={divisor.alTeclado}
+          onDoubleClick={divisor.restablecer}
+        >
+          <span aria-hidden="true" />
+        </div>
+
+        <section ref={divisor.panel} className="inicio-lista" aria-label="Lista de reportes">
+          <p className="inicio-conteo" aria-live="polite">
+            {cargando ? (
+              'Cargando reportes...'
+            ) : (
+              <>
+                <strong>{reportesFiltrados.length}</strong>
+                {reportesFiltrados.length === 1 ? 'reporte' : 'reportes'}
+                {busqueda.trim() || filtrosActivos > 0 ? ' encontrados' : ' en el mapa'}
+              </>
+            )}
           </p>
 
           <FiltrosActivos activos={listaFiltrosActivos} onCambiar={setFiltros} />
