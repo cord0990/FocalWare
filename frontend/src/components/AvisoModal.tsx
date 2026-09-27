@@ -4,6 +4,13 @@ import './AvisoModal.css';
 
 export type TipoAviso = 'exito' | 'error' | 'sin-conexion';
 
+export interface AccionAviso {
+  texto: string;
+  icono?: string;
+  principal?: boolean;
+  onClick: () => void;
+}
+
 interface AvisoModalProps {
   abierto: boolean;
   tipo: TipoAviso;
@@ -14,6 +21,10 @@ interface AvisoModalProps {
   textoSecundario?: string;
   onAceptar: () => void;
   onSecundario?: () => void;
+  // Contenido extra bajo el mensaje (por ejemplo, un resumen del reporte creado).
+  children?: React.ReactNode;
+  // Si se entregan, reemplazan a los botones Aceptar y secundario.
+  acciones?: AccionAviso[];
 }
 
 const ICONOS: Record<TipoAviso, string> = {
@@ -33,24 +44,47 @@ const AvisoModal: React.FC<AvisoModalProps> = ({
   textoSecundario,
   onAceptar,
   onSecundario,
+  children,
+  acciones,
 }) => (
-  <IonModal isOpen={abierto} backdropDismiss={false} className={`aviso-modal aviso-${tipo}`}>
+  <IonModal
+    isOpen={abierto}
+    backdropDismiss={false}
+    className={`aviso-modal aviso-${tipo}${acciones ? ' con-acciones' : ''}`}
+  >
     <div className="aviso-marco" role="alertdialog" aria-labelledby="aviso-titulo" aria-describedby="aviso-mensaje">
       <div className="aviso-caja">
         <IonIcon icon={ICONOS[tipo]} className="aviso-icono" aria-hidden="true" />
         <h2 id="aviso-titulo">{titulo}</h2>
         <p id="aviso-mensaje">{mensaje}</p>
+        {children}
       </div>
-      <div className="aviso-botones">
-        {textoSecundario && onSecundario && (
-          <button type="button" className="aviso-boton secundario" onClick={onSecundario}>
-            {textoSecundario}
+      {acciones ? (
+        <div className="aviso-acciones">
+          {acciones.map((accion) => (
+            <button
+              key={accion.texto}
+              type="button"
+              className={accion.principal ? 'aviso-accion principal' : 'aviso-accion'}
+              onClick={accion.onClick}
+            >
+              {accion.icono && <IonIcon icon={accion.icono} aria-hidden="true" />}
+              {accion.texto}
+            </button>
+          ))}
+        </div>
+      ) : (
+        <div className="aviso-botones">
+          {textoSecundario && onSecundario && (
+            <button type="button" className="aviso-boton secundario" onClick={onSecundario}>
+              {textoSecundario}
+            </button>
+          )}
+          <button type="button" className="aviso-boton" onClick={onAceptar}>
+            {textoAceptar}
           </button>
-        )}
-        <button type="button" className="aviso-boton" onClick={onAceptar}>
-          {textoAceptar}
-        </button>
-      </div>
+        </div>
+      )}
     </div>
   </IonModal>
 );

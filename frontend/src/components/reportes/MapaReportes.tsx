@@ -60,9 +60,9 @@ const EnfocarReporte: React.FC<{ reporte?: Reporte; marcadores: Map<string, L.Ma
 
   useEffect(() => {
     if (!reporte) return;
-    // Se centra el mapa 120 px por encima del pin para que el globo (con su imagen) quepa arriba.
+    // Se centra el mapa 160 px por encima del pin para que el globo (con su imagen) quepa arriba.
     const zoom = Math.max(mapa.getZoom(), 15);
-    const punto = mapa.project([reporte.latitud, reporte.longitud], zoom).subtract([0, 120]);
+    const punto = mapa.project([reporte.latitud, reporte.longitud], zoom).subtract([0, 160]);
     mapa.flyTo(mapa.unproject(punto, zoom), zoom);
     // El globo se abre al terminar el movimiento para que Leaflet lo acomode dentro del mapa.
     mapa.once('moveend', () => marcadores.get(reporte.id)?.openPopup());
@@ -127,7 +127,7 @@ const MapaReportes: React.FC<MapaReportesProps> = ({
                 else marcadores.current.delete(reporte.id);
               }}
             >
-              <Popup className="popup-reporte" minWidth={240} maxWidth={260} autoPanPadding={[16, 16]}>
+              <Popup className="popup-reporte" minWidth={250} maxWidth={330} autoPanPadding={[16, 16]}>
                 <div className="popup-imagen">
                   {reporte.imagenes[0] ? (
                     <img src={reporte.imagenes[0]} alt={reporte.nombre} />

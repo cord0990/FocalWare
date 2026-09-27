@@ -12,8 +12,12 @@ import {
 } from '@ionic/react';
 import {
   arrowBackOutline,
+  createOutline,
+  folderOpenOutline,
   helpCircleOutline,
+  imageOutline,
   locateOutline,
+  mapOutline,
   thermometerOutline,
   waterOutline,
   warningOutline,
@@ -26,10 +30,10 @@ import GaleriaEditable from '../../components/reportes/GaleriaEditable';
 import SelectorUbicacion, { type Ubicacion } from '../../components/reportes/SelectorUbicacion';
 import { useConexion } from '../../hooks/useConexion';
 import { useUbicacionActual } from '../../hooks/useUbicacionActual';
-import { RUTAS } from '../../routes/rutas';
+import { RUTAS, rutaEditarReporte } from '../../routes/rutas';
 import { esClimaDeRiesgo, obtenerClimaActual, type Clima } from '../../services/climaService';
 import { guardarPendiente } from '../../services/pendientesService';
-import { crearReporte, type DatosNuevoReporte } from '../../services/reportesService';
+import { crearReporte, type DatosNuevoReporte, type Reporte } from '../../services/reportesService';
 import { calcularIndice } from '../../utils/opcionesReporte';
 import { obtenerNivelRiesgo } from '../../utils/riesgo';
 import { MAXIMO_TITULO, validarReporte } from '../../utils/validacionReporte';
@@ -61,7 +65,7 @@ const CrearReporte: React.FC = () => {
   const gps = useUbicacionActual();
   const [aviso, setAviso] = useState<Aviso | null>(null);
   const [mensaje, setMensaje] = useState('');
-  const [idCreado, setIdCreado] = useState<string>();
+  const [creado, setCreado] = useState<Reporte>();
   const [explicacionAbierta, setExplicacionAbierta] = useState(false);
 
   useEffect(() => {
@@ -145,12 +149,12 @@ const CrearReporte: React.FC = () => {
 
     setEnviando(true);
     try {
-      const creado = await crearReporte(datos);
-      setIdCreado(creado.id);
+      setCreado(await crearReporte(datos));
       setAviso({
         tipo: 'exito',
         titulo: '¡Reporte creado con éxito!',
-        mensaje: 'Gracias por ayudar a tu comunidad. Te llevaremos al mapa para que veas tu reporte.',
+        mensaje:
+          'Gracias por ayudar a tu comunidad. Tu reporte ya está en el mapa y quedará Pendiente hasta que el municipio lo revise.',
       });
     } catch (causa) {
       const sinEspacio = causa instanceof DOMException && causa.name === 'QuotaExceededError';
@@ -165,24 +169,23 @@ const CrearReporte: React.FC = () => {
     setEnviando(false);
   };
 
-  // Después de crearlo con éxito, se redirige solo al mapa a los 4 segundos.
-  useEffect(() => {
-    if (aviso?.tipo !== 'exito') return;
-    const espera = setTimeout(() => irAlMapa(), 4000);
-    return () => clearTimeout(espera);
-    // irAlMapa solo depende de valores que no cambian mientras el aviso está abierto.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [aviso]);
-
-  const irAlMapa = () => {
+  // Cierra el aviso, limpia el formulario y va a la pantalla elegida.
+  const salirA = (ruta: string) => {
     setAviso(null);
-    router.push(idCreado ? `${RUTAS.inicio}?reporte=${idCreado}` : RUTAS.inicio, 'root');
+    reiniciar();
+    router.push(ruta, 'root');
   };
 
-  const irAMisReportes = () => {
-    setAviso(null);
-    router.push(RUTAS.misReportes, 'root');
-  };
+  const irAlMapa = () => salirA(creado ? `${RUTAS.inicio}?reporte=${creado.id}` : RUTAS.inicio);
+  const irAMisReportes = () => salirA(RUTAS.misReportes);
+
+  // Si el vecino se equivocó en algo, puede corregirlo apenas lo crea.
+  const accionesExito = creado && [
+    { texto: 'Ver en el mapa', icono: mapOutline, principal: true, onClick: irAlMapa },
+    { texto: 'Editar reporte', icono: createOutline, onClick: () => salirA(rutaEditarReporte(creado.id)) },
+    { texto: 'Mis reportes', icono: folderOpenOutline, onClick: irAMisReportes },
+  ];
+  const nivelCreado = creado && !creado.riesgoEnCalculo ? obtenerNivelRiesgo(creado.riesgo) : null;
 
   const cancelar = () => {
     if (!hayCambios) {
@@ -376,18 +379,39 @@ const CrearReporte: React.FC = () => {
                 setAviso(null);
                 enviar();
               }
-            : aviso?.tipo === 'sin-conexion'
-              ? () => {
-                  reiniciar();
-                  irAMisReportes();
-                }
-              : () => {
-                  reiniciar();
-                  irAlMapa();
-                }
+            : irAMisReportes
         }
         onSecundario={() => setAviso(null)}
-      />
+        acciones={aviso?.tipo === 'exito' ? accionesExito : undefined}
+      >
+        {aviso?.tipo === 'exito' && creado && (
+          <div className="resumen-creado">
+            <div className="resumen-creado-foto">
+              {creado.imagenes[0] ? (
+                <img src={creado.imagenes[0]} alt="" />
+              ) : (
+                <IonIcon icon={imageOutline} aria-hidden="true" />
+              )}
+            </div>
+            <div className="resumen-creado-datos">
+              <strong>{creado.nombre}</strong>
+              <span>
+                ID {creado.id} · {creado.sector}
+              </span>
+              <div className="resumen-creado-etiquetas">
+                <span>{creado.categoria}</span>
+                {nivelCreado ? (
+                  <span style={{ background: nivelCreado.color, color: nivelCreado.texto }}>
+                    Riesgo {creado.riesgo} %
+                  </span>
+                ) : (
+                  <span>Riesgo en cálculo</span>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </AvisoModal>
 
       <ExplicacionRiesgo
         abierto={explicacionAbierta}

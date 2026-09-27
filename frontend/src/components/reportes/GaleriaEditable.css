@@ -40,7 +40,7 @@
 .galeria-editable-cuerpo {
   display: grid;
   flex: 1;
-  grid-template-columns: minmax(0, 1fr) 120px;
+  grid-template-columns: minmax(0, 1fr) clamp(120px, 26%, 230px);
   gap: 12px;
   min-height: 320px;
 }
@@ -56,6 +56,10 @@
   border-radius: 20px;
   background: #fff;
   overflow: hidden;
+}
+
+.galeria-editable-portada:has(img) {
+  background: #111;
 }
 
 .galeria-editable-portada img {
@@ -124,7 +128,7 @@
 .galeria-editable-agregar {
   position: relative;
   flex-shrink: 0;
-  aspect-ratio: 1;
+  aspect-ratio: 4 / 3;
   border-radius: 16px;
   overflow: hidden;
 }
@@ -216,6 +220,6 @@
 
   .galeria-editable-miniatura,
   .galeria-editable-agregar {
-    width: 88px;
+    width: 110px;
   }
 }

@@ -310,6 +310,10 @@
   overflow: hidden;
 }
 
+.detalle-foto-principal:has(img) {
+  background: #111;
+}
+
 .detalle-foto-principal img {
   width: 100%;
   height: 100%;
