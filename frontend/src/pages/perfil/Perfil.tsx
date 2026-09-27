@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   IonSegment,
   IonSegmentButton,
@@ -21,8 +22,22 @@ import './Perfil.css';
 
 type TabPerfil = 'notificaciones' | 'configuracion' | 'info' | 'detalle';
 
+const SECCIONES: TabPerfil[] = ['notificaciones', 'configuracion', 'info'];
+
+// Permite abrir una pestaña directamente con /perfil?seccion=configuracion
+const seccionDeLaUrl = (search: string): TabPerfil => {
+  const seccion = new URLSearchParams(search).get('seccion') as TabPerfil | null;
+  return seccion && SECCIONES.includes(seccion) ? seccion : 'notificaciones';
+};
+
 const Perfil: React.FC = () => {
-  const [tabActiva, setTabActiva] = useState<TabPerfil>('notificaciones');
+  const { search } = useLocation();
+  const [tabActiva, setTabActiva] = useState<TabPerfil>(() => seccionDeLaUrl(search));
+
+  // La página queda abierta al navegar, así que se cambia de pestaña cuando cambia la URL.
+  useEffect(() => {
+    setTabActiva(seccionDeLaUrl(search));
+  }, [search]);
   const [notificacionSeleccionada, setNotificacionSeleccionada] = useState<Notificacion | null>(null);
   const [tieneNotificaciones] = useState<boolean>(true);
 

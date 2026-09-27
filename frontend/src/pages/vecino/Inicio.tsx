@@ -1,6 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { IonBadge, IonButton, IonIcon, IonSearchbar, IonSpinner } from '@ionic/react';
+import {
+  IonBadge,
+  IonButton,
+  IonIcon,
+  IonSearchbar,
+  IonSpinner,
+  useIonRouter,
+} from '@ionic/react';
 import { funnelOutline, refreshOutline } from 'ionicons/icons';
 import AppLayout from '../../components/layout/AppLayout';
 import FiltrosActivos from '../../components/reportes/FiltrosActivos';
@@ -10,7 +17,8 @@ import SinResultados from '../../components/reportes/SinResultados';
 import TarjetaReporte from '../../components/reportes/TarjetaReporte';
 import { useAnchoRedimensionable } from '../../hooks/useAnchoRedimensionable';
 import { NIVELES_RIESGO, rangoNivel } from '../../utils/riesgo';
-import { obtenerReportes, type Reporte } from '../../services/reportesService';
+import { rutaReporte } from '../../routes/rutas';
+import { EVENTO_REPORTES, obtenerReportes, type Reporte } from '../../services/reportesService';
 import {
   aplicarFiltros,
   buscarReportes,
@@ -24,6 +32,7 @@ const valoresUnicos = (valores: string[]) =>
   [...new Set(valores)].sort((a, b) => a.localeCompare(b));
 
 const Inicio: React.FC = () => {
+  const router = useIonRouter();
   const [reportes, setReportes] = useState<Reporte[]>([]);
   const [cargando, setCargando] = useState(true);
   const [busqueda, setBusqueda] = useState('');
@@ -45,6 +54,10 @@ const Inicio: React.FC = () => {
 
   useEffect(() => {
     cargarReportes();
+    // Cuando se crea o modifica un reporte, la lista se actualiza sin mostrar la carga.
+    const actualizar = async () => setReportes(await obtenerReportes());
+    window.addEventListener(EVENTO_REPORTES, actualizar);
+    return () => window.removeEventListener(EVENTO_REPORTES, actualizar);
   }, []);
 
   // Desde "Mis reportes" se llega con /inicio?reporte=ID para ver ese reporte en el mapa.
@@ -140,6 +153,7 @@ const Inicio: React.FC = () => {
             reportes={reportesFiltrados}
             seleccionado={seleccionado}
             onSeleccionar={seleccionar}
+            onVerDetalles={(id) => router.push(rutaReporte(id), 'forward')}
           />
         </section>
 
@@ -200,7 +214,7 @@ const Inicio: React.FC = () => {
               reporte={reporte}
               seleccionada={reporte.id === seleccionadoId}
               votado={votados.has(reporte.id)}
-              onDetalles={() => seleccionar(reporte.id)}
+              onDetalles={() => router.push(rutaReporte(reporte.id), 'forward')}
               onVotar={() => alternarVoto(reporte.id)}
             />
           ))}

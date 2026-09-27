@@ -1,0 +1,225 @@
+.galeria-editable {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border: 3px solid transparent;
+  border-radius: 22px;
+  background: #ecdfdf;
+}
+
+.galeria-editable.invalido {
+  border-color: #c62828;
+}
+
+.galeria-editable-encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.galeria-editable-encabezado h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.galeria-editable-encabezado span {
+  color: #5a4545;
+  font-weight: 700;
+}
+
+.galeria-editable-ayuda {
+  margin: 0;
+  color: #5a4545;
+  font-size: 0.88rem;
+}
+
+/* Portada a la izquierda y columna de complementarias a la derecha */
+.galeria-editable-cuerpo {
+  display: grid;
+  flex: 1;
+  grid-template-columns: minmax(0, 1fr) clamp(120px, 26%, 230px);
+  gap: 12px;
+  min-height: 320px;
+}
+
+.galeria-editable-cuerpo.sin-fotos {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.galeria-editable-portada {
+  position: relative;
+  min-height: 320px;
+  border: 3px solid #d9b8b8;
+  border-radius: 20px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.galeria-editable-portada:has(img) {
+  background: #111;
+}
+
+.galeria-editable-portada img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.galeria-editable-etiqueta {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  border-radius: 12px;
+  background: #e0283a;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.galeria-editable-agregar-portada {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+  min-height: 314px;
+  border: 3px dashed #8b6b6b;
+  border-radius: 17px;
+  background: #fff;
+  color: #8b6b6b;
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.galeria-editable-agregar-portada ion-icon {
+  font-size: 2.6rem;
+}
+
+/* La columna se desplaza sola si hay más fotos de las que caben junto a la portada */
+.galeria-editable-columna {
+  position: relative;
+  min-height: 0;
+}
+
+.galeria-editable-miniaturas {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-right: 2px;
+  overflow-y: auto;
+}
+
+.galeria-editable-miniatura,
+.galeria-editable-agregar {
+  position: relative;
+  flex-shrink: 0;
+  aspect-ratio: 4 / 3;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.galeria-editable-miniatura {
+  border: 3px solid #d9b8b8;
+  background: #fff;
+}
+
+.galeria-editable-miniatura img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.galeria-editable-quitar,
+.galeria-editable-destacar {
+  position: absolute;
+  top: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(31, 31, 31, 0.75);
+  color: #fff;
+  font-size: 1.15rem;
+  cursor: pointer;
+}
+
+.galeria-editable-quitar {
+  right: 5px;
+}
+
+.galeria-editable-destacar {
+  left: 5px;
+}
+
+.galeria-editable-destacar:hover {
+  background: #e0283a;
+}
+
+.galeria-editable-agregar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px dashed #8b6b6b;
+  background: #fff;
+  color: #8b6b6b;
+  font-size: 2.6rem;
+  cursor: pointer;
+}
+
+.galeria-editable-agregar:hover,
+.galeria-editable-agregar-portada:hover {
+  border-color: #e0283a;
+  color: #e0283a;
+}
+
+.galeria-editable-error {
+  margin: 0 4px;
+  color: #c62828;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+/* Celular: las complementarias pasan a una fila debajo de la portada */
+@media (max-width: 767px) {
+  .galeria-editable-cuerpo {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+  }
+
+  .galeria-editable-portada {
+    min-height: 240px;
+  }
+
+  .galeria-editable-agregar-portada {
+    min-height: 234px;
+  }
+
+  .galeria-editable-miniaturas {
+    position: static;
+    flex-direction: row;
+    overflow-x: auto;
+  }
+
+  .galeria-editable-miniatura,
+  .galeria-editable-agregar {
+    width: 110px;
+  }
+}

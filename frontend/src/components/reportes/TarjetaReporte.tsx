@@ -43,8 +43,8 @@ const TarjetaReporte: React.FC<TarjetaReporteProps> = ({
         </span>
       )}
       <div className="tarjeta-imagen">
-        {reporte.imagen ? (
-          <img src={reporte.imagen} alt={reporte.nombre} />
+        {reporte.imagenes[0] ? (
+          <img src={reporte.imagenes[0]} alt={reporte.nombre} />
         ) : (
           <IonIcon icon={imageOutline} aria-label="Sin fotografía" />
         )}
@@ -85,10 +85,8 @@ const TarjetaReporte: React.FC<TarjetaReporteProps> = ({
             onClick={onVotar}
             disabled={!puedeVotar}
             aria-pressed={votado}
-            aria-label={
-              puedeVotar ? `Votar a favor, ${votos} votos` : `${votos} votos recibidos por tu reporte`
-            }
-            title={puedeVotar ? undefined : 'Votos que ha recibido tu reporte'}
+            aria-label={puedeVotar ? `Votar a favor, ${votos} votos` : `${votos} votos`}
+            title={puedeVotar ? undefined : 'Votos que ha recibido el reporte'}
           >
             <IonIcon icon={caretUp} aria-hidden="true" />
             {votos}

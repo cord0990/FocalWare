@@ -16,7 +16,7 @@ import {
 } from 'ionicons/icons';
 import { useConexion } from '../../hooks/useConexion';
 import { usePendientes } from '../../hooks/usePendientes';
-import { RUTAS } from '../../routes/rutas';
+import { RUTAS, rutaPerfil } from '../../routes/rutas';
 import { USUARIO_PRUEBA } from '../../services/usuarioService';
 import './MenuCuenta.css';
 
@@ -75,86 +75,93 @@ const MenuCuenta: React.FC<{ contentId: string }> = ({ contentId }) => {
         className="menu-cuenta"
       >
         <IonContent className="cuenta-contenido">
-          <IonMenuToggle menu={ID_MENU_CUENTA} autoHide={false}>
-            <button type="button" className="cuenta-saludo" onClick={() => irA(RUTAS.perfil)}>
-              <span className="cuenta-avatar">{usuario.iniciales}</span>
-              <span className="cuenta-saludo-texto">
-                <strong>¡Hola, {usuario.nombre}!</strong>
-                <small>
-                  {usuario.rol} · {usuario.sector}
-                </small>
-              </span>
-              <IonIcon icon={chevronForwardOutline} className="cuenta-flecha" aria-hidden="true" />
-            </button>
-          </IonMenuToggle>
+          <div className="cuenta-cuerpo">
+            <IonMenuToggle menu={ID_MENU_CUENTA} autoHide={false}>
+              <button
+                type="button"
+                className="cuenta-saludo"
+                onClick={() => irA(rutaPerfil('configuracion'))}
+                title="Ir a la configuración de la cuenta"
+              >
+                <span className="cuenta-avatar">{usuario.iniciales}</span>
+                <span className="cuenta-saludo-texto">
+                  <strong>¡Hola, {usuario.nombre}!</strong>
+                  <small>
+                    {usuario.rol} · {usuario.sector}
+                  </small>
+                </span>
+                <IonIcon icon={chevronForwardOutline} className="cuenta-flecha" aria-hidden="true" />
+              </button>
+            </IonMenuToggle>
 
-          <h2 className="cuenta-seccion">Tu aporte</h2>
-          <div className="cuenta-impacto">
-            <div>
-              <strong>{usuario.reportesCreados}</strong>
-              <span>Reportes creados</span>
+            <h2 className="cuenta-seccion">Tu aporte</h2>
+            <div className="cuenta-impacto">
+              <div>
+                <strong>{usuario.reportesCreados}</strong>
+                <span>Reportes creados</span>
+              </div>
+              <div>
+                <strong>{usuario.votosDados}</strong>
+                <span>Votos dados</span>
+              </div>
+              <div>
+                <strong>{usuario.apoyosRecibidos}</strong>
+                <span>Apoyos recibidos</span>
+              </div>
             </div>
-            <div>
-              <strong>{usuario.votosDados}</strong>
-              <span>Votos dados</span>
+
+            <h2 className="cuenta-seccion">Mi actividad</h2>
+            <div className="cuenta-grupo">
+              <OpcionMenu
+                icono={notificationsOutline}
+                texto="Notificaciones"
+                contador={usuario.notificacionesSinLeer}
+                onClick={() => irA(rutaPerfil('notificaciones'))}
+              />
+              <OpcionMenu
+                icono={cloudUploadOutline}
+                texto="Pendientes de envío"
+                detalle={
+                  pendientes.length === 0
+                    ? 'Todo enviado'
+                    : `${enLinea ? 'Listos para enviar' : 'Sin conexión'} · ${pendientes.length} esperando`
+                }
+                contador={pendientes.length}
+                tipoContador="cafe"
+                onClick={() => irA(RUTAS.misReportes)}
+              />
             </div>
-            <div>
-              <strong>{usuario.apoyosRecibidos}</strong>
-              <span>Apoyos recibidos</span>
+
+            <h2 className="cuenta-seccion">Ayuda y soporte</h2>
+            <div className="cuenta-grupo">
+              <OpcionMenu
+                icono={helpCircleOutline}
+                texto="Ayuda y contacto"
+                onClick={() => irA(`${RUTAS.ayuda}?seccion=ayuda`)}
+              />
+              <OpcionMenu
+                icono={documentTextOutline}
+                texto="Términos y privacidad"
+                onClick={() => irA(`${RUTAS.ayuda}?seccion=terminos`)}
+              />
+              <OpcionMenu
+                icono={informationCircleOutline}
+                texto="Acerca de FocalWare"
+                onClick={() => irA(`${RUTAS.ayuda}?seccion=acerca`)}
+              />
             </div>
-          </div>
 
-          <h2 className="cuenta-seccion">Mi actividad</h2>
-          <div className="cuenta-grupo">
-            <OpcionMenu
-              icono={notificationsOutline}
-              texto="Notificaciones"
-              contador={usuario.notificacionesSinLeer}
-              onClick={() => irA(RUTAS.perfil)}
-            />
-            <OpcionMenu
-              icono={cloudUploadOutline}
-              texto="Pendientes de envío"
-              detalle={
-                pendientes.length === 0
-                  ? 'Todo enviado'
-                  : `${enLinea ? 'Listos para enviar' : 'Sin conexión'} · ${pendientes.length} esperando`
-              }
-              contador={pendientes.length}
-              tipoContador="cafe"
-              onClick={() => irA(RUTAS.misReportes)}
-            />
+            <IonMenuToggle menu={ID_MENU_CUENTA} autoHide={false}>
+              <button
+                type="button"
+                className="cuenta-cerrar-sesion"
+                onClick={() => router.push(RUTAS.login, 'root', 'replace')}
+              >
+                <IonIcon icon={logOutOutline} aria-hidden="true" />
+                Cerrar sesión
+              </button>
+            </IonMenuToggle>
           </div>
-
-          <h2 className="cuenta-seccion">Ayuda y soporte</h2>
-          <div className="cuenta-grupo">
-            <OpcionMenu
-              icono={helpCircleOutline}
-              texto="Ayuda y contacto"
-              onClick={() => irA(`${RUTAS.ayuda}?seccion=ayuda`)}
-            />
-            <OpcionMenu
-              icono={documentTextOutline}
-              texto="Términos y privacidad"
-              onClick={() => irA(`${RUTAS.ayuda}?seccion=terminos`)}
-            />
-            <OpcionMenu
-              icono={informationCircleOutline}
-              texto="Acerca de FocalWare"
-              onClick={() => irA(`${RUTAS.ayuda}?seccion=acerca`)}
-            />
-          </div>
-
-          <IonMenuToggle menu={ID_MENU_CUENTA} autoHide={false}>
-            <button
-              type="button"
-              className="cuenta-cerrar-sesion"
-              onClick={() => router.push(RUTAS.login, 'root', 'replace')}
-            >
-              <IonIcon icon={logOutOutline} aria-hidden="true" />
-              Cerrar sesión
-            </button>
-          </IonMenuToggle>
         </IonContent>
       </IonMenu>
   );

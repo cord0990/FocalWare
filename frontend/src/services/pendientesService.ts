@@ -1,15 +1,14 @@
-import { registrarReportesEnviados } from './reportesService';
+import {
+  fechaHoraActual,
+  registrarReportesEnviados,
+  type DatosNuevoReporte,
+} from './reportesService';
 
 // Reportes creados sin conexión (RF-02). Se guardan en el navegador hasta que se envían.
 // En la Entrega 2 el envío llamará a la API REST.
 
-export interface ReportePendiente {
+export interface ReportePendiente extends DatosNuevoReporte {
   id: string;
-  nombre: string;
-  sector: string;
-  categoria: string;
-  latitud: number;
-  longitud: number;
   guardadoEn: string;
 }
 
@@ -22,8 +21,13 @@ const PENDIENTES_PRUEBA: ReportePendiente[] = [
     nombre: 'Basura acumulada en escalera',
     sector: 'Cerro Cordillera',
     categoria: 'Microbasural',
+    volumen: 'Mediano (un auto)',
+    distanciaViviendas: 'Menos de 10 m',
+    descripcion: 'Bolsas de basura y cartones acumulados a mitad de la escalera, bloqueando el paso.',
     latitud: -33.0425,
     longitud: -71.6318,
+    imagenes: [],
+    riesgo: 70,
     guardadoEn: '2026-09-26T18:42:00',
   },
   {
@@ -31,8 +35,13 @@ const PENDIENTES_PRUEBA: ReportePendiente[] = [
     nombre: 'Pastizal seco en sitio eriazo',
     sector: 'Cerro Cordillera',
     categoria: 'Vegetación seca',
+    volumen: 'Grande (una camioneta)',
+    distanciaViviendas: 'Entre 10 y 50 m',
+    descripcion: 'Pastizal alto y seco en el sitio eriazo de la esquina, con restos de basura.',
     latitud: -33.0409,
     longitud: -71.6347,
+    imagenes: [],
+    riesgo: 83,
     guardadoEn: '2026-09-26T19:05:00',
   },
 ];
@@ -44,7 +53,20 @@ const leer = (): ReportePendiente[] => {
   if (enMemoria) return enMemoria;
   try {
     const guardado = localStorage.getItem(CLAVE);
-    enMemoria = guardado ? JSON.parse(guardado) : PENDIENTES_PRUEBA;
+    // Los pendientes guardados con una versión anterior pueden no tener los campos nuevos.
+    enMemoria = guardado
+      ? (JSON.parse(guardado) as Partial<ReportePendiente>[]).map(
+          (pendiente) =>
+            ({
+              descripcion: '',
+              volumen: '',
+              distanciaViviendas: '',
+              imagenes: [],
+              ...pendiente,
+              riesgo: pendiente.riesgo ?? null,
+            }) as ReportePendiente,
+        )
+      : PENDIENTES_PRUEBA;
   } catch {
     enMemoria = PENDIENTES_PRUEBA;
   }
@@ -63,6 +85,13 @@ const guardar = (pendientes: ReportePendiente[]) => {
 };
 
 export const obtenerPendientes = (): ReportePendiente[] => leer();
+
+// Guarda un reporte creado sin conexión para enviarlo más tarde.
+export const guardarPendiente = (datos: DatosNuevoReporte) =>
+  guardar([
+    ...leer(),
+    { ...datos, id: `P-${Date.now().toString().slice(-6)}`, guardadoEn: fechaHoraActual() },
+  ]);
 
 export const eliminarPendiente = (id: string) =>
   guardar(leer().filter((pendiente) => pendiente.id !== id));

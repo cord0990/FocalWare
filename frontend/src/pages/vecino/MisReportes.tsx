@@ -25,9 +25,14 @@ import TarjetaPendiente from '../../components/reportes/TarjetaPendiente';
 import TarjetaReporte from '../../components/reportes/TarjetaReporte';
 import { useConexion } from '../../hooks/useConexion';
 import { usePendientes } from '../../hooks/usePendientes';
-import { RUTAS } from '../../routes/rutas';
+import { RUTAS, rutaReporte } from '../../routes/rutas';
 import { eliminarPendiente, enviarPendientes } from '../../services/pendientesService';
-import { ESTADOS_REPORTE, obtenerMisReportes, type Reporte } from '../../services/reportesService';
+import {
+  ESTADOS_REPORTE,
+  EVENTO_REPORTES,
+  obtenerMisReportes,
+  type Reporte,
+} from '../../services/reportesService';
 import { ESTILO_ESTADO } from '../../utils/estados';
 import {
   aplicarFiltros,
@@ -63,6 +68,9 @@ const MisReportes: React.FC = () => {
 
   useEffect(() => {
     cargarReportes();
+    // Cuando se crea o modifica un reporte, la lista se actualiza sola.
+    window.addEventListener(EVENTO_REPORTES, cargarReportes);
+    return () => window.removeEventListener(EVENTO_REPORTES, cargarReportes);
   }, []);
 
   const enviar = async () => {
@@ -242,14 +250,7 @@ const MisReportes: React.FC = () => {
                     reporte={reporte}
                     mostrarEstado
                     puedeVotar={false}
-                    onDetalles={() =>
-                      reporte.riesgoEnCalculo
-                        ? setMensaje({
-                            texto: 'Este reporte aparecerá en el mapa cuando el municipio lo revise.',
-                            exito: false,
-                          })
-                        : router.push(`${RUTAS.inicio}?reporte=${reporte.id}`, 'root')
-                    }
+                    onDetalles={() => router.push(rutaReporte(reporte.id), 'forward')}
                   />
                 </div>
               ))}
