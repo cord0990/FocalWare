@@ -104,14 +104,14 @@ Es el usuario final comunitario; cualquier habitante o residente de los cerros, 
   * **Generar un reporte de microbasural (RF-01):** Capturar fotografía del foco, registrar la ubicación GPS automática o manual, y catalogar de forma simple el tipo de residuo predominante (muebles, escombros, plásticos, ramas secas).
   * **Operar bajo conectividad intermitente (RF-02):** Guardar borradores de reportes sin conexión para sincronizarlos automáticamente al recuperar señal.
   * **Visualizar el mapa público de focos (RF-03):** Revisar si el vertedero de su sector ya fue reportado por otro vecino para evitar duplicados.
-  * **Consultar estado y seguimiento (RF-05):** Verificar en qué etapa de gestión está su reporte (En revisión, Programado para despeje, Despejado).
+  * **Consultar estado y seguimiento (RF-08):** Verificar en qué etapa de gestión está su reporte (En revisión, Programado para despeje, Despejado).
   * **Confirmación vecinal (RF-07):** Validar comunitariamente si una limpieza informada por el municipio efectivamente se realizó en terreno.
 
 #### 4.1.3. Nivel estimado de experiencia tecnológica
 
 * **Nivel:** Medio a básico.
 * **Justificación e impacto en el diseño:** La mayoría de los usuarios utiliza smartphones primordialmente para mensajería instantánea (WhatsApp) y redes sociales. El diseño debe minimizar la fricción:
-  * Proceso de reporte guiado en máximo 3 pasos (RNF-01).
+  * Proceso de reporte guiado en máximo 2 pasos (RNF-01).
   * Elementos táctiles amplios (mínimo 44 × 44 píxeles) para facilitar la pulsación en terreno y favorecer a usuarios con menor motricidad fina.
   * Compresión automática de imágenes a un peso no superior a 300 KB (RNF-06) para no consumir cuotas de datos ni colapsar la subida en conexiones débiles.
 
