@@ -194,6 +194,12 @@ La aplicación queda disponible en `http://localhost:5173`.
 | **EP2** | Backend, base de datos, API REST, autenticación JWT | Pendiente |
 | **EF** | Funcionalidades completas, seguridad, Docker | Pendiente |
 
+
+---
+## Declaración de uso de Inteligencia Artificial
+
+Durante el desarrollo de este proyecto se utilizaron herramientas de Inteligencia Artificial Generativa como apoyo complementario para la revisión de código, redacción de documentación y optimización de flujos de trabajo. Todo el análisis conceptual, diseño de arquitectura, lógica de negocio e implementación final fueron realizados y validados de forma autónoma por el equipo.
+
 ---
 
 <div align="center">
