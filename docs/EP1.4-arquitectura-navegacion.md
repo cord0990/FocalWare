@@ -43,7 +43,8 @@ Requieren una sesión activa con rol `vecino` o `funcionario`.
 | `/mi-perfil/configuración` | Configuración de la cuenta | Ninguno |
 | `/mi-perfil/:id/editar` | Modifica un reporte ya enviado | RF-01, RF-15 |
 
-Se especifican de esta forma ya que tanto `vecino` como `funcionario` comparten las pantallas, pero dependiendo el rol estas van cambiando
+Se especifican de esta forma ya que tanto `vecino` como `funcionario` comparten las pantallas, pero dependiendo el rol estas van cambiando,
+La unica ruta a la cual un funcionario no debe tener acceso es `/reportar`.
 
 ### 1.3 Rutas protegidas del rol Funcionario
 
@@ -73,7 +74,7 @@ Raíz
 │           ├── Validación de código
 │           └── Nueva contraseña
 │
-├── Zona compartida (Vecino y Funcionario)
+├── Zona compartida (Vecino y/o Funcionario)
 │   ├── Crear reporte
 │   │   ├── Paso 1: Foto y ubicación
 │   │   └── Paso 2: Categoría, volumen y descripción
@@ -133,8 +134,8 @@ Esta división responde al propósito del proyecto y al perfil de usuarios. La t
 | **Inicio (`/`)** | Accede a presentación | Redirige a `/mapa` | Redirige a `/mapa` (Con filtros activos por defecto de mayor a menor riesgo y sin estado) |
 | **Mapa de reportes** | Visualización y filtros públicos | Visualización, filtros y apoya (UpVote) | Filtros de gestión y vista de puntos críticos |
 | **Detalle de reporte** | Solo lectura de información | Lectura y apoya (UpVote) | Vista completa (Aceptar, Rechazar, Modificar, Asignar) |
-| **Crear reporte** | No | Sí | Sí |
-| **Mis reportes / Offline** | No | Sí (Solo propios) | Sí (Solo propios) |
+| **Crear reporte** | No | Sí | No |
+| **Mis reportes / Offline** | No | Sí (Solo propios) | No |
 | **Generar Reporte de Control** | No | No | Sí |
 | **Panel de estadísticas** | No | No | Sí |
 | **Perfil y Notificaciones**| No | Sí | Sí |
@@ -146,7 +147,7 @@ Para evitar conflictos de interés y proteger la integridad administrativa, la s
 
 ## 4. Flujos de tareas principales (Task Flows)
 
-### 4.1 Crear un reporte (Vecino y Funcionario)
+### 4.1 Crear un reporte (Vecino)
 
 ```
 Mapa → Botón de acción "Crear Reporte"
