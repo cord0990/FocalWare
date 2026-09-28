@@ -9,6 +9,8 @@ import {
 } from '@ionic/react';
 import { filterOutline, arrowForwardOutline } from 'ionicons/icons';
 import FiltrosReportesModal from '../../../components/reportes/FiltrosReportesModal';
+import { useSesion } from '../../../hooks/useSesion';
+import { obtenerNotificaciones, type Notificacion } from '../../../services/notificacionesService';
 import { normalizarTexto } from '../../../utils/texto';
 import {
   FILTROS_INICIALES,
@@ -17,48 +19,11 @@ import {
 } from '../../../utils/filtrosReportes';
 import './Notificaciones.css';
 
-export interface Notificacion {
-  id: string;
-  reporteId: string;
-  mensaje: string;
-  estado: 'controlado' | 'aceptado' | 'rechazado';
-  fechaCreacion: string;
-  fechaAprobacion?: string;
-  fechaControl?: string;
-  fechaRechazo?: string;
-}
+export type { Notificacion };
 
 interface Props {
   onVerDetalles: (notificacion: Notificacion) => void;
 }
-
-export const MOCK_NOTIFICACIONES: Notificacion[] = [
-  {
-    id: 'notif-8f3a91b2',
-    reporteId: 'REP-2026-0482',
-    mensaje: '¡Tu reporte ha sido controlado!, ¡Gracias por ayudar a la comunidad!',
-    estado: 'controlado',
-    fechaCreacion: '12/03/2026',
-    fechaAprobacion: '14/03/2026',
-    fechaControl: '20/03/2026',
-  },
-  {
-    id: 'notif-4c1e78a9',
-    reporteId: 'REP-2026-0391',
-    mensaje: '¡Tu reporte ha sido aceptado!',
-    estado: 'aceptado',
-    fechaCreacion: '01/03/2026',
-    fechaAprobacion: '05/03/2026',
-  },
-  {
-    id: 'notif-1b9d45e3',
-    reporteId: 'REP-2026-0215',
-    mensaje: 'Tu reporte ha sido rechazado.',
-    estado: 'rechazado',
-    fechaCreacion: '10/02/2026',
-    fechaRechazo: '10/02/2026',
-  },
-];
 
 const parseFechaString = (fechaStr: string): Date | null => {
   if (!fechaStr) return null;
@@ -79,8 +44,12 @@ const Notificaciones: React.FC<Props> = ({ onVerDetalles }) => {
   const [modalAbierto, setModalAbierto] = useState(false);
 
   const filtrosActivos = listarFiltrosActivos(filtros).length;
+  // Cada rol ve sus propias notificaciones: el vecino, las de sus reportes; el funcionario,
+  // las de cuadrillas y controles.
+  const { usuario } = useSesion();
+  const notificaciones = usuario ? obtenerNotificaciones(usuario.rol) : [];
 
-  const notificacionesFiltradas = MOCK_NOTIFICACIONES.filter((n) => {
+  const notificacionesFiltradas = notificaciones.filter((n) => {
     const termino = normalizarTexto(busqueda.trim());
     const coincideTexto =
       !termino ||

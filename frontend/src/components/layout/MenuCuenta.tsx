@@ -19,6 +19,7 @@ import { usePendientes } from '../../hooks/usePendientes';
 import { RUTAS } from '../../routes/rutas';
 import { useSesion } from '../../hooks/useSesion';
 import { NOMBRE_ROL, obtenerIniciales, primerNombre } from '../../services/sesionService';
+import { obtenerNotificaciones } from '../../services/notificacionesService';
 import { ACTIVIDAD_PRUEBA } from '../../services/usuarioService';
 import './MenuCuenta.css';
 
@@ -132,7 +133,7 @@ const MenuCuenta: React.FC<{ contentId: string }> = ({ contentId }) => {
               <OpcionMenu
                 icono={notificationsOutline}
                 texto="Notificaciones"
-                contador={actividad.notificacionesSinLeer}
+                contador={obtenerNotificaciones(usuario.rol).length}
                 onClick={() => irA(RUTAS.perfil)}
               />
               {esVecino && (
