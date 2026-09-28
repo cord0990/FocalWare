@@ -206,6 +206,10 @@ npm run dev
 
 La aplicación queda disponible en `http://localhost:5173`.
 
+**Acceso según rol de usuario:**
+* **Vecino:** Iniciar sesión con un correo general (ej. `@gmail.com`).
+* **Funcionario:** Iniciar sesión con correo institucional `@focalware.cl`.
+
 ## Estado del proyecto
 
 | Entrega | Contenido | Estado |
