@@ -19,7 +19,6 @@ export const RUTAS = {
   editarEnLocal: '/mis-reportes/en-local/:id',
   perfil: '/mi-perfil',
   perfilConfiguracion: '/mi-perfil/configuracion',
-  perfilTerminos: '/mi-perfil/terminos',
 
   // Solo Funcionario: todas cuelgan de /municipal.
   municipalReporte: '/municipal/reporte/:id',
