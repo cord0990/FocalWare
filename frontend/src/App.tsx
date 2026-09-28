@@ -166,14 +166,6 @@ const App: React.FC = () => (
                 </RutaProtegida>
               }
             />
-            <Route
-              path={RUTAS.perfilTerminos}
-              element={
-                <RutaProtegida>
-                  <Perfil seccion="info" />
-                </RutaProtegida>
-              }
-            />
 
             {/* Funcionario: todo lo que está bajo /municipal requiere ese rol */}
             <Route

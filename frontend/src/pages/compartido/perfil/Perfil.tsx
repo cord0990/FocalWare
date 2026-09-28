@@ -6,12 +6,7 @@ import {
   IonButton,
   useIonRouter
 } from '@ionic/react';
-import {
-  mailOutline,
-  mailUnreadOutline,
-  settingsOutline,
-  informationCircleOutline
-} from 'ionicons/icons';
+import { settingsOutline } from 'ionicons/icons';
 
 import AppLayout from '../../../components/layout/AppLayout';
 import { useSesion } from '../../../hooks/useSesion';
@@ -19,24 +14,21 @@ import { RUTAS } from '../../../routes/rutas';
 import Notificaciones, { Notificacion } from './Notificaciones';
 import Configuracion from './Configuracion';
 import DetalleNotificacion from './DetalleNotificacion';
-import InformacionTab from './Informacion';
 import './Perfil.css';
 
-type TabPerfil = 'notificaciones' | 'configuracion' | 'info' | 'detalle';
+type TabPerfil = 'notificaciones' | 'configuracion' | 'detalle';
 
 type SeccionPerfil = Exclude<TabPerfil, 'detalle'>;
 
-// Cada pestaña tiene su propia ruta (EP 1.4): /mi-perfil, /mi-perfil/configuracion y /mi-perfil/terminos.
+// Cada vista tiene su propia ruta: /mi-perfil (notificaciones) y /mi-perfil/configuracion.
 const RUTA_SECCION: Record<SeccionPerfil, string> = {
   notificaciones: RUTAS.perfil,
   configuracion: RUTAS.perfilConfiguracion,
-  info: RUTAS.perfilTerminos,
 };
 
 const Perfil: React.FC<{ seccion: SeccionPerfil }> = ({ seccion }) => {
   const [tabActiva, setTabActiva] = useState<TabPerfil>(seccion);
   const [notificacionSeleccionada, setNotificacionSeleccionada] = useState<Notificacion | null>(null);
-  const [tieneNotificaciones] = useState<boolean>(true);
 
   const handleVerDetalle = (notif: Notificacion) => {
     setNotificacionSeleccionada(notif);
@@ -55,7 +47,7 @@ const Perfil: React.FC<{ seccion: SeccionPerfil }> = ({ seccion }) => {
     <AppLayout>
       <div className="perfil-header-tabs">
         <IonSegment
-          value={tabActiva === 'detalle' ? 'notificaciones' : tabActiva}
+          value={tabActiva === 'configuracion' ? 'configuracion' : undefined}
           onIonChange={(e) => {
             const nueva = e.detail.value as SeccionPerfil;
             if (nueva !== seccion) router.push(RUTA_SECCION[nueva], 'none', 'replace');
@@ -63,16 +55,8 @@ const Perfil: React.FC<{ seccion: SeccionPerfil }> = ({ seccion }) => {
           }}
           className="perfil-segment"
         >
-          <IonSegmentButton value="notificaciones" className="perfil-segment-btn">
-            <IonIcon icon={tieneNotificaciones ? mailUnreadOutline : mailOutline} />
-          </IonSegmentButton>
-
           <IonSegmentButton value="configuracion" className="perfil-segment-btn">
             <IonIcon icon={settingsOutline} />
-          </IonSegmentButton>
-
-          <IonSegmentButton value="info" className="perfil-segment-btn">
-            <IonIcon icon={informationCircleOutline} />
           </IonSegmentButton>
         </IonSegment>
 
@@ -92,10 +76,6 @@ const Perfil: React.FC<{ seccion: SeccionPerfil }> = ({ seccion }) => {
 
         {tabActiva === 'configuracion' && (
           <Configuracion />
-        )}
-
-        {tabActiva === 'info' && (
-          <InformacionTab />
         )}
 
         {tabActiva === 'detalle' && (

@@ -18,7 +18,7 @@ const OPCIONES_VECINO = [
   { texto: 'Mapa', ruta: RUTAS.mapa, icono: mapOutline },
   { texto: 'Crear reporte', ruta: RUTAS.reportar, icono: documentTextOutline },
   { texto: 'Mis reportes', ruta: RUTAS.misReportes, icono: folderOpenOutline },
-  { texto: 'Mi perfil', ruta: RUTAS.perfil, icono: personOutline },
+  { texto: 'Mi perfil', ruta: RUTAS.perfilConfiguracion, icono: personOutline },
 ];
 
 // El Funcionario gestiona los reportes desde el mapa pero no los crea, así que no tiene
@@ -26,7 +26,7 @@ const OPCIONES_VECINO = [
 const OPCIONES_FUNCIONARIO = [
   { texto: 'Mapa', ruta: RUTAS.mapa, icono: mapOutline },
   { texto: 'Estadísticas', ruta: RUTAS.municipalEstadisticas, icono: statsChartOutline },
-  { texto: 'Mi perfil', ruta: RUTAS.perfil, icono: personOutline },
+  { texto: 'Mi perfil', ruta: RUTAS.perfilConfiguracion, icono: personOutline },
 ];
 
 // La sección sigue marcada en sus subpáginas (por ejemplo, /mis-reportes/R-001).

@@ -162,7 +162,7 @@ const MenuCuenta: React.FC<{ contentId: string }> = ({ contentId }) => {
               <OpcionMenu
                 icono={documentTextOutline}
                 texto="Términos y privacidad"
-                onClick={() => irA(RUTAS.perfilTerminos)}
+                onClick={() => irA(`${RUTAS.ayuda}?seccion=terminos`)}
               />
               <OpcionMenu
                 icono={informationCircleOutline}
