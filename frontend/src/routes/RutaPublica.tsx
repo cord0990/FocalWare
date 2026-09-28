@@ -10,7 +10,7 @@ const RutaPublica: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { pathname, state } = useLocation();
   // Ionic mantiene montadas las páginas anteriores; solo redirige la página que está a la vista.
   const rutaPropia = useRef(pathname);
-  const destino = (state as { desde?: string } | null)?.desde ?? RUTAS.inicio;
+  const destino = (state as { desde?: string } | null)?.desde ?? RUTAS.mapa;
 
   if (usuario) {
     if (pathname !== rutaPropia.current) return null;

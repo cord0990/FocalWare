@@ -7,13 +7,14 @@ import {
   IonToolbar,
   useIonRouter,
 } from '@ionic/react';
-import { chevronDownOutline } from 'ionicons/icons';
+import { chevronDownOutline, logInOutline } from 'ionicons/icons';
 import MenuLateral from './MenuLateral';
 import { ID_MENU_CUENTA } from './MenuCuenta';
 import { CLAVE_ANCHO_MENU } from '../../context/MenuProvider';
 import { useAnchoRedimensionable } from '../../hooks/useAnchoRedimensionable';
 import { useMenu } from '../../hooks/useMenu';
 import { RUTAS } from '../../routes/rutas';
+import { useIrAlLogin } from '../../hooks/useIrAlLogin';
 import { useSesion } from '../../hooks/useSesion';
 import { NOMBRE_ROL, obtenerIniciales } from '../../services/sesionService';
 import './AppLayout.css';
@@ -26,6 +27,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const router = useIonRouter();
   const menu = useMenu();
   const { usuario } = useSesion();
+  const irAlLogin = useIrAlLogin();
   const divisorMenu = useAnchoRedimensionable({
     clave: CLAVE_ANCHO_MENU,
     minimo: 180,
@@ -39,29 +41,43 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       <IonHeader className="ion-no-border">
         <IonToolbar className="app-encabezado">
           <a
-            href={RUTAS.inicio}
+            href={RUTAS.mapa}
             className="app-marca"
-            aria-label="FocalWare, ir al inicio"
+            aria-label="FocalWare, ir al mapa"
             onClick={(evento) => {
               evento.preventDefault();
-              router.push(RUTAS.inicio, 'root');
+              router.push(RUTAS.mapa, 'root');
             }}
           >
             <img src="/logo-focalware.webp" alt="" />
             <span>FocalWare</span>
           </a>
-          <IonMenuToggle slot="end" menu={ID_MENU_CUENTA} autoHide={false}>
-            <button type="button" className="app-cuenta" aria-label="Abrir menú de mi cuenta">
-              <span className="app-cuenta-texto">
-                <strong>Mi cuenta</strong>
-                <small>{usuario ? NOMBRE_ROL[usuario.rol] : ''}</small>
-              </span>
-              <span className="app-avatar" aria-hidden="true">
-                {usuario ? obtenerIniciales(usuario.nombre) : ''}
-              </span>
-              <IonIcon icon={chevronDownOutline} className="app-cuenta-flecha" aria-hidden="true" />
+          {usuario ? (
+            <IonMenuToggle slot="end" menu={ID_MENU_CUENTA} autoHide={false}>
+              <button type="button" className="app-cuenta" aria-label="Abrir menú de mi cuenta">
+                <span className="app-cuenta-texto">
+                  <strong>Mi cuenta</strong>
+                  <small>{NOMBRE_ROL[usuario.rol]}</small>
+                </span>
+                <span className="app-avatar" aria-hidden="true">
+                  {obtenerIniciales(usuario.nombre)}
+                </span>
+                <IonIcon icon={chevronDownOutline} className="app-cuenta-flecha" aria-hidden="true" />
+              </button>
+            </IonMenuToggle>
+          ) : (
+            // Sin sesión se puede mirar el mapa; para reportar o votar hay que entrar.
+            <button
+              type="button"
+              slot="end"
+              className="app-cuenta app-entrar"
+              aria-label="Iniciar sesión"
+              onClick={() => irAlLogin()}
+            >
+              <IonIcon icon={logInOutline} aria-hidden="true" />
+              <strong>Iniciar sesión</strong>
             </button>
-          </IonMenuToggle>
+          )}
         </IonToolbar>
       </IonHeader>
 

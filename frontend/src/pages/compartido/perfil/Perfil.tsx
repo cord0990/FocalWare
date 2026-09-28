@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
 import {
   IonSegment,
   IonSegmentButton,
@@ -14,9 +13,9 @@ import {
   informationCircleOutline
 } from 'ionicons/icons';
 
-import AppLayout from '../../components/layout/AppLayout';
-import { useSesion } from '../../hooks/useSesion';
-import { RUTAS } from '../../routes/rutas';
+import AppLayout from '../../../components/layout/AppLayout';
+import { useSesion } from '../../../hooks/useSesion';
+import { RUTAS } from '../../../routes/rutas';
 import Notificaciones, { Notificacion } from './Notificaciones';
 import Configuracion from './Configuracion';
 import DetalleNotificacion from './DetalleNotificacion';
@@ -25,22 +24,17 @@ import './Perfil.css';
 
 type TabPerfil = 'notificaciones' | 'configuracion' | 'info' | 'detalle';
 
-const SECCIONES: TabPerfil[] = ['notificaciones', 'configuracion', 'info'];
+type SeccionPerfil = Exclude<TabPerfil, 'detalle'>;
 
-// Permite abrir una pestaña directamente con /perfil?seccion=configuracion
-const seccionDeLaUrl = (search: string): TabPerfil => {
-  const seccion = new URLSearchParams(search).get('seccion') as TabPerfil | null;
-  return seccion && SECCIONES.includes(seccion) ? seccion : 'notificaciones';
+// Cada pestaña tiene su propia ruta (EP 1.4): /mi-perfil, /mi-perfil/configuracion y /mi-perfil/terminos.
+const RUTA_SECCION: Record<SeccionPerfil, string> = {
+  notificaciones: RUTAS.perfil,
+  configuracion: RUTAS.perfilConfiguracion,
+  info: RUTAS.perfilTerminos,
 };
 
-const Perfil: React.FC = () => {
-  const { search } = useLocation();
-  const [tabActiva, setTabActiva] = useState<TabPerfil>(() => seccionDeLaUrl(search));
-
-  // La página queda abierta al navegar, así que se cambia de pestaña cuando cambia la URL.
-  useEffect(() => {
-    setTabActiva(seccionDeLaUrl(search));
-  }, [search]);
+const Perfil: React.FC<{ seccion: SeccionPerfil }> = ({ seccion }) => {
+  const [tabActiva, setTabActiva] = useState<TabPerfil>(seccion);
   const [notificacionSeleccionada, setNotificacionSeleccionada] = useState<Notificacion | null>(null);
   const [tieneNotificaciones] = useState<boolean>(true);
 
@@ -62,7 +56,11 @@ const Perfil: React.FC = () => {
       <div className="perfil-header-tabs">
         <IonSegment
           value={tabActiva === 'detalle' ? 'notificaciones' : tabActiva}
-          onIonChange={(e) => setTabActiva(e.detail.value as TabPerfil)}
+          onIonChange={(e) => {
+            const nueva = e.detail.value as SeccionPerfil;
+            if (nueva !== seccion) router.push(RUTA_SECCION[nueva], 'none', 'replace');
+            else setTabActiva(nueva);
+          }}
           className="perfil-segment"
         >
           <IonSegmentButton value="notificaciones" className="perfil-segment-btn">

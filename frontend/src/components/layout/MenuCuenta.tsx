@@ -16,7 +16,7 @@ import {
 } from 'ionicons/icons';
 import { useConexion } from '../../hooks/useConexion';
 import { usePendientes } from '../../hooks/usePendientes';
-import { RUTAS, rutaPerfil } from '../../routes/rutas';
+import { RUTAS } from '../../routes/rutas';
 import { useSesion } from '../../hooks/useSesion';
 import { NOMBRE_ROL, obtenerIniciales, primerNombre } from '../../services/sesionService';
 import { ACTIVIDAD_PRUEBA } from '../../services/usuarioService';
@@ -91,7 +91,7 @@ const MenuCuenta: React.FC<{ contentId: string }> = ({ contentId }) => {
               <button
                 type="button"
                 className="cuenta-saludo"
-                onClick={() => irA(rutaPerfil('configuracion'))}
+                onClick={() => irA(RUTAS.perfilConfiguracion)}
                 title="Ir a la configuración de la cuenta"
               >
                 <span className="cuenta-avatar">{obtenerIniciales(usuario.nombre)}</span>
@@ -127,7 +127,7 @@ const MenuCuenta: React.FC<{ contentId: string }> = ({ contentId }) => {
                 icono={notificationsOutline}
                 texto="Notificaciones"
                 contador={actividad.notificacionesSinLeer}
-                onClick={() => irA(rutaPerfil('notificaciones'))}
+                onClick={() => irA(RUTAS.perfil)}
               />
               <OpcionMenu
                 icono={cloudUploadOutline}
@@ -153,7 +153,7 @@ const MenuCuenta: React.FC<{ contentId: string }> = ({ contentId }) => {
               <OpcionMenu
                 icono={documentTextOutline}
                 texto="Términos y privacidad"
-                onClick={() => irA(`${RUTAS.ayuda}?seccion=terminos`)}
+                onClick={() => irA(RUTAS.perfilTerminos)}
               />
               <OpcionMenu
                 icono={informationCircleOutline}

@@ -12,6 +12,7 @@ import {
 } from '@ionic/react';
 import {
   arrowBackOutline,
+  cloudOfflineOutline,
   helpCircleOutline,
   locateOutline,
   lockClosedOutline,
@@ -29,8 +30,14 @@ import GaleriaEditable from '../../components/reportes/GaleriaEditable';
 import SelectorUbicacion, { type Ubicacion } from '../../components/reportes/SelectorUbicacion';
 import { useConexion } from '../../hooks/useConexion';
 import { useUbicacionActual } from '../../hooks/useUbicacionActual';
-import { RUTAS, rutaReporte } from '../../routes/rutas';
+import { RUTAS, rutaMiReporte } from '../../routes/rutas';
 import { esClimaDeRiesgo } from '../../services/climaService';
+import {
+  actualizarPendiente,
+  eliminarPendiente,
+  obtenerPendientePorId,
+  type ReportePendiente,
+} from '../../services/pendientesService';
 import {
   actualizarReporte,
   eliminarReporte,
@@ -56,8 +63,24 @@ interface Aviso {
 // El título es una sola línea aunque en pantalla ocupe varias.
 const sinSaltosDeLinea = (texto: string) => texto.replace(/\s*\n\s*/g, ' ');
 
+// Un borrador guardado sin conexión se muestra con la misma forma que un reporte enviado.
+const borradorComoReporte = (borrador: ReportePendiente): Reporte => ({
+  ...borrador,
+  estado: 'Pendiente',
+  fecha: borrador.guardadoEn.slice(0, 10),
+  riesgo: borrador.riesgo ?? 0,
+  votos: 0,
+});
+
+interface EditarReporteProps {
+  // 'nube': reporte ya enviado (/mis-reportes/:id/editar).
+  // 'local': borrador guardado sin conexión que aún no se envía (/mis-reportes/en-local/:id, RF-13).
+  origen: 'nube' | 'local';
+}
+
 // Pantalla para que el autor corrija los datos o las fotos de su reporte.
-const EditarReporte: React.FC = () => {
+const EditarReporte: React.FC<EditarReporteProps> = ({ origen }) => {
+  const esBorrador = origen === 'local';
   const { id = '' } = useParams<{ id: string }>();
   const router = useIonRouter();
   const [mostrarAlerta] = useIonAlert();
@@ -101,15 +124,22 @@ const EditarReporte: React.FC = () => {
   useEffect(() => {
     let vigente = true;
     setReporte(undefined);
-    obtenerReportePorId(id).then((encontrado) => {
-      if (vigente) cargar(encontrado ?? null);
-    });
+    if (esBorrador) {
+      const borrador = obtenerPendientePorId(id);
+      cargar(borrador ? borradorComoReporte(borrador) : null);
+    } else {
+      obtenerReportePorId(id).then((encontrado) => {
+        if (vigente) cargar(encontrado ?? null);
+      });
+    }
     return () => {
       vigente = false;
     };
-  }, [id]);
+  }, [id, esBorrador]);
 
-  const volverAlDetalle = () => router.push(rutaReporte(id), 'back');
+  // Un borrador vuelve a Mis reportes; un reporte enviado, a su detalle.
+  const volverAlDetalle = () =>
+    router.push(esBorrador ? RUTAS.misReportes : rutaMiReporte(id), 'back');
 
   if (reporte === undefined) {
     return (
@@ -121,7 +151,7 @@ const EditarReporte: React.FC = () => {
     );
   }
 
-  if (reporte === null || (!puedeModificar(reporte) && !eliminado)) {
+  if (reporte === null || (!esBorrador && !puedeModificar(reporte) && !eliminado)) {
     return (
       <AppLayout>
         <div className="formulario-estado">
@@ -188,6 +218,16 @@ const EditarReporte: React.FC = () => {
       setMensaje('No has hecho cambios en el reporte.');
       return;
     }
+    // El borrador está en el teléfono: se guarda al tiro, con o sin conexión.
+    if (esBorrador) {
+      actualizarPendiente(reporte.id, { ...cambios, riesgo: desglose.indice });
+      setAviso({
+        tipo: 'exito',
+        titulo: '¡Borrador actualizado!',
+        mensaje: 'Se enviará con estos cambios cuando tengas conexión.',
+      });
+      return;
+    }
     // Un reporte ya enviado solo se puede modificar con conexión.
     if (!enLinea) {
       setAviso({
@@ -227,14 +267,26 @@ const EditarReporte: React.FC = () => {
 
   const eliminar = () =>
     mostrarAlerta({
-      header: 'Eliminar reporte',
-      message: 'El reporte dejará de aparecer en el mapa y no se puede recuperar.',
+      header: esBorrador ? 'Eliminar borrador' : 'Eliminar reporte',
+      message: esBorrador
+        ? 'El borrador se borrará de tu teléfono y no se enviará.'
+        : 'El reporte dejará de aparecer en el mapa y no se puede recuperar.',
       buttons: [
         { text: 'Cancelar', role: 'cancel' },
         {
           text: 'Eliminar',
           role: 'destructive',
           handler: async () => {
+            if (esBorrador) {
+              eliminarPendiente(reporte.id);
+              setEliminado(true);
+              setAviso({
+                tipo: 'exito',
+                titulo: 'Borrador eliminado',
+                mensaje: 'Ya no está en tu lista de envíos pendientes.',
+              });
+              return;
+            }
             if (!enLinea) {
               setMensaje('Necesitas internet para eliminar el reporte.');
               return;
@@ -279,7 +331,7 @@ const EditarReporte: React.FC = () => {
     const tipo = aviso?.tipo;
     setAviso(null);
     if (tipo === 'error') guardar();
-    if (tipo === 'exito' && eliminado) router.push(RUTAS.misReportes, 'root');
+    if (tipo === 'exito' && (eliminado || esBorrador)) router.push(RUTAS.misReportes, 'root');
     else if (tipo === 'exito') volverAlDetalle();
   };
 
@@ -319,18 +371,20 @@ const EditarReporte: React.FC = () => {
               onVolumen={setVolumen}
               onDistancia={setDistancia}
             />
-            <dl className="formulario-datos-fijos">
-              <div>
-                <dt>Apoyos vecinales</dt>
-                <dd>
-                  {reporte.votos} {reporte.votos === 1 ? 'apoyo' : 'apoyos'}
-                </dd>
-              </div>
-              <div>
-                <dt>Antigüedad</dt>
-                <dd>{antiguedad(reporte.fecha)}</dd>
-              </div>
-            </dl>
+            {!esBorrador && (
+              <dl className="formulario-datos-fijos">
+                <div>
+                  <dt>Apoyos vecinales</dt>
+                  <dd>
+                    {reporte.votos} {reporte.votos === 1 ? 'apoyo' : 'apoyos'}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Antigüedad</dt>
+                  <dd>{antiguedad(reporte.fecha)}</dd>
+                </div>
+              </dl>
+            )}
           </section>
 
           <section className="formulario-clima" aria-label="Clima al reportar">
@@ -366,10 +420,10 @@ const EditarReporte: React.FC = () => {
             <IonButton className="formulario-aceptar" onClick={guardar} disabled={guardando}>
               {guardando ? <IonSpinner name="crescent" /> : 'Aceptar cambios'}
             </IonButton>
-            {puedeEliminar(reporte) ? (
+            {esBorrador || puedeEliminar(reporte) ? (
               <button type="button" className="formulario-eliminar" onClick={eliminar} disabled={guardando}>
                 <IonIcon icon={trashOutline} aria-hidden="true" />
-                Eliminar reporte
+                {esBorrador ? 'Eliminar borrador' : 'Eliminar reporte'}
               </button>
             ) : (
               <p className="formulario-nota">
@@ -384,12 +438,13 @@ const EditarReporte: React.FC = () => {
             <span>
               <IonIcon icon={arrowBackOutline} aria-hidden="true" />
             </span>
-            Volver al reporte
+            {esBorrador ? 'Volver a Mis reportes' : 'Volver al reporte'}
           </button>
 
           <div className="formulario-titulo">
             <h1>
-              <IonIcon icon={pencilOutline} aria-hidden="true" /> Modificar reporte
+              <IonIcon icon={pencilOutline} aria-hidden="true" />
+              {esBorrador ? 'Modificar borrador sin conexión' : 'Modificar reporte'}
             </h1>
             <IonTextarea
               aria-label="Título del reporte"
@@ -414,10 +469,20 @@ const EditarReporte: React.FC = () => {
             <span>{formatearFecha(reporte.fecha)}</span>
             <span>{categoria || reporte.categoria}</span>
             {reporte.editadoEn && <span>Modificado {formatearFecha(reporte.editadoEn)}</span>}
-            <span className="formulario-estado-etiqueta" style={{ color: estado.color, borderColor: estado.color }}>
-              <IonIcon icon={estado.icono} aria-hidden="true" />
-              {reporte.estado}
-            </span>
+            {esBorrador ? (
+              <span className="formulario-estado-etiqueta borrador">
+                <IonIcon icon={cloudOfflineOutline} aria-hidden="true" />
+                Sin enviar
+              </span>
+            ) : (
+              <span
+                className="formulario-estado-etiqueta"
+                style={{ color: estado.color, borderColor: estado.color }}
+              >
+                <IonIcon icon={estado.icono} aria-hidden="true" />
+                {reporte.estado}
+              </span>
+            )}
           </div>
 
           <GaleriaEditable

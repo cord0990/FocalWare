@@ -25,7 +25,7 @@ import TarjetaPendiente from '../../components/reportes/TarjetaPendiente';
 import TarjetaReporte from '../../components/reportes/TarjetaReporte';
 import { useConexion } from '../../hooks/useConexion';
 import { usePendientes } from '../../hooks/usePendientes';
-import { RUTAS, rutaReporte } from '../../routes/rutas';
+import { RUTAS, rutaEditarEnLocal, rutaMiReporte } from '../../routes/rutas';
 import { eliminarPendiente, enviarPendientes } from '../../services/pendientesService';
 import {
   ESTADOS_REPORTE,
@@ -118,7 +118,7 @@ const MisReportes: React.FC = () => {
           <button
             type="button"
             className="mis-reportes-volver"
-            onClick={() => router.push(RUTAS.inicio, 'back')}
+            onClick={() => router.push(RUTAS.mapa, 'back')}
             aria-label="Volver al mapa"
           >
             <IonIcon icon={arrowBackOutline} aria-hidden="true" />
@@ -132,7 +132,7 @@ const MisReportes: React.FC = () => {
           </div>
           <IonButton
             className="mis-reportes-nuevo"
-            onClick={() => router.push(RUTAS.crearReporte, 'root')}
+            onClick={() => router.push(RUTAS.reportar, 'root')}
           >
             <IonIcon slot="start" icon={addOutline} />
             Nuevo reporte
@@ -170,6 +170,7 @@ const MisReportes: React.FC = () => {
                 <TarjetaPendiente
                   key={pendiente.id}
                   pendiente={pendiente}
+                  onEditar={() => router.push(rutaEditarEnLocal(pendiente.id), 'forward')}
                   onEliminar={() => confirmarEliminar(pendiente.id, pendiente.nombre)}
                 />
               ))}
@@ -250,7 +251,7 @@ const MisReportes: React.FC = () => {
                     reporte={reporte}
                     mostrarEstado
                     puedeVotar={false}
-                    onDetalles={() => router.push(rutaReporte(reporte.id), 'forward')}
+                    onDetalles={() => router.push(rutaMiReporte(reporte.id), 'forward')}
                   />
                 </div>
               ))}

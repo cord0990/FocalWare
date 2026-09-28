@@ -4,6 +4,7 @@ import { IonIcon, IonSpinner, useIonRouter } from '@ionic/react';
 import {
   arrowBackOutline,
   createOutline,
+  folderOpenOutline,
   helpCircleOutline,
   imagesOutline,
   mapOutline,
@@ -16,7 +17,8 @@ import ExplicacionRiesgo from '../../components/reportes/ExplicacionRiesgo';
 import MiniMapa from '../../components/reportes/MiniMapa';
 import TarjetaReporte from '../../components/reportes/TarjetaReporte';
 import { useAnchoRedimensionable } from '../../hooks/useAnchoRedimensionable';
-import { RUTAS, rutaEditarReporte, rutaReporte } from '../../routes/rutas';
+import { useSesion } from '../../hooks/useSesion';
+import { RUTAS, rutaDetalleMapa, rutaEditarReporte } from '../../routes/rutas';
 import { esClimaDeRiesgo } from '../../services/climaService';
 import {
   EVENTO_REPORTES,
@@ -31,9 +33,16 @@ import { calcularIndice } from '../../utils/opcionesReporte';
 import { obtenerNivelRiesgo } from '../../utils/riesgo';
 import './DetalleReporte.css';
 
-const DetalleReporte: React.FC = () => {
+interface DetalleReporteProps {
+  // Desde el mapa (público, /mapa/:id) o desde Mis reportes (/mis-reportes/:id).
+  origen: 'mapa' | 'mis-reportes';
+}
+
+const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
   const { id = '' } = useParams<{ id: string }>();
   const router = useIonRouter();
+  const { usuario } = useSesion();
+  const rutaListado = origen === 'mapa' ? RUTAS.mapa : RUTAS.misReportes;
   const [reporte, setReporte] = useState<Reporte | null>();
   const [otros, setOtros] = useState<Reporte[]>([]);
   const [fotoActiva, setFotoActiva] = useState(0);
@@ -68,7 +77,7 @@ const DetalleReporte: React.FC = () => {
     };
   }, [id]);
 
-  const volver = () => (router.canGoBack() ? router.goBack() : router.push(RUTAS.inicio, 'back'));
+  const volver = () => (router.canGoBack() ? router.goBack() : router.push(rutaListado, 'back'));
 
   if (reporte === undefined) {
     return (
@@ -86,7 +95,7 @@ const DetalleReporte: React.FC = () => {
         <div className="detalle-no-encontrado">
           <h1>No encontramos este reporte</h1>
           <p>Puede que haya sido eliminado o que el enlace esté incompleto.</p>
-          <button type="button" className="detalle-volver" onClick={() => router.push(RUTAS.inicio, 'root')}>
+          <button type="button" className="detalle-volver" onClick={() => router.push(RUTAS.mapa, 'root')}>
             <span>
               <IonIcon icon={arrowBackOutline} aria-hidden="true" />
             </span>
@@ -190,10 +199,14 @@ const DetalleReporte: React.FC = () => {
               <span>
                 <IonIcon icon={arrowBackOutline} aria-hidden="true" />
               </span>
-              <IonIcon icon={mapOutline} aria-hidden="true" className="detalle-volver-mapa" />
-              Volver
+              <IonIcon
+                icon={origen === 'mapa' ? mapOutline : folderOpenOutline}
+                aria-hidden="true"
+                className="detalle-volver-mapa"
+              />
+              {origen === 'mapa' ? 'Volver al mapa' : 'Volver a Mis reportes'}
             </button>
-            {puedeModificar(reporte) && (
+            {usuario && puedeModificar(reporte) && (
               <button
                 type="button"
                 className="detalle-modificar"
@@ -280,7 +293,7 @@ const DetalleReporte: React.FC = () => {
                 <TarjetaReporte
                   reporte={otro}
                   puedeVotar={false}
-                  onDetalles={() => router.push(rutaReporte(otro.id), 'forward')}
+                  onDetalles={() => router.push(rutaDetalleMapa(otro.id), 'forward')}
                 />
               </div>
             ))}

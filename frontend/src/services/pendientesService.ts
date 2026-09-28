@@ -93,6 +93,13 @@ export const guardarPendiente = (datos: DatosNuevoReporte) =>
     { ...datos, id: `P-${Date.now().toString().slice(-6)}`, guardadoEn: fechaHoraActual() },
   ]);
 
+export const obtenerPendientePorId = (id: string): ReportePendiente | undefined =>
+  leer().find((pendiente) => pendiente.id === id);
+
+// Modifica un reporte guardado sin conexión antes de enviarlo (RF-13). No necesita internet.
+export const actualizarPendiente = (id: string, cambios: Partial<DatosNuevoReporte>) =>
+  guardar(leer().map((pendiente) => (pendiente.id === id ? { ...pendiente, ...cambios } : pendiente)));
+
 export const eliminarPendiente = (id: string) =>
   guardar(leer().filter((pendiente) => pendiente.id !== id));
 

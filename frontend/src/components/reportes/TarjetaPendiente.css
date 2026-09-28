@@ -45,7 +45,7 @@
   font-size: 0.78rem;
 }
 
-.tarjeta-pendiente-eliminar {
+.tarjeta-pendiente-accion {
   display: flex;
   flex-shrink: 0;
   align-items: center;
@@ -60,7 +60,12 @@
   cursor: pointer;
 }
 
-.tarjeta-pendiente-eliminar:hover {
+.tarjeta-pendiente-accion:hover {
+  background: #f4efdc;
+  color: #1f1f1f;
+}
+
+.tarjeta-pendiente-accion.eliminar:hover {
   background: #fdeeee;
   color: #e0283a;
 }

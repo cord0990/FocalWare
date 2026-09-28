@@ -26,6 +26,7 @@ const Registro: React.FC = () => {
   const [intentoEnviar, setIntentoEnviar] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [mensaje, setMensaje] = useState('');
+  const [errorRegistro, setErrorRegistro] = useState('');
   const { tocar, claseCampo } = useCamposTocados();
   const sesion = useSesion();
 
@@ -53,11 +54,16 @@ const Registro: React.FC = () => {
     if (Object.values(errores).some(Boolean)) return;
 
     setEnviando(true);
-    const usuario = await registrarUsuario({ nombre, correo, telefono, contrasena });
+    setErrorRegistro('');
+    try {
+      const usuario = await registrarUsuario({ nombre, correo, telefono, contrasena });
+      setMensaje('Cuenta creada correctamente.');
+      // Se muestra el aviso un momento y se entra a la app con la cuenta nueva.
+      setTimeout(() => sesion.iniciarSesion(usuario), 1200);
+    } catch (causa) {
+      setErrorRegistro(causa instanceof Error ? causa.message : 'No pudimos crear la cuenta.');
+    }
     setEnviando(false);
-    setMensaje('Cuenta creada correctamente.');
-    // Se muestra el aviso un momento y se entra a la app con la cuenta nueva.
-    setTimeout(() => sesion.iniciarSesion(usuario), 1200);
   };
 
   return (
@@ -143,6 +149,11 @@ const Registro: React.FC = () => {
           Acepto los términos y condiciones
         </IonCheckbox>
         {intentoEnviar && errores.terminos && <p className="mensaje-error">{errores.terminos}</p>}
+        {errorRegistro && (
+          <p className="mensaje-error" role="alert">
+            {errorRegistro}
+          </p>
+        )}
 
         <IonButton type="submit" expand="block" className="btn-principal" disabled={enviando}>
           {enviando ? <IonSpinner name="crescent" /> : 'Crear cuenta'}

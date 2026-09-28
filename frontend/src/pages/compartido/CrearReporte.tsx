@@ -30,7 +30,7 @@ import GaleriaEditable from '../../components/reportes/GaleriaEditable';
 import SelectorUbicacion, { type Ubicacion } from '../../components/reportes/SelectorUbicacion';
 import { useConexion } from '../../hooks/useConexion';
 import { useUbicacionActual } from '../../hooks/useUbicacionActual';
-import { RUTAS, rutaEditarReporte } from '../../routes/rutas';
+import { RUTAS, rutaEditarReporte, rutaMapaConReporte } from '../../routes/rutas';
 import { esClimaDeRiesgo, obtenerClimaActual, type Clima } from '../../services/climaService';
 import { guardarPendiente } from '../../services/pendientesService';
 import { crearReporte, type DatosNuevoReporte, type Reporte } from '../../services/reportesService';
@@ -176,7 +176,7 @@ const CrearReporte: React.FC = () => {
     router.push(ruta, 'root');
   };
 
-  const irAlMapa = () => salirA(creado ? `${RUTAS.inicio}?reporte=${creado.id}` : RUTAS.inicio);
+  const irAlMapa = () => salirA(creado ? rutaMapaConReporte(creado.id) : RUTAS.mapa);
   const irAMisReportes = () => salirA(RUTAS.misReportes);
 
   // Si el vecino se equivocó en algo, puede corregirlo apenas lo crea.

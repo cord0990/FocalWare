@@ -1,7 +1,7 @@
 // Sesión del usuario guardada en el navegador. En la Entrega 2 aquí se guardará el token (JWT)
 // que entregue el backend al iniciar sesión.
 
-export type Rol = 'vecino';
+export type Rol = 'vecino' | 'funcionario';
 
 export interface Usuario {
   id: string;
@@ -13,6 +13,7 @@ export interface Usuario {
 
 export const NOMBRE_ROL: Record<Rol, string> = {
   vecino: 'Vecino',
+  funcionario: 'Funcionario',
 };
 
 const CLAVE_SESION = 'focalware-sesion';

@@ -8,13 +8,13 @@ import {
   IonBadge,
 } from '@ionic/react';
 import { filterOutline, arrowForwardOutline } from 'ionicons/icons';
-import FiltrosReportesModal from '../../components/reportes/FiltrosReportesModal';
-import { normalizarTexto } from '../../utils/texto';
+import FiltrosReportesModal from '../../../components/reportes/FiltrosReportesModal';
+import { normalizarTexto } from '../../../utils/texto';
 import {
   FILTROS_INICIALES,
   listarFiltrosActivos,
   type FiltrosReportes,
-} from '../../utils/filtrosReportes';
+} from '../../../utils/filtrosReportes';
 import './Notificaciones.css';
 
 export interface Notificacion {

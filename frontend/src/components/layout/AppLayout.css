@@ -318,6 +318,20 @@
     height: 44px;
   }
 
+  /* En celular el botón para entrar es solo el ícono, en un círculo como el avatar */
+  .app-cuenta.app-entrar {
+    justify-content: center;
+    width: 44px;
+    min-height: 44px;
+    border: 2px solid rgba(255, 255, 255, 0.85);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  .app-entrar strong {
+    display: none;
+  }
+
   .app-principal {
     padding: 12px 12px 88px;
   }
@@ -366,4 +380,17 @@
   .menu-lateral.colapsado .menu-texto {
     display: inline;
   }
+}
+
+/* Botón "Iniciar sesión" en la barra cuando no hay sesión */
+.app-entrar {
+  gap: 8px;
+  padding: 0 18px;
+  font-size: 1rem;
+}
+
+.app-entrar ion-icon {
+  flex-shrink: 0;
+  width: 1.4rem;
+  height: 1.4rem;
 }
