@@ -135,7 +135,7 @@ La especificación completa, con tipo y dependencias de cada requerimiento, est�
 |---|---|
 | Frontend | Ionic 8, React 18, TypeScript |
 | Navegación | React Router |
-| Mapas | Leaflet con OpenStreetMap |
+| Mapas | [Leaflet](https://leafletjs.com/) con React Leaflet. Mapa base de [Esri World Street Map](https://www.arcgis.com/home/item.html?id=3b93337983e9436f8db950e38a8629af) (vista simple) y [OpenStreetMap](https://www.openstreetmap.org/) (vista detallada), con mapa de calor mediante `leaflet.heat` |
 | Backend | Node.js con Express |
 | Base de datos | PostgreSQL |
 | Servicio externo | [Open-Meteo](https://open-meteo.com/) (temperatura, humedad y viento) |
@@ -152,11 +152,17 @@ La especificación completa, con tipo y dependencias de cada requerimiento, est�
 **Rama `frontend`**
 
 ```
-src/
-├── pages/          # Vistas de la aplicación
-├── components/     # Componentes reutilizables
-├── routes/         # Rutas y protección por rol
-└── services/       # Consumo de la API
+frontend/src/
+├── pages/
+│   ├── publico/        # Mapa, detalle, login, registro y ayuda (sin sesión)
+│   ├── compartido/     # Crear reporte, mis reportes y perfil (con sesión)
+│   └── municipal/      # Estadísticas (solo funcionario)
+├── components/         # Componentes reutilizables
+├── routes/             # Rutas y protección por rol
+├── services/           # Datos y consumo de la API
+├── hooks/              # Lógica reutilizable
+├── context/            # Estado compartido (sesión y menú)
+└── utils/              # Cálculo del riesgo, validaciones y filtros
 ```
 
 **Rama `backend`**
@@ -204,7 +210,7 @@ La aplicación queda disponible en `http://localhost:5173`.
 
 | Entrega | Contenido | Estado |
 |---|---|---|
-| **EP1** | Requerimientos, proto-personas, Figma, estructura Ionic con React | En desarrollo |
+| **EP1** | Requerimientos, proto-personas, Figma, estructura Ionic con React | Completado |
 | **EP2** | Backend, base de datos, API REST, autenticación JWT | Pendiente |
 | **EF** | Funcionalidades completas, seguridad, Docker | Pendiente |
 
