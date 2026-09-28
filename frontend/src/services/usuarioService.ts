@@ -6,12 +6,10 @@ export interface ActividadUsuario {
   reportesCreados: number;
   votosDados: number;
   apoyosRecibidos: number;
-  notificacionesSinLeer: number;
 }
 
 export const ACTIVIDAD_PRUEBA: ActividadUsuario = {
   reportesCreados: 6,
   votosDados: 12,
   apoyosRecibidos: 128,
-  notificacionesSinLeer: 3,
 };

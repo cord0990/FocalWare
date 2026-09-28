@@ -1,7 +1,7 @@
 import React from 'react';
 import { IonIcon } from '@ionic/react';
 import { arrowBack, arrowForward } from 'ionicons/icons';
-import { Notificacion, MOCK_NOTIFICACIONES } from './Notificaciones';
+import { buscarNotificacion, type Notificacion } from '../../../services/notificacionesService';
 import './DetalleNotificacion.css';
 
 interface Props {
@@ -20,7 +20,7 @@ const DetalleNotificacion: React.FC<Props> = ({
   // Resolvemos la notificación activa ya sea desde la prop directa o buscándola por ID
   const notifActiva =
     notificacion ||
-    MOCK_NOTIFICACIONES.find((n) => n.id === notificacionId) ||
+    (notificacionId ? buscarNotificacion(notificacionId) : undefined) ||
     null;
 
   if (!notifActiva) {
