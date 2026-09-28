@@ -25,6 +25,7 @@ Accesibles sin sesión iniciada.
 | `/recuperar` | Recuperar contraseña | Solicitud de código por correo |
 | `/recuperar/codigo` | Validación de código | Ingreso del código recibido |
 | `/recuperar/nueva` | Nueva contraseña | Definición de la nueva credencial |
+| `/ayuda` | Ayuda y contacto | Preguntas frecuentes, contacto y "Acerca de", Publica para que cualquiera pueda usarla |
 
 La ruta `/mapa` es pública en todos los casos. Lo que cambia según el estado de sesión no es el acceso a la vista, sino las acciones disponibles dentro de ella: sin sesión solo se consulta, con sesión de Vecino se habilita apoyar y reportar, y con sesión de Funcionario se habilitan los filtros de gestión.
 
@@ -39,7 +40,8 @@ Requieren una sesión activa con rol `vecino` o `funcionario`.
 | `/mis-reportes/en-local/:id` | Modificar un reporte guardado localmente (offline)| RF-13, RF-15|
 | `/mi-perfil` | Opciones de perfil de usuario, por defecto aparecen las notificaciones del usuario|  RF-08|
 | `/mi-perfil/terminos` | Términos y condiciones | Ninguno |
-| `/mi-perfil/configuracion` | Configuración de la cuenta | Ninguno|
+| `/mi-perfil/configuración` | Configuración de la cuenta | Ninguno |
+| `/mi-perfil/:id/editar` | Modifica un reporte ya enviado | RF-01, RF-15 |
 
 Se especifican de esta forma ya que tanto `vecino` como `funcionario` comparten las pantallas, pero dependiendo el rol estas van cambiando
 
@@ -116,6 +118,8 @@ El registro público está disponible únicamente para el rol Vecino. Las cuenta
 
 La justificación es de verificación de identidad. El sistema no dispone de un mecanismo automatizado confiable para comprobar que quien declara ser funcionario municipal efectivamente lo es. Permitir el auto-registro con un rol elevado habilitaría que cualquier persona accediera a datos sensibles y modificara el estado de los incidentes. La creación administrada traslada esa verificación a un proceso jerárquico externo al sistema.
 
+En la entrega parcial 1, al no existir backend, el rol se simula: los correos del dominio @munivalpo.cl inician sesión como Funcionario y el registro público rechaza este dominio. En la entrega 2 el rol vendra dentro del token entregado por el backend.
+
 ### 3.3 Acceso público parcial
 
 El mapa interactivo, la ubicación de los pines y el nivel de riesgo de los reportes son visibles sin sesión. Sin embargo, crear un reporte o apoyar uno existente (UpVote) requiere autenticación obligatoria.
@@ -154,7 +158,10 @@ Mapa → Botón de acción "Crear Reporte"
         │      └── Continuar creación → Avanza al envío
         └── No existe → Avanza al envío
      → Decisión del sistema (Estado de red)
-        ├── Con conexión → Envío exitoso → Mensaje de confirmación y desvío a Mis reportes
+        ├── Con conexión → Envío exitoso → Mensaje de confirmación y selección de desvío a Mis reportes
+        │                                                                 ├── Desvió a Mis reportes
+        │                                                                 ├── Desvió a editar reporte
+        │                                                                 └── Desvió a Mapa
         └── Sin conexión → Guardado local offline (RF-02) → Estado "Pendiente de envío"
 El flujo cumple RNF-01 con dos pasos de captura más la confirmación, dentro del límite de dos.
 ```
@@ -212,7 +219,7 @@ Ambas plataformas exponen las mismas cuatro secciones principales, con component
 
 | Aspecto | Móvil | Web |
 |---|---|---|
-| Componente de navegación | Barra inferior fija (`IonTabs`) | Menú lateral fijo (`IonMenu`) |
+| Componente de navegación | Barra inferior fija | Menú lateral fijo (`IonMenu`) |
 | Secciones | Mapa, Reportar, Mis reportes, Perfil | Las mismas cuatro |
 | Densidad de información | Una vista a la vez, contenido secuencial | Vistas simultáneas, por ejemplo mapa junto al listado |
 | Bandeja de triage | Tarjetas apiladas con datos esenciales | Tarjetas apiladas con datos esenciales |
@@ -250,3 +257,21 @@ La estructura modular en `pages`, `components`, `routes` y `services` permite in
 La organización de `pages` en subcarpetas por rol permite incorporar nuevas secciones dentro de un rol existente, o un rol adicional, sin reestructurar los ya implementados.
 
 La lógica de verificación de rol se concentra en un componente de ruta protegida reutilizable, de modo que el criterio de acceso se define en un solo lugar y se aplica por composición.
+
+
+### 8. Alcance de la Entrega 1
+
+Las rutas y la estructura de carpetas descritas en este documento ya están implementadas.
+Quedan planificados para la siguiente entregas:
+
+| Elemento | Estado en Entrega 1 | 
+|---|---|
+| Pagina de presentación (`/`) | Redirige al mapa | 
+| Crear reporte en dos pasos (móvil) | Formulario en una sola vista | 
+| Deteccion de duplicados (RNF-08) | Pendiente |
+| Vistas  `/municipal/reporte/:id` y `/municipal/estadísticas`  | Rutas y protección por rol listas; vistas pendientes |
+| Retorno a la acción pendiente tras autenticar | Retorna a la pagina, sin ejecutar la acción automáticamente |
+
+
+
+
