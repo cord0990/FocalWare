@@ -11,13 +11,13 @@ import {
   IonToast,
 } from '@ionic/react';
 import { closeOutline, pencilOutline } from 'ionicons/icons';
-import CampoFormulario from '../../components/CampoFormulario';
-import RequisitosContrasena from '../../components/RequisitosContrasena';
-import { useCamposTocados } from '../../hooks/useCamposTocados';
-import { useSesion } from '../../hooks/useSesion';
-import { cambiarContrasena } from '../../services/authService';
-import { obtenerIniciales } from '../../services/sesionService';
-import { esContrasenaSegura, esCorreoValido } from '../../utils/validaciones';
+import CampoFormulario from '../../../components/CampoFormulario';
+import RequisitosContrasena from '../../../components/RequisitosContrasena';
+import { useCamposTocados } from '../../../hooks/useCamposTocados';
+import { useSesion } from '../../../hooks/useSesion';
+import { cambiarContrasena } from '../../../services/authService';
+import { obtenerIniciales } from '../../../services/sesionService';
+import { esContrasenaSegura, esCorreoValido } from '../../../utils/validaciones';
 import './Configuracion.css';
 
 const Configuracion: React.FC = () => {

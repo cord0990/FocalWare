@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import {
   IonButton,
   IonInputOtp,
@@ -6,6 +7,7 @@ import {
   IonRouterLink,
   IonSpinner,
   IonToast,
+  useIonRouter,
   useIonViewDidLeave,
 } from '@ionic/react';
 import AuthLayout from '../../components/layout/AuthLayout';
@@ -24,9 +26,39 @@ import './RecuperarContrasena.css';
 const PASOS = ['Verificar correo', 'Ingresar código', 'Nueva contraseña'];
 const PASO_COMPLETADO = PASOS.length + 1;
 
-const RecuperarContrasena: React.FC = () => {
-  const [paso, setPaso] = useState(1);
-  const [correo, setCorreo] = useState('');
+// Cada paso tiene su propia ruta (EP 1.4): /recuperar, /recuperar/codigo y /recuperar/nueva.
+// El correo y el código pasan de un paso al siguiente en sessionStorage, no en la URL,
+// para que no queden en el historial del navegador. Se borran al terminar.
+const CLAVE_RECUPERACION = 'focalware-recuperacion';
+
+interface DatosRecuperacion {
+  correo: string;
+  codigo?: string;
+}
+
+const leerRecuperacion = (): DatosRecuperacion | null => {
+  try {
+    return JSON.parse(sessionStorage.getItem(CLAVE_RECUPERACION) ?? 'null');
+  } catch {
+    return null;
+  }
+};
+
+const guardarRecuperacion = (datos: DatosRecuperacion | null) => {
+  try {
+    if (datos) sessionStorage.setItem(CLAVE_RECUPERACION, JSON.stringify(datos));
+    else sessionStorage.removeItem(CLAVE_RECUPERACION);
+  } catch {
+    // Sin almacenamiento el flujo vuelve a empezar desde el correo.
+  }
+};
+
+const RecuperarContrasena: React.FC<{ paso: 1 | 2 | 3 }> = ({ paso: pasoDeLaRuta }) => {
+  const router = useIonRouter();
+  const guardada = leerRecuperacion();
+  const [completado, setCompletado] = useState(false);
+  const paso = completado ? PASO_COMPLETADO : pasoDeLaRuta;
+  const [correo, setCorreo] = useState(guardada?.correo ?? '');
   const [codigo, setCodigo] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [confirmacion, setConfirmacion] = useState('');
@@ -49,7 +81,7 @@ const RecuperarContrasena: React.FC = () => {
 
   // Al salir de la pantalla se borra lo ingresado, para no dejar el código ni la contraseña.
   useIonViewDidLeave(() => {
-    setPaso(1);
+    setCompletado(false);
     setCodigo('');
     setContrasena('');
     setConfirmacion('');
@@ -65,8 +97,8 @@ const RecuperarContrasena: React.FC = () => {
     setEnviando(true);
     await enviarCodigoRecuperacion(correo);
     setEnviando(false);
-    setMensaje(`Enviamos un código a ${correo}.`);
-    setPaso(2);
+    guardarRecuperacion({ correo });
+    router.push(RUTAS.recuperarCodigo, 'forward');
   };
 
   const reenviarCodigo = async () => {
@@ -82,8 +114,8 @@ const RecuperarContrasena: React.FC = () => {
     setEnviando(true);
     await verificarCodigoRecuperacion(correo, codigo);
     setEnviando(false);
-    setMensaje('Código verificado.');
-    setPaso(3);
+    guardarRecuperacion({ correo, codigo });
+    router.push(RUTAS.recuperarNueva, 'forward');
   };
 
   const guardarContrasena = async (evento: React.FormEvent) => {
@@ -92,10 +124,17 @@ const RecuperarContrasena: React.FC = () => {
     if (errores.contrasena || errores.confirmacion) return;
 
     setEnviando(true);
-    await cambiarContrasena({ correo, codigo, contrasena });
+    await cambiarContrasena({ correo, codigo: guardada?.codigo ?? '', contrasena });
     setEnviando(false);
-    setPaso(PASO_COMPLETADO);
+    guardarRecuperacion(null);
+    setCompletado(true);
   };
+
+  // Sin haber pasado por los pasos anteriores (por ejemplo, abriendo el enlace directo),
+  // se vuelve a empezar desde el correo.
+  const faltanPasos =
+    !completado && ((pasoDeLaRuta >= 2 && !guardada?.correo) || (pasoDeLaRuta === 3 && !guardada?.codigo));
+  if (faltanPasos) return <Navigate to={RUTAS.recuperar} replace />;
 
   const botonEnviar = (texto: string) => (
     <IonButton type="submit" expand="block" className="btn-principal" disabled={enviando}>
@@ -169,7 +208,11 @@ const RecuperarContrasena: React.FC = () => {
           {botonEnviar('Verificar código')}
 
           <div className="auth-enlaces">
-            <button type="button" className="auth-enlace enlace-boton" onClick={() => setPaso(1)}>
+            <button
+              type="button"
+              className="auth-enlace enlace-boton"
+              onClick={() => router.push(RUTAS.recuperar, 'back')}
+            >
               ← Cambiar correo
             </button>
             <button type="button" className="auth-enlace enlace-boton" onClick={reenviarCodigo}>

@@ -11,12 +11,17 @@ import {
 import { useMenu } from '../../hooks/useMenu';
 import { RUTAS } from '../../routes/rutas';
 
+// Las cuatro secciones principales de EP 1.4. Sin sesión, las tres últimas piden iniciar sesión.
 const OPCIONES = [
-  { texto: 'Mapa', ruta: RUTAS.inicio, icono: mapOutline },
+  { texto: 'Mapa', ruta: RUTAS.mapa, icono: mapOutline },
+  { texto: 'Crear reporte', ruta: RUTAS.reportar, icono: documentTextOutline },
   { texto: 'Mis reportes', ruta: RUTAS.misReportes, icono: folderOpenOutline },
-  { texto: 'Crear reporte', ruta: RUTAS.crearReporte, icono: documentTextOutline },
   { texto: 'Mi perfil', ruta: RUTAS.perfil, icono: personOutline },
 ];
+
+// La sección sigue marcada en sus subpáginas (por ejemplo, /mis-reportes/R-001).
+const estaEnSeccion = (pathname: string, ruta: string) =>
+  pathname === ruta || pathname.startsWith(`${ruta}/`);
 
 // En escritorio es un menú lateral que se puede colapsar; en celular se muestra como barra inferior.
 const MenuLateral: React.FC = () => {
@@ -47,8 +52,8 @@ const MenuLateral: React.FC = () => {
             key={opcion.ruta}
             href={opcion.ruta}
             onClick={(evento) => navegar(evento, opcion.ruta)}
-            className={pathname === opcion.ruta ? 'menu-opcion activa' : 'menu-opcion'}
-            aria-current={pathname === opcion.ruta ? 'page' : undefined}
+            className={estaEnSeccion(pathname, opcion.ruta) ? 'menu-opcion activa' : 'menu-opcion'}
+            aria-current={estaEnSeccion(pathname, opcion.ruta) ? 'page' : undefined}
             title={opcion.texto}
           >
             <IonIcon icon={opcion.icono} aria-hidden="true" />

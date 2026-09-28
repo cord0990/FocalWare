@@ -2,17 +2,10 @@
 // llamarán a la API REST del backend, que validará la contraseña y entregará un token.
 import type { Usuario } from './sesionService';
 
-export interface DatosLogin {
-  correo: string;
-  contrasena: string;
-}
+// Lo que se escribe en los formularios. Llevan la contraseña, que nunca se guarda en el Usuario.
+export type DatosLogin = Pick<Usuario, 'correo'> & { contrasena: string };
 
-export interface DatosRegistro {
-  nombre: string;
-  correo: string;
-  telefono?: string;
-  contrasena: string;
-}
+export type DatosRegistro = Pick<Usuario, 'nombre' | 'correo' | 'telefono'> & { contrasena: string };
 
 export interface DatosNuevaContrasena {
   correo: string;
@@ -44,6 +37,11 @@ const guardarCuentas = (cuentas: Usuario[]) => {
 
 const normalizarCorreo = (correo: string) => correo.trim().toLowerCase();
 
+// Las cuentas de Funcionario las crea la municipalidad (EP 1.4, 3.2). Mientras no exista el
+// backend, se reconocen por el dominio del correo.
+export const DOMINIO_MUNICIPAL = 'munivalpo.cl';
+const esCorreoMunicipal = (correo: string) => correo.endsWith(`@${DOMINIO_MUNICIPAL}`);
+
 // "valentina.rojas@correo.cl" -> "Valentina Rojas", para cuentas que no pasaron por el registro.
 const nombreDesdeCorreo = (correo: string) =>
   correo
@@ -60,13 +58,23 @@ export const iniciarSesion = async (datos: DatosLogin): Promise<Usuario> => {
   await simularRespuesta();
   const correo = normalizarCorreo(datos.correo);
   const cuenta = leerCuentas().find((existente) => existente.correo === correo);
-  return cuenta ?? { id: nuevoId(), nombre: nombreDesdeCorreo(correo), correo, rol: 'vecino' };
+  return (
+    cuenta ?? {
+      id: nuevoId(),
+      nombre: nombreDesdeCorreo(correo),
+      correo,
+      rol: esCorreoMunicipal(correo) ? 'funcionario' : 'vecino',
+    }
+  );
 };
 
-// Crea la cuenta y devuelve el usuario, que queda con la sesión iniciada.
+// Crea una cuenta de Vecino y devuelve el usuario, que queda con la sesión iniciada.
 export const registrarUsuario = async (datos: DatosRegistro): Promise<Usuario> => {
   await simularRespuesta();
   const correo = normalizarCorreo(datos.correo);
+  if (esCorreoMunicipal(correo)) {
+    throw new Error('Las cuentas municipales las crea la municipalidad. Inicia sesión con tu cuenta.');
+  }
   const usuario: Usuario = {
     id: nuevoId(),
     nombre: datos.nombre.trim(),

@@ -1,16 +1,16 @@
 import { Navigate, Route } from 'react-router-dom';
 import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import Login from './pages/public/Login';
-import Registro from './pages/public/Registro';
-import RecuperarContrasena from './pages/public/RecuperarContrasena';
-import Inicio from './pages/vecino/Inicio';
-import MisReportes from './pages/vecino/MisReportes';
-import Perfil from './pages/perfil/Perfil';
-import CrearReporte from './pages/vecino/CrearReporte';
-import DetalleReporte from './pages/vecino/DetalleReporte';
-import EditarReporte from './pages/vecino/EditarReporte';
-import Ayuda from './pages/ayuda/Ayuda';
+import Login from './pages/publico/Login';
+import Registro from './pages/publico/Registro';
+import RecuperarContrasena from './pages/publico/RecuperarContrasena';
+import Mapa from './pages/publico/Mapa';
+import DetalleReporte from './pages/publico/DetalleReporte';
+import Ayuda from './pages/publico/Ayuda';
+import CrearReporte from './pages/compartido/CrearReporte';
+import MisReportes from './pages/compartido/MisReportes';
+import EditarReporte from './pages/compartido/EditarReporte';
+import Perfil from './pages/compartido/perfil/Perfil';
 import MenuProvider from './context/MenuProvider';
 import SesionProvider from './context/SesionProvider';
 import MenuCuenta from './components/layout/MenuCuenta';
@@ -52,6 +52,8 @@ import './theme/variables.css';
 
 setupIonicReact();
 
+// Rutas según la arquitectura de navegación (EP 1.4): públicas, compartidas (Vecino y
+// Funcionario) y exclusivas de Funcionario bajo /municipal.
 const App: React.FC = () => (
   <IonApp>
     <SesionProvider>
@@ -59,6 +61,12 @@ const App: React.FC = () => (
         <IonReactRouter>
           <MenuCuenta contentId="contenido-principal" />
           <IonRouterOutlet id="contenido-principal">
+            {/* Públicas: el mapa y el detalle se ven sin sesión; votar y reportar piden login */}
+            <Route path={RUTAS.mapa} element={<Mapa />} />
+            <Route path={RUTAS.detalleMapa} element={<DetalleReporte origen="mapa" />} />
+            <Route path={RUTAS.ayuda} element={<Ayuda />} />
+
+            {/* Autenticación: con la sesión iniciada redirigen al mapa */}
             <Route
               path={RUTAS.login}
               element={
@@ -79,15 +87,33 @@ const App: React.FC = () => (
               path={RUTAS.recuperar}
               element={
                 <RutaPublica>
-                  <RecuperarContrasena />
+                  <RecuperarContrasena paso={1} />
                 </RutaPublica>
               }
             />
             <Route
-              path={RUTAS.inicio}
+              path={RUTAS.recuperarCodigo}
+              element={
+                <RutaPublica>
+                  <RecuperarContrasena paso={2} />
+                </RutaPublica>
+              }
+            />
+            <Route
+              path={RUTAS.recuperarNueva}
+              element={
+                <RutaPublica>
+                  <RecuperarContrasena paso={3} />
+                </RutaPublica>
+              }
+            />
+
+            {/* Compartidas: requieren sesión de Vecino o Funcionario */}
+            <Route
+              path={RUTAS.reportar}
               element={
                 <RutaProtegida>
-                  <Inicio />
+                  <CrearReporte />
                 </RutaProtegida>
               }
             />
@@ -100,26 +126,26 @@ const App: React.FC = () => (
               }
             />
             <Route
-              path={RUTAS.crearReporte}
+              path={RUTAS.editarEnLocal}
               element={
                 <RutaProtegida>
-                  <CrearReporte />
+                  <EditarReporte origen="local" />
                 </RutaProtegida>
               }
             />
             <Route
-              path={RUTAS.detalleReporte}
+              path={RUTAS.detalleMiReporte}
               element={
                 <RutaProtegida>
-                  <DetalleReporte />
+                  <DetalleReporte origen="mis-reportes" />
                 </RutaProtegida>
               }
             />
             <Route
-              path={RUTAS.editarReporte}
+              path={RUTAS.editarMiReporte}
               element={
                 <RutaProtegida>
-                  <EditarReporte />
+                  <EditarReporte origen="nube" />
                 </RutaProtegida>
               }
             />
@@ -127,21 +153,32 @@ const App: React.FC = () => (
               path={RUTAS.perfil}
               element={
                 <RutaProtegida>
-                  <Perfil />
+                  <Perfil seccion="notificaciones" />
                 </RutaProtegida>
               }
             />
             <Route
-              path={RUTAS.ayuda}
+              path={RUTAS.perfilConfiguracion}
               element={
                 <RutaProtegida>
-                  <Ayuda />
+                  <Perfil seccion="configuracion" />
                 </RutaProtegida>
               }
             />
-            {/* Sin sesión, la ruta protegida del mapa redirige al login */}
-            <Route path="/" element={<Navigate to={RUTAS.inicio} replace />} />
-            <Route path="*" element={<Navigate to={RUTAS.inicio} replace />} />
+            <Route
+              path={RUTAS.perfilTerminos}
+              element={
+                <RutaProtegida>
+                  <Perfil seccion="info" />
+                </RutaProtegida>
+              }
+            />
+
+            {/* Funcionario: las páginas de /municipal se protegen con roles={['funcionario']} */}
+
+            {/* La página de presentación (/) aún no existe: por ahora se abre el mapa */}
+            <Route path={RUTAS.inicio} element={<Navigate to={RUTAS.mapa} replace />} />
+            <Route path="*" element={<Navigate to={RUTAS.mapa} replace />} />
           </IonRouterOutlet>
         </IonReactRouter>
       </MenuProvider>

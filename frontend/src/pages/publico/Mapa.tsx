@@ -16,8 +16,10 @@ import MapaReportes from '../../components/reportes/MapaReportes';
 import SinResultados from '../../components/reportes/SinResultados';
 import TarjetaReporte from '../../components/reportes/TarjetaReporte';
 import { useAnchoRedimensionable } from '../../hooks/useAnchoRedimensionable';
+import { useIrAlLogin } from '../../hooks/useIrAlLogin';
+import { useSesion } from '../../hooks/useSesion';
 import { NIVELES_RIESGO, rangoNivel } from '../../utils/riesgo';
-import { rutaReporte } from '../../routes/rutas';
+import { rutaDetalleMapa } from '../../routes/rutas';
 import { EVENTO_REPORTES, obtenerReportes, type Reporte } from '../../services/reportesService';
 import {
   aplicarFiltros,
@@ -26,13 +28,17 @@ import {
   listarFiltrosActivos,
   type FiltrosReportes,
 } from '../../utils/filtrosReportes';
-import './Inicio.css';
+import './Mapa.css';
 
 const valoresUnicos = (valores: string[]) =>
   [...new Set(valores)].sort((a, b) => a.localeCompare(b));
 
-const Inicio: React.FC = () => {
+// Mapa de reportes (RF-03). Es público: sin sesión se puede mirar y filtrar, y para votar
+// se pide iniciar sesión (EP 1.4, 3.3).
+const Mapa: React.FC = () => {
   const router = useIonRouter();
+  const { usuario } = useSesion();
+  const irAlLogin = useIrAlLogin();
   const [reportes, setReportes] = useState<Reporte[]>([]);
   const [cargando, setCargando] = useState(true);
   const [busqueda, setBusqueda] = useState('');
@@ -92,13 +98,18 @@ const Inicio: React.FC = () => {
       ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
 
-  const alternarVoto = (id: string) =>
+  const alternarVoto = (id: string) => {
+    if (!usuario) {
+      irAlLogin();
+      return;
+    }
     setVotados((actuales) => {
       const nuevos = new Set(actuales);
       if (nuevos.has(id)) nuevos.delete(id);
       else nuevos.add(id);
       return nuevos;
     });
+  };
 
   const aplicarNuevosFiltros = (nuevos: FiltrosReportes) => {
     setFiltros(nuevos);
@@ -153,7 +164,7 @@ const Inicio: React.FC = () => {
             reportes={reportesFiltrados}
             seleccionado={seleccionado}
             onSeleccionar={seleccionar}
-            onVerDetalles={(id) => router.push(rutaReporte(id), 'forward')}
+            onVerDetalles={(id) => router.push(rutaDetalleMapa(id), 'forward')}
           />
         </section>
 
@@ -214,7 +225,7 @@ const Inicio: React.FC = () => {
               reporte={reporte}
               seleccionada={reporte.id === seleccionadoId}
               votado={votados.has(reporte.id)}
-              onDetalles={() => router.push(rutaReporte(reporte.id), 'forward')}
+              onDetalles={() => router.push(rutaDetalleMapa(reporte.id), 'forward')}
               onVotar={() => alternarVoto(reporte.id)}
             />
           ))}
@@ -233,4 +244,4 @@ const Inicio: React.FC = () => {
   );
 };
 
-export default Inicio;
+export default Mapa;
