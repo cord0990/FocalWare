@@ -2,7 +2,7 @@
 
 <img src="docs/img/header.svg" alt="FocalWare: priorización de limpieza por riesgo de incendio en las quebradas de Valparaíso" width="100%">
 
-[![Prototipo en Figma](https://img.shields.io/badge/Prototipo-Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white)](https://www.figma.com/proto/NMUudu0YPxumGuZedsLVDS/FocalWare?node-id=0-1&t=nKgN063FMb7m3uT6-1)
+[![Prototipo en Figma](https://img.shields.io/badge/Prototipo-Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white)](https://www.figma.com/design/NMUudu0YPxumGuZedsLVDS/FocalWare?node-id=52-15&t=YzxsRCsrL1DTuLju-1)
 [![Requerimientos](https://img.shields.io/badge/Requerimientos-1F2937?style=for-the-badge)](#requerimientos-funcionales)
 [![Instalación](https://img.shields.io/badge/Instalación-1F2937?style=for-the-badge)](#instalación)
 
@@ -35,7 +35,7 @@
 
 El diseño de las pantallas fue elaborado manualmente en Figma, considerando versión móvil y versión web.
 
-[Ver prototipo en Figma](https://www.figma.com/proto/NMUudu0YPxumGuZedsLVDS/FocalWare?node-id=0-1&t=nKgN063FMb7m3uT6-1)
+[Ver prototipo en Figma](https://www.figma.com/design/NMUudu0YPxumGuZedsLVDS/FocalWare?node-id=52-15&t=YzxsRCsrL1DTuLju-1)
 
 La documentación del diseño, con paleta, correspondencia entre pantallas y requerimientos, y justificación de los formularios, está en [docs/EP1.3-diseno-ui-ux.md](docs/EP1.3-diseno-ui-ux.md).
 
