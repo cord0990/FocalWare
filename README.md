@@ -16,7 +16,20 @@
 
 </div>
 
----
+## Tabla de contenidos
+- [Prototipo](#prototipo)
+- [Descripción general](#descripción-general)
+- [Problema que aborda](#problema-que-aborda)
+- [Objetivos](#objetivos)
+- [Equipo](#equipo)
+- [Roles del sistema](#roles-del-sistema)
+- [Requerimientos funcionales](#requerimientos-funcionales)
+- [Requerimientos no funcionales](#requerimientos-no-funcionales)
+- [Tecnologías](#tecnologías)
+- [Estructura del repositorio](#estructura-del-repositorio)
+- [Instalación](#instalación)
+- [Ejecución](#ejecución)
+- [Estado del proyecto](#estado-del-proyecto)
 
 ## Prototipo
 
