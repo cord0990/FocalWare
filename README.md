@@ -164,8 +164,8 @@ Requisitos previos: Node.js 18 o superior, npm 9 o superior.
 git clone https://github.com/cord0990/FocalWare.git
 cd FocalWare
 git checkout frontend
+cd frontend
 npm install
-cp .env.example .env
 ```
 
 **Variables de entorno**
@@ -181,6 +181,7 @@ El archivo `.env` no se versiona. Ya está incluido en `.gitignore`.
 ## Ejecución
 
 ```bash
+cd frontend
 npm run dev
 ```
 
