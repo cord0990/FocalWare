@@ -16,6 +16,10 @@
 
 </div>
 
+![mapa](./docs/img/mapa.png)
+![reporte](./docs/img/reporte.png)
+![estadisticas](./docs/img/estadisticas.png)
+
 ## Tabla de contenidos
 - [Prototipo](#prototipo)
 - [Descripción general](#descripción-general)
