@@ -215,7 +215,6 @@ Es el usuario final comunitario; cualquier habitante o residente de los cerros, 
 * **Funcionalidades que utilizaría:**
   * **Visualización y filtrado de mapa técnico (RF-03, RF-04):** Monitoreo de focos clasificados por nivel de riesgo, sector geográfico y estado operativo.
   * **Gestión municipal e intervención de incidentes (RF-07):** Revisión de la cola priorizada (RF-06), actualización del estado del foco (ej. "En proceso de despeje") y carga de evidencia fotográfica del cierre de la faena.
-  * **Creación de reportes institucionales en terreno (RF-01):** Levantamiento de nuevos botaderos clandestinos descubiertos durante los operativos de despeje.
   * **Detección de puntos críticos recurrentes (RF-10):** Consulta de zonas históricas de vertimiento ilegal para coordinar intervenciones con inspectores y sugerir señalética.
 * **Dispositivo y contexto de acceso:**
   * *Dispositivo:* Smartphone o tablet institucional de uso rudo (Android 11+), protegido contra caídas y polvo, con conexión móvil 4G.
