@@ -1,0 +1,283 @@
+/* Colores de las series (validados para daltonismo) y tinta de textos y ejes */
+.grafico {
+  --serie-recibidos: #2a78d6;
+  --serie-resueltos: #eb6834;
+  --serie-unica: #2a78d6;
+  --tinta: #1f1f1f;
+  --tinta-suave: #6b5a5a;
+  --guia: #eadfdf;
+  margin: 0;
+  color: var(--tinta);
+}
+
+/* --- Barras horizontales --- */
+.grafico-barras-h {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.grafico-fila {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(110px, 36%) minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  min-height: 32px;
+  border-radius: 8px;
+  outline: none;
+}
+
+.grafico-fila:focus-visible {
+  box-shadow: 0 0 0 2px #e0283a;
+}
+
+.grafico-fila-etiqueta {
+  overflow: hidden;
+  color: var(--tinta-suave);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.grafico-fila-pista {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* Extremo redondeado de 4 px; el lado pegado al eje queda recto */
+.grafico-barra-h {
+  flex-shrink: 0;
+  height: 18px;
+  min-width: 2px;
+  max-width: calc(100% - 70px);
+  border-radius: 0 4px 4px 0;
+  background: var(--serie-unica);
+  transition: filter 0.15s ease;
+}
+
+.grafico-fila.activa .grafico-barra-h {
+  filter: brightness(1.15);
+}
+
+.grafico-fila-valor {
+  color: var(--tinta);
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* --- Barras agrupadas por mes --- */
+.grafico-leyenda {
+  display: flex;
+  gap: 18px;
+  margin-bottom: 10px;
+  color: var(--tinta);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.grafico-leyenda span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.grafico-clave {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.grafico-clave.recibidos,
+.grafico-barra-v.recibidos {
+  background: var(--serie-recibidos);
+}
+
+.grafico-clave.resueltos,
+.grafico-barra-v.resueltos {
+  background: var(--serie-resueltos);
+}
+
+.grafico-columnas-marco {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 6px;
+  height: 220px;
+}
+
+.grafico-eje-y {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-bottom: 22px;
+  color: var(--tinta-suave);
+  font-size: 0.75rem;
+  text-align: right;
+  transform: translateY(0.5em);
+}
+
+.grafico-columnas {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  padding-bottom: 22px;
+}
+
+.grafico-guia {
+  position: absolute;
+  right: 0;
+  left: 0;
+  height: 1px;
+  margin-bottom: 22px;
+  background: var(--guia);
+  pointer-events: none;
+}
+
+.grafico-grupo {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-width: 0;
+  border-radius: 6px;
+  outline: none;
+  cursor: default;
+}
+
+.grafico-grupo.activo {
+  background: rgba(70, 62, 62, 0.06);
+}
+
+.grafico-grupo:focus-visible {
+  box-shadow: 0 0 0 2px #e0283a;
+}
+
+/* 2 px de separación entre las barras del par */
+.grafico-par {
+  display: flex;
+  flex: 1;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2px;
+}
+
+.grafico-barra-v {
+  width: min(14px, 40%);
+  min-height: 2px;
+  border-radius: 4px 4px 0 0;
+}
+
+.grafico-mes {
+  position: absolute;
+  bottom: -22px;
+  left: 0;
+  right: 0;
+  color: var(--tinta-suave);
+  font-size: 0.72rem;
+  text-align: center;
+}
+
+/* --- Tooltip: el valor primero, en negrita --- */
+.grafico-tooltip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 150px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: #1f1f1f;
+  color: #fff;
+  font-size: 0.82rem;
+  pointer-events: none;
+  transform: translateX(-50%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.grafico-fila .grafico-tooltip {
+  bottom: auto;
+  top: calc(100% + 4px);
+  left: 40%;
+  transform: none;
+}
+
+.grafico-grupo .grafico-tooltip {
+  bottom: 70%;
+}
+
+.grafico-grupo .grafico-tooltip.izquierda {
+  left: auto;
+  right: 50%;
+  transform: none;
+}
+
+.grafico-tooltip strong {
+  font-size: 1rem;
+}
+
+.grafico-tooltip-titulo {
+  color: #d9c3c3;
+  font-weight: 600;
+}
+
+.grafico-tooltip-fila {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.grafico-tooltip-linea {
+  display: inline-block;
+  width: 12px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.grafico-tooltip-linea.recibidos {
+  background: var(--serie-recibidos);
+}
+
+.grafico-tooltip-linea.resueltos {
+  background: var(--serie-resueltos);
+}
+
+/* --- Tabla alternativa --- */
+.grafico-tabla {
+  margin-top: 14px;
+  font-size: 0.88rem;
+}
+
+.grafico-tabla summary {
+  min-height: 32px;
+  color: var(--tinta-suave);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.grafico-tabla table {
+  width: 100%;
+  margin-top: 8px;
+  border-collapse: collapse;
+}
+
+.grafico-tabla th,
+.grafico-tabla td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--guia);
+  text-align: left;
+}
+
+.grafico-tabla td {
+  font-variant-numeric: tabular-nums;
+}

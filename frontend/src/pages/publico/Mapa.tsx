@@ -19,7 +19,7 @@ import { useAnchoRedimensionable } from '../../hooks/useAnchoRedimensionable';
 import { useIrAlLogin } from '../../hooks/useIrAlLogin';
 import { useSesion } from '../../hooks/useSesion';
 import { NIVELES_RIESGO, rangoNivel } from '../../utils/riesgo';
-import { rutaDetalleMapa } from '../../routes/rutas';
+import { rutaDetalleMapa, rutaMunicipalReporte } from '../../routes/rutas';
 import { EVENTO_REPORTES, obtenerReportes, type Reporte } from '../../services/reportesService';
 import {
   aplicarFiltros,
@@ -39,6 +39,8 @@ const Mapa: React.FC = () => {
   const router = useIonRouter();
   const { usuario } = useSesion();
   const irAlLogin = useIrAlLogin();
+  // El funcionario abre cada reporte en su vista de gestión; el resto, en el detalle público.
+  const rutaDetalle = usuario?.rol === 'funcionario' ? rutaMunicipalReporte : rutaDetalleMapa;
   const [reportes, setReportes] = useState<Reporte[]>([]);
   const [cargando, setCargando] = useState(true);
   const [busqueda, setBusqueda] = useState('');
@@ -164,7 +166,7 @@ const Mapa: React.FC = () => {
             reportes={reportesFiltrados}
             seleccionado={seleccionado}
             onSeleccionar={seleccionar}
-            onVerDetalles={(id) => router.push(rutaDetalleMapa(id), 'forward')}
+            onVerDetalles={(id) => router.push(rutaDetalle(id), 'forward')}
           />
         </section>
 
@@ -225,7 +227,7 @@ const Mapa: React.FC = () => {
               reporte={reporte}
               seleccionada={reporte.id === seleccionadoId}
               votado={votados.has(reporte.id)}
-              onDetalles={() => router.push(rutaDetalleMapa(reporte.id), 'forward')}
+              onDetalles={() => router.push(rutaDetalle(reporte.id), 'forward')}
               onVotar={() => alternarVoto(reporte.id)}
             />
           ))}

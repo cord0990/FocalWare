@@ -37,9 +37,10 @@ const guardarCuentas = (cuentas: Usuario[]) => {
 
 const normalizarCorreo = (correo: string) => correo.trim().toLowerCase();
 
-// Las cuentas de Funcionario las crea la municipalidad (EP 1.4, 3.2). Mientras no exista el
-// backend, se reconocen por el dominio del correo.
-export const DOMINIO_MUNICIPAL = 'munivalpo.cl';
+// Las cuentas de Funcionario las crea un administrador con el dominio de la plataforma
+// (por ejemplo, nombreapellido@focalware.cl). Mientras no exista el backend, el rol se
+// reconoce por ese dominio (EP 1.4, 3.2).
+export const DOMINIO_MUNICIPAL = 'focalware.cl';
 const esCorreoMunicipal = (correo: string) => correo.endsWith(`@${DOMINIO_MUNICIPAL}`);
 
 // "valentina.rojas@correo.cl" -> "Valentina Rojas", para cuentas que no pasaron por el registro.
@@ -73,7 +74,7 @@ export const registrarUsuario = async (datos: DatosRegistro): Promise<Usuario> =
   await simularRespuesta();
   const correo = normalizarCorreo(datos.correo);
   if (esCorreoMunicipal(correo)) {
-    throw new Error('Las cuentas municipales las crea la municipalidad. Inicia sesión con tu cuenta.');
+    throw new Error('Las cuentas de funcionario las entrega el administrador. Inicia sesión con tu cuenta.');
   }
   const usuario: Usuario = {
     id: nuevoId(),

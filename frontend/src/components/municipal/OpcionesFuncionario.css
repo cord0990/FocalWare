@@ -1,0 +1,96 @@
+/* Panel oscuro de opciones, como en el diseño */
+.opciones-funcionario {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px 16px;
+  border-radius: 22px;
+  background: #463e3e;
+  color: #fff;
+}
+
+.opciones-encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.opciones-encabezado h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.opciones-encabezado ion-icon {
+  font-size: 1.6rem;
+}
+
+.opciones-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 16px;
+  background: #e8dada;
+}
+
+.opcion-funcionario {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 50px;
+  padding: 0 12px 0 16px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: #463e3e;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-align: left;
+  cursor: pointer;
+}
+
+.opcion-funcionario:hover:not(:disabled) {
+  background: #5a4545;
+}
+
+.opcion-funcionario:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.opcion-funcionario.activa {
+  border-color: #e0283a;
+  background: #5a4545;
+}
+
+.opcion-marca {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: #fff;
+  color: #2e7d32;
+  font-size: 1.2rem;
+}
+
+.opcion-marca.icono {
+  background: transparent;
+  color: #fff;
+  font-size: 1.4rem;
+}
+
+.opciones-ayuda {
+  margin: 0;
+  color: #e8dada;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}

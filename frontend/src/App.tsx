@@ -11,6 +11,7 @@ import CrearReporte from './pages/compartido/CrearReporte';
 import MisReportes from './pages/compartido/MisReportes';
 import EditarReporte from './pages/compartido/EditarReporte';
 import Perfil from './pages/compartido/perfil/Perfil';
+import Estadisticas from './pages/municipal/Estadisticas';
 import MenuProvider from './context/MenuProvider';
 import SesionProvider from './context/SesionProvider';
 import MenuCuenta from './components/layout/MenuCuenta';
@@ -108,11 +109,11 @@ const App: React.FC = () => (
               }
             />
 
-            {/* Compartidas: requieren sesión de Vecino o Funcionario */}
+            {/* Reportar y Mis reportes: solo Vecino (el Funcionario no crea reportes) */}
             <Route
               path={RUTAS.reportar}
               element={
-                <RutaProtegida>
+                <RutaProtegida roles={['vecino']}>
                   <CrearReporte />
                 </RutaProtegida>
               }
@@ -120,7 +121,7 @@ const App: React.FC = () => (
             <Route
               path={RUTAS.misReportes}
               element={
-                <RutaProtegida>
+                <RutaProtegida roles={['vecino']}>
                   <MisReportes />
                 </RutaProtegida>
               }
@@ -128,7 +129,7 @@ const App: React.FC = () => (
             <Route
               path={RUTAS.editarEnLocal}
               element={
-                <RutaProtegida>
+                <RutaProtegida roles={['vecino']}>
                   <EditarReporte origen="local" />
                 </RutaProtegida>
               }
@@ -136,7 +137,7 @@ const App: React.FC = () => (
             <Route
               path={RUTAS.detalleMiReporte}
               element={
-                <RutaProtegida>
+                <RutaProtegida roles={['vecino']}>
                   <DetalleReporte origen="mis-reportes" />
                 </RutaProtegida>
               }
@@ -144,7 +145,7 @@ const App: React.FC = () => (
             <Route
               path={RUTAS.editarMiReporte}
               element={
-                <RutaProtegida>
+                <RutaProtegida roles={['vecino']}>
                   <EditarReporte origen="nube" />
                 </RutaProtegida>
               }
@@ -174,7 +175,23 @@ const App: React.FC = () => (
               }
             />
 
-            {/* Funcionario: las páginas de /municipal se protegen con roles={['funcionario']} */}
+            {/* Funcionario: todo lo que está bajo /municipal requiere ese rol */}
+            <Route
+              path={RUTAS.municipalReporte}
+              element={
+                <RutaProtegida roles={['funcionario']}>
+                  <DetalleReporte origen="municipal" />
+                </RutaProtegida>
+              }
+            />
+            <Route
+              path={RUTAS.municipalEstadisticas}
+              element={
+                <RutaProtegida roles={['funcionario']}>
+                  <Estadisticas />
+                </RutaProtegida>
+              }
+            />
 
             {/* La página de presentación (/) aún no existe: por ahora se abre el mapa */}
             <Route path={RUTAS.inicio} element={<Navigate to={RUTAS.mapa} replace />} />

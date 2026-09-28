@@ -2,9 +2,23 @@
 import type { Clima } from './climaService';
 import { calcularIndice } from '../utils/opcionesReporte';
 
-export const ESTADOS_REPORTE = ['Pendiente', 'Aprobado', 'En atención', 'Controlado'] as const;
+export const ESTADOS_REPORTE = ['Pendiente', 'Aprobado', 'En atención', 'Controlado', 'Rechazado'] as const;
 
 export type EstadoReporte = (typeof ESTADOS_REPORTE)[number];
+
+// Decisiones del Funcionario sobre un reporte (RF-12, RF-16, RF-17, RF-18).
+export interface GestionReporte {
+  aprobacion?: {
+    cuadrilla: string;
+    fechaAtencion: string;
+    detalle: string;
+    funcionario: string;
+    fecha: string;
+  };
+  rechazo?: { motivo: string; funcionario: string; fecha: string };
+  // Reporte de control: evidencia de que el problema se resolvió.
+  control?: { detalle: string; imagenes: string[]; funcionario: string; fecha: string };
+}
 
 export interface Reporte {
   id: string;
@@ -28,6 +42,7 @@ export interface Reporte {
   riesgoEnCalculo?: boolean;
   // Fecha de la última modificación hecha por el autor.
   editadoEn?: string;
+  gestion?: GestionReporte;
 }
 
 const REPORTES_PRUEBA: Reporte[] = [
@@ -48,6 +63,15 @@ const REPORTES_PRUEBA: Reporte[] = [
     distanciaViviendas: 'Menos de 10 m',
     imagenes: [],
     clima: { temperatura: 27, humedad: 29, viento: 31, condicion: 'Despejado' },
+    gestion: {
+      aprobacion: {
+        cuadrilla: 'Cuadrilla Cerros (DIMAO)',
+        fechaAtencion: '2026-09-10',
+        detalle: 'Retiro con camión tolva y limpieza de la quebrada.',
+        funcionario: 'Camila Soto',
+        fecha: '2026-09-04T10:15',
+      },
+    },
   },
   {
     id: 'R-002',
@@ -66,6 +90,15 @@ const REPORTES_PRUEBA: Reporte[] = [
     distanciaViviendas: 'Menos de 10 m',
     imagenes: [],
     clima: { temperatura: 29, humedad: 24, viento: 38, condicion: 'Viento fuerte' },
+    gestion: {
+      aprobacion: {
+        cuadrilla: 'Cuadrilla Quebradas (OMZ)',
+        fechaAtencion: '2026-09-30',
+        detalle: 'Coordinar corte de energía con la compañía eléctrica.',
+        funcionario: 'Camila Soto',
+        fecha: '2026-09-22T09:40',
+      },
+    },
   },
   {
     id: 'R-003',
@@ -102,6 +135,15 @@ const REPORTES_PRUEBA: Reporte[] = [
     distanciaViviendas: 'Menos de 10 m',
     imagenes: [],
     clima: { temperatura: 21, humedad: 48, viento: 15, condicion: 'Nublado parcial' },
+    gestion: {
+      aprobacion: {
+        cuadrilla: 'Cuadrilla Cerros (DIMAO)',
+        fechaAtencion: '2026-10-02',
+        detalle: '',
+        funcionario: 'Jorge Muñoz',
+        fecha: '2026-09-01T12:00',
+      },
+    },
   },
   {
     id: 'R-005',
@@ -137,6 +179,21 @@ const REPORTES_PRUEBA: Reporte[] = [
     distanciaViviendas: 'Entre 10 y 50 m',
     imagenes: [],
     clima: { temperatura: 17, humedad: 62, viento: 12, condicion: 'Nublado' },
+    gestion: {
+      aprobacion: {
+        cuadrilla: 'Cuadrilla Norte (Operaciones)',
+        fechaAtencion: '2026-08-20',
+        detalle: '',
+        funcionario: 'Jorge Muñoz',
+        fecha: '2026-08-12T08:30',
+      },
+      control: {
+        detalle: 'Se retiraron los escombros con retroexcavadora y se dejó la ladera despejada.',
+        imagenes: [],
+        funcionario: 'Jorge Muñoz',
+        fecha: '2026-08-20T16:45',
+      },
+    },
   },
   {
     id: 'R-007',
@@ -172,6 +229,15 @@ const REPORTES_PRUEBA: Reporte[] = [
     distanciaViviendas: 'Más de 100 m',
     imagenes: [],
     clima: { temperatura: 18, humedad: 66, viento: 10, condicion: 'Llovizna' },
+    gestion: {
+      aprobacion: {
+        cuadrilla: 'Cuadrilla Emergencias',
+        fechaAtencion: '2026-09-08',
+        detalle: 'Retiro de bolsas y aviso al servicio de recolección.',
+        funcionario: 'Camila Soto',
+        fecha: '2026-09-06T11:20',
+      },
+    },
   },
   {
     id: 'R-009',
@@ -189,6 +255,21 @@ const REPORTES_PRUEBA: Reporte[] = [
     distanciaViviendas: 'Más de 100 m',
     imagenes: [],
     clima: { temperatura: 16, humedad: 70, viento: 9, condicion: 'Nublado' },
+    gestion: {
+      aprobacion: {
+        cuadrilla: 'Cuadrilla Norte (Operaciones)',
+        fechaAtencion: '2026-09-24',
+        detalle: '',
+        funcionario: 'Camila Soto',
+        fecha: '2026-09-23T09:00',
+      },
+      control: {
+        detalle: 'Restos de poda retirados y chipeados en el lugar.',
+        imagenes: [],
+        funcionario: 'Camila Soto',
+        fecha: '2026-09-24T15:10',
+      },
+    },
   },
 ];
 
@@ -277,6 +358,24 @@ const leerEliminados = (): string[] => {
 
 const pruebaVigentes = () => REPORTES_PRUEBA.filter((reporte) => !leerEliminados().includes(reporte.id));
 
+// Decisiones del Funcionario (estado, gestión y correcciones del desglose), guardadas aparte para
+// cualquier reporte, sea de prueba o creado en la app.
+const CLAVE_GESTION = 'focalware-reportes-gestion';
+type CambioGestion = Partial<Pick<Reporte, 'estado' | 'gestion' | 'categoria' | 'volumen' | 'distanciaViviendas'>>;
+let gestionEnMemoria: Record<string, CambioGestion> | null = null;
+
+const leerGestion = (): Record<string, CambioGestion> => {
+  if (gestionEnMemoria) return gestionEnMemoria;
+  try {
+    gestionEnMemoria = JSON.parse(localStorage.getItem(CLAVE_GESTION) ?? '{}');
+  } catch {
+    gestionEnMemoria = {};
+  }
+  return gestionEnMemoria ?? {};
+};
+
+const conGestion = (reporte: Reporte): Reporte => ({ ...reporte, ...leerGestion()[reporte.id] });
+
 const dosDigitos = (numero: number) => String(numero).padStart(2, '0');
 
 // Fecha de hoy (hora local) en formato AAAA-MM-DD.
@@ -309,13 +408,14 @@ const conIndice = (reporte: Reporte): Reporte => {
 };
 
 // Todos los reportes: los creados por el usuario más los de prueba.
-const todosLosReportes = () => [...leerCreados(), ...pruebaVigentes().map(conCambios)].map(conIndice);
+const todosLosReportes = () =>
+  [...leerCreados(), ...pruebaVigentes().map(conCambios)].map(conGestion).map(conIndice);
 
 // Reportes que se muestran en el mapa. Los que aún no tienen riesgo calculado no se muestran,
-// porque su color en el mapa sería engañoso.
+// porque su color en el mapa sería engañoso, y los rechazados tampoco.
 export const obtenerReportes = async (): Promise<Reporte[]> => {
   await esperar(500);
-  return todosLosReportes().filter((reporte) => !reporte.riesgoEnCalculo);
+  return todosLosReportes().filter((reporte) => !reporte.riesgoEnCalculo && reporte.estado !== 'Rechazado');
 };
 
 export const obtenerMisReportes = async (): Promise<Reporte[]> => {
@@ -325,12 +425,15 @@ export const obtenerMisReportes = async (): Promise<Reporte[]> => {
     ...pruebaVigentes()
       .filter((reporte) => IDS_MIS_REPORTES.includes(reporte.id))
       .map(conCambios),
-  ].map(conIndice);
+  ]
+    .map(conGestion)
+    .map(conIndice);
 };
 
 // Solo quien creó el reporte puede modificarlo, y no una vez que el problema está controlado.
 export const puedeModificar = (reporte: Reporte) =>
   reporte.estado !== 'Controlado' &&
+  reporte.estado !== 'Rechazado' &&
   (IDS_MIS_REPORTES.includes(reporte.id) || leerCreados().some((creado) => creado.id === reporte.id));
 
 // Solo se puede eliminar mientras nadie lo ha revisado (estado Pendiente).
@@ -416,3 +519,53 @@ export const registrarReportesEnviados = (enviados: DatosNuevoReporte[]) => {
   }
   avisarCambio();
 };
+
+// --- Gestión municipal (solo Funcionario) ---
+
+const guardarGestion = async (id: string, cambio: CambioGestion) => {
+  await esperar(900);
+  const actual = leerGestion()[id] ?? {};
+  const reporte = todosLosReportes().find((r) => r.id === id);
+  const gestiones = {
+    ...leerGestion(),
+    [id]: { ...actual, ...cambio, gestion: { ...reporte?.gestion, ...cambio.gestion } },
+  };
+  localStorage.setItem(CLAVE_GESTION, JSON.stringify(gestiones));
+  gestionEnMemoria = gestiones;
+  avisarCambio();
+};
+
+// Aprueba el reporte y lo asigna a una cuadrilla con fecha de atención (RF-17).
+export const aprobarReporte = (
+  id: string,
+  datos: { cuadrilla: string; fechaAtencion: string; detalle: string },
+  funcionario: string,
+) =>
+  guardarGestion(id, {
+    estado: 'Aprobado',
+    gestion: { aprobacion: { ...datos, funcionario, fecha: fechaHoraActual() } },
+  });
+
+// Rechaza el reporte con un motivo obligatorio, que el vecino verá en su reporte (RF-18).
+export const rechazarReporte = (id: string, motivo: string, funcionario: string) =>
+  guardarGestion(id, {
+    estado: 'Rechazado',
+    gestion: { rechazo: { motivo, funcionario, fecha: fechaHoraActual() } },
+  });
+
+// Registra el reporte de control con la evidencia de cierre (RF-16).
+export const controlarReporte = (
+  id: string,
+  datos: { detalle: string; imagenes: string[] },
+  funcionario: string,
+) =>
+  guardarGestion(id, {
+    estado: 'Controlado',
+    gestion: { control: { ...datos, funcionario, fecha: fechaHoraActual() } },
+  });
+
+// El Funcionario corrige el desglose del reporte (EP 1.4, 4.2).
+export const corregirDesglose = (
+  id: string,
+  datos: Pick<Reporte, 'categoria' | 'volumen' | 'distanciaViviendas'>,
+) => guardarGestion(id, datos);

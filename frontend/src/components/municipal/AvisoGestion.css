@@ -1,0 +1,50 @@
+/* Resumen de lo que se guardó, dentro del aviso */
+.aviso-gestion-resumen {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin-top: 12px;
+  padding: 14px 16px;
+  border: 2px solid #d9b8b8;
+  border-radius: 16px;
+  background: #fff;
+  text-align: left;
+}
+
+.aviso-gestion-resumen strong {
+  font-size: 1.05rem;
+}
+
+.aviso-gestion-resumen dl {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+}
+
+.aviso-gestion-resumen dl div {
+  display: grid;
+  grid-template-columns: minmax(120px, 38%) minmax(0, 1fr);
+  gap: 10px;
+}
+
+.aviso-gestion-resumen dt {
+  color: #6b5a5a;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.aviso-gestion-resumen dd {
+  margin: 0;
+  color: #1f1f1f;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  .aviso-gestion-resumen dl div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+}

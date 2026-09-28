@@ -1,5 +1,6 @@
 import {
   checkmarkCircleOutline,
+  closeCircleOutline,
   shieldCheckmarkOutline,
   syncOutline,
   timeOutline,
@@ -13,4 +14,5 @@ export const ESTILO_ESTADO: Record<EstadoReporte, { color: string; icono: string
   Aprobado: { color: '#1e6fb8', icono: checkmarkCircleOutline },
   'En atención': { color: '#b3470f', icono: syncOutline },
   Controlado: { color: '#2e7d32', icono: shieldCheckmarkOutline },
+  Rechazado: { color: '#6b5a5a', icono: closeCircleOutline },
 };
