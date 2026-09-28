@@ -1,0 +1,74 @@
+.seguimiento {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.seguimiento-paso {
+  display: flex;
+  flex: 1 1 280px;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 2px solid;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.seguimiento-paso > ion-icon {
+  flex-shrink: 0;
+  font-size: 1.6rem;
+}
+
+.seguimiento-paso strong {
+  font-size: 0.95rem;
+}
+
+.seguimiento-paso p {
+  margin: 2px 0 0;
+  color: #4a3d3d;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.seguimiento-paso .seguimiento-detalle {
+  color: #6b5a5a;
+}
+
+.seguimiento-paso.aprobado {
+  border-color: #1e6fb8;
+}
+
+.seguimiento-paso.aprobado > ion-icon {
+  color: #1e6fb8;
+}
+
+.seguimiento-paso.controlado {
+  border-color: #2e7d32;
+}
+
+.seguimiento-paso.controlado > ion-icon {
+  color: #2e7d32;
+}
+
+.seguimiento-paso.rechazado {
+  border-color: #6b5a5a;
+}
+
+.seguimiento-paso.rechazado > ion-icon {
+  color: #6b5a5a;
+}
+
+.seguimiento-evidencia {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.seguimiento-evidencia img {
+  width: 72px;
+  height: 54px;
+  border-radius: 8px;
+  object-fit: cover;
+}

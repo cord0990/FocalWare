@@ -22,10 +22,12 @@ export const RUTAS = {
   perfilTerminos: '/mi-perfil/terminos',
 
   // Solo Funcionario: todas cuelgan de /municipal.
-  municipal: '/municipal',
   municipalReporte: '/municipal/reporte/:id',
   municipalEstadisticas: '/municipal/estadisticas',
 } as const;
+
+// Detalle de un reporte con las opciones de gestión del Funcionario.
+export const rutaMunicipalReporte = (id: string) => `/municipal/reporte/${id}`;
 
 // Detalle de un reporte abierto desde el mapa (público).
 export const rutaDetalleMapa = (id: string) => `/mapa/${id}`;

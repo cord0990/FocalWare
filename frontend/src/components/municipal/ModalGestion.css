@@ -1,0 +1,214 @@
+/* Ventana oscura con campos claros, como en el diseño. Toma el alto de su contenido. */
+.modal-gestion {
+  --width: min(680px, calc(100% - 32px));
+  --height: auto;
+  --border-radius: 28px;
+  --background: #463e3e;
+  --backdrop-opacity: 0.6;
+}
+
+.modal-gestion .ion-page {
+  position: relative;
+  contain: content;
+}
+
+.gestion-contenido {
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  background: #463e3e;
+}
+
+.gestion-marco {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 24px 28px 28px;
+  color: #fff;
+}
+
+.gestion-encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.gestion-encabezado h2 {
+  margin: 0;
+  font-size: 1.7rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.gestion-encabezado ion-button {
+  --color: #fff;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+}
+
+.gestion-reporte {
+  margin: 0 0 10px;
+  color: #e8dada;
+  font-size: 0.95rem;
+}
+
+/* Etiqueta clara sobre cada campo */
+.gestion-etiqueta,
+.gestion-marco .selector-fecha-etiqueta {
+  display: block;
+  margin: 8px 2px 2px;
+  color: #f4efdc;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.gestion-campo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.gestion-campo .selector-fecha {
+  gap: 2px;
+}
+
+/* Todos los campos blancos y del mismo alto */
+.gestion-marco ion-select,
+.gestion-marco ion-textarea {
+  --background: #fff;
+  --color: #1f1f1f;
+  --placeholder-color: #6b6b6b;
+  --placeholder-opacity: 1;
+  --border-color: #fff;
+  --border-radius: 14px;
+  --highlight-color-focused: #e0283a;
+  --highlight-color-invalid: #ff8a8a;
+  color: #1f1f1f;
+  font-size: 1rem;
+}
+
+.gestion-marco ion-select {
+  min-height: 56px;
+}
+
+.gestion-marco .selector-fecha-boton {
+  min-height: 56px;
+  border: 0;
+  border-radius: 14px;
+}
+
+.gestion-marco .campo-invalido {
+  --border-color: #ff8a8a;
+}
+
+.gestion-texto {
+  --padding-top: 14px;
+  min-height: 150px;
+}
+
+/* Contador y mensaje de error legibles sobre el fondo oscuro. Ionic toma el color del
+   contador de esta variable. */
+.gestion-marco ion-textarea {
+  --ion-color-step-700: #e8dada;
+  --ion-text-color-step-300: #e8dada;
+}
+
+.gestion-marco ion-textarea .textarea-bottom .error-text {
+  color: #ffb3b3;
+  font-weight: 600;
+}
+
+.gestion-campos-fila {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+}
+
+.gestion-error {
+  margin: 6px 4px 0;
+  color: #ffb3b3;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* Datos que se completan solos en el reporte de control */
+.gestion-control-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  margin: 0 0 8px;
+  padding: 16px;
+  border-radius: 16px;
+  background: #e8dada;
+  color: #1f1f1f;
+}
+
+.gestion-control-info dt {
+  color: #6b5a5a;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.gestion-control-info dd {
+  margin: 2px 0 0;
+  font-weight: 600;
+}
+
+.gestion-marco .galeria-editable {
+  color: #1f1f1f;
+}
+
+.gestion-botones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.gestion-botones ion-button {
+  --border-radius: 14px;
+  --box-shadow: none;
+  flex: 0 1 220px;
+  min-height: 54px;
+  margin: 0;
+  font-weight: 700;
+  text-transform: none;
+}
+
+.gestion-cancelar {
+  --background: transparent;
+  --background-hover: rgba(255, 255, 255, 0.1);
+  --color: #fff;
+  --border-color: #e8dada;
+  --border-style: solid;
+  --border-width: 2px;
+}
+
+.gestion-confirmar {
+  --background: #e0283a;
+  --background-hover: #c81f30;
+  --color: #fff;
+}
+
+@media (max-width: 600px) {
+  .gestion-marco {
+    padding: 18px 16px 20px;
+  }
+
+  .gestion-encabezado h2 {
+    font-size: 1.35rem;
+  }
+
+  .gestion-campos-fila {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .gestion-botones ion-button {
+    flex: 1;
+  }
+}

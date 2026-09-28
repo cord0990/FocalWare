@@ -2,6 +2,7 @@ import { IonIcon, useIonRouter } from '@ionic/react';
 import { useLocation } from 'react-router-dom';
 import {
   chevronBackOutline,
+  statsChartOutline,
   documentTextOutline,
   folderOpenOutline,
   mapOutline,
@@ -9,13 +10,22 @@ import {
   personOutline,
 } from 'ionicons/icons';
 import { useMenu } from '../../hooks/useMenu';
+import { useSesion } from '../../hooks/useSesion';
 import { RUTAS } from '../../routes/rutas';
 
 // Las cuatro secciones principales de EP 1.4. Sin sesión, las tres últimas piden iniciar sesión.
-const OPCIONES = [
+const OPCIONES_VECINO = [
   { texto: 'Mapa', ruta: RUTAS.mapa, icono: mapOutline },
   { texto: 'Crear reporte', ruta: RUTAS.reportar, icono: documentTextOutline },
   { texto: 'Mis reportes', ruta: RUTAS.misReportes, icono: folderOpenOutline },
+  { texto: 'Mi perfil', ruta: RUTAS.perfil, icono: personOutline },
+];
+
+// El Funcionario gestiona los reportes desde el mapa pero no los crea, así que no tiene
+// Crear ni Mis reportes.
+const OPCIONES_FUNCIONARIO = [
+  { texto: 'Mapa', ruta: RUTAS.mapa, icono: mapOutline },
+  { texto: 'Estadísticas', ruta: RUTAS.municipalEstadisticas, icono: statsChartOutline },
   { texto: 'Mi perfil', ruta: RUTAS.perfil, icono: personOutline },
 ];
 
@@ -28,6 +38,8 @@ const MenuLateral: React.FC = () => {
   const { colapsado, alternar } = useMenu();
   const { pathname } = useLocation();
   const router = useIonRouter();
+  const { usuario } = useSesion();
+  const opciones = usuario?.rol === 'funcionario' ? OPCIONES_FUNCIONARIO : OPCIONES_VECINO;
 
   const navegar = (evento: React.MouseEvent, ruta: string) => {
     evento.preventDefault();
@@ -47,7 +59,7 @@ const MenuLateral: React.FC = () => {
       </button>
 
       <div className="menu-opciones">
-        {OPCIONES.map((opcion) => (
+        {opciones.map((opcion) => (
           <a
             key={opcion.ruta}
             href={opcion.ruta}

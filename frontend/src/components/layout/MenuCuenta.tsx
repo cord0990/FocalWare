@@ -70,6 +70,8 @@ const MenuCuenta: React.FC<{ contentId: string }> = ({ contentId }) => {
 
   // Sin sesión (login, registro) no hay menú de cuenta.
   if (!usuario) return null;
+  // El aporte y los envíos pendientes son del vecino: el funcionario no crea reportes.
+  const esVecino = usuario.rol === 'vecino';
 
   const salir = () => {
     cerrarSesion();
@@ -105,21 +107,25 @@ const MenuCuenta: React.FC<{ contentId: string }> = ({ contentId }) => {
               </button>
             </IonMenuToggle>
 
-            <h2 className="cuenta-seccion">Tu aporte</h2>
-            <div className="cuenta-impacto">
-              <div>
-                <strong>{actividad.reportesCreados}</strong>
-                <span>Reportes creados</span>
-              </div>
-              <div>
-                <strong>{actividad.votosDados}</strong>
-                <span>Votos dados</span>
-              </div>
-              <div>
-                <strong>{actividad.apoyosRecibidos}</strong>
-                <span>Apoyos recibidos</span>
-              </div>
-            </div>
+            {esVecino && (
+              <>
+                <h2 className="cuenta-seccion">Tu aporte</h2>
+                <div className="cuenta-impacto">
+                  <div>
+                    <strong>{actividad.reportesCreados}</strong>
+                    <span>Reportes creados</span>
+                  </div>
+                  <div>
+                    <strong>{actividad.votosDados}</strong>
+                    <span>Votos dados</span>
+                  </div>
+                  <div>
+                    <strong>{actividad.apoyosRecibidos}</strong>
+                    <span>Apoyos recibidos</span>
+                  </div>
+                </div>
+              </>
+            )}
 
             <h2 className="cuenta-seccion">Mi actividad</h2>
             <div className="cuenta-grupo">
@@ -129,18 +135,20 @@ const MenuCuenta: React.FC<{ contentId: string }> = ({ contentId }) => {
                 contador={actividad.notificacionesSinLeer}
                 onClick={() => irA(RUTAS.perfil)}
               />
-              <OpcionMenu
-                icono={cloudUploadOutline}
-                texto="Pendientes de envío"
-                detalle={
-                  pendientes.length === 0
-                    ? 'Todo enviado'
-                    : `${enLinea ? 'Listos para enviar' : 'Sin conexión'} · ${pendientes.length} esperando`
-                }
-                contador={pendientes.length}
-                tipoContador="cafe"
-                onClick={() => irA(RUTAS.misReportes)}
-              />
+              {esVecino && (
+                <OpcionMenu
+                  icono={cloudUploadOutline}
+                  texto="Pendientes de envío"
+                  detalle={
+                    pendientes.length === 0
+                      ? 'Todo enviado'
+                      : `${enLinea ? 'Listos para enviar' : 'Sin conexión'} · ${pendientes.length} esperando`
+                  }
+                  contador={pendientes.length}
+                  tipoContador="cafe"
+                  onClick={() => irA(RUTAS.misReportes)}
+                />
+              )}
             </div>
 
             <h2 className="cuenta-seccion">Ayuda y soporte</h2>

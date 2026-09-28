@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { IonIcon, IonSpinner, useIonRouter } from '@ionic/react';
+import { IonButton, IonIcon, IonSpinner, IonToast, useIonRouter } from '@ionic/react';
 import {
   arrowBackOutline,
   createOutline,
@@ -13,14 +13,20 @@ import {
   warningOutline,
 } from 'ionicons/icons';
 import AppLayout from '../../components/layout/AppLayout';
+import AvisoGestion from '../../components/municipal/AvisoGestion';
+import ModalGestion from '../../components/municipal/ModalGestion';
+import OpcionesFuncionario, { type AccionFuncionario } from '../../components/municipal/OpcionesFuncionario';
+import CamposDesglose from '../../components/reportes/CamposDesglose';
+import SeguimientoReporte from '../../components/reportes/SeguimientoReporte';
 import ExplicacionRiesgo from '../../components/reportes/ExplicacionRiesgo';
 import MiniMapa from '../../components/reportes/MiniMapa';
 import TarjetaReporte from '../../components/reportes/TarjetaReporte';
 import { useAnchoRedimensionable } from '../../hooks/useAnchoRedimensionable';
 import { useSesion } from '../../hooks/useSesion';
-import { RUTAS, rutaDetalleMapa, rutaEditarReporte } from '../../routes/rutas';
+import { RUTAS, rutaDetalleMapa, rutaEditarReporte, rutaMunicipalReporte } from '../../routes/rutas';
 import { esClimaDeRiesgo } from '../../services/climaService';
 import {
+  corregirDesglose,
   EVENTO_REPORTES,
   obtenerReportePorId,
   obtenerReportes,
@@ -34,15 +40,25 @@ import { obtenerNivelRiesgo } from '../../utils/riesgo';
 import './DetalleReporte.css';
 
 interface DetalleReporteProps {
-  // Desde el mapa (público, /mapa/:id) o desde Mis reportes (/mis-reportes/:id).
-  origen: 'mapa' | 'mis-reportes';
+  // Desde el mapa (público, /mapa/:id), desde Mis reportes (/mis-reportes/:id) o la vista de
+  // gestión del Funcionario (/municipal/reporte/:id), que suma sus opciones.
+  origen: 'mapa' | 'mis-reportes' | 'municipal';
 }
 
 const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
   const { id = '' } = useParams<{ id: string }>();
   const router = useIonRouter();
   const { usuario } = useSesion();
-  const rutaListado = origen === 'mapa' ? RUTAS.mapa : RUTAS.misReportes;
+  const esGestion = origen === 'municipal';
+  const rutaListado = origen === 'mis-reportes' ? RUTAS.misReportes : RUTAS.mapa;
+  const rutaDeOtro = esGestion ? rutaMunicipalReporte : rutaDetalleMapa;
+  const [accion, setAccion] = useState<AccionFuncionario | null>(null);
+  // Acción recién guardada, para mostrar su aviso de confirmación.
+  const [resultado, setResultado] = useState<AccionFuncionario | null>(null);
+  const [modificando, setModificando] = useState(false);
+  const [edicion, setEdicion] = useState({ categoria: '', volumen: '', distancia: '' });
+  const [guardandoDesglose, setGuardandoDesglose] = useState(false);
+  const [mensaje, setMensaje] = useState('');
   const [reporte, setReporte] = useState<Reporte | null>();
   const [otros, setOtros] = useState<Reporte[]>([]);
   const [fotoActiva, setFotoActiva] = useState(0);
@@ -51,6 +67,13 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
     clave: 'focalware-ancho-otros',
     minimo: 300,
     maximoProporcion: 0.5,
+  });
+  // La columna izquierda (riesgo, desglose y opciones) también se puede ensanchar.
+  const divisorLateral = useAnchoRedimensionable({
+    clave: 'focalware-ancho-lateral-detalle',
+    minimo: 260,
+    maximoProporcion: 0.4,
+    lado: 'izquierda',
   });
 
   useEffect(() => {
@@ -106,16 +129,42 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
     );
   }
 
-  const nivel = obtenerNivelRiesgo(reporte.riesgo);
+  // Mientras el funcionario modifica el desglose, el riesgo se muestra con los valores nuevos.
+  const valores = modificando
+    ? edicion
+    : { categoria: reporte.categoria, volumen: reporte.volumen, distancia: reporte.distanciaViviendas };
   const desgloseIndice = calcularIndice({
-    categoria: reporte.categoria,
-    volumen: reporte.volumen,
-    distancia: reporte.distanciaViviendas,
+    categoria: valores.categoria,
+    volumen: valores.volumen,
+    distancia: valores.distancia,
     votos: reporte.votos,
     fecha: reporte.fecha,
     clima: reporte.clima,
   });
+  const riesgo = desgloseIndice.indice ?? reporte.riesgo;
+  const nivel = obtenerNivelRiesgo(riesgo);
   const estado = ESTILO_ESTADO[reporte.estado];
+
+  const empezarAModificar = () => {
+    setEdicion({
+      categoria: reporte.categoria,
+      volumen: reporte.volumen,
+      distancia: reporte.distanciaViviendas,
+    });
+    setModificando(true);
+  };
+
+  const guardarDesglose = async () => {
+    setGuardandoDesglose(true);
+    await corregirDesglose(reporte.id, {
+      categoria: edicion.categoria,
+      volumen: edicion.volumen,
+      distanciaViviendas: edicion.distancia,
+    });
+    setGuardandoDesglose(false);
+    setModificando(false);
+    setMensaje('Desglose actualizado. El riesgo se recalculó con los nuevos datos.');
+  };
   const fotos = reporte.imagenes;
 
   const desglose = [
@@ -129,11 +178,22 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
   return (
     <AppLayout>
       <div
-        ref={divisor.contenedor}
-        className={divisor.arrastrando ? 'detalle-reporte arrastrando' : 'detalle-reporte'}
-        style={divisor.ancho ? ({ '--ancho-otros': `${divisor.ancho}px` } as React.CSSProperties) : undefined}
+        ref={(elemento) => {
+          // Los dos divisores miden sobre la misma grilla.
+          divisor.contenedor.current = elemento;
+          divisorLateral.contenedor.current = elemento;
+        }}
+        className={
+          divisor.arrastrando || divisorLateral.arrastrando ? 'detalle-reporte arrastrando' : 'detalle-reporte'
+        }
+        style={
+          {
+            ...(divisor.ancho ? { '--ancho-otros': `${divisor.ancho}px` } : {}),
+            ...(divisorLateral.ancho ? { '--ancho-lateral': `${divisorLateral.ancho}px` } : {}),
+          } as React.CSSProperties
+        }
       >
-        <aside className="detalle-lateral">
+        <aside ref={divisorLateral.panel} className="detalle-lateral">
           <div
             className="detalle-riesgo"
             style={reporte.riesgoEnCalculo ? undefined : { background: nivel.color, color: nivel.texto }}
@@ -148,15 +208,37 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
               <IonIcon icon={helpCircleOutline} aria-hidden="true" />
             </button>
             <span className="detalle-riesgo-titulo">Riesgo</span>
-            <strong>{reporte.riesgoEnCalculo ? 'En cálculo' : `${reporte.riesgo} %`}</strong>
+            <strong>{reporte.riesgoEnCalculo ? 'En cálculo' : `${riesgo} %`}</strong>
             <span className="detalle-riesgo-tipo">
               {reporte.riesgoEnCalculo ? 'Pendiente de revisión' : `Riesgo ${nivel.etiqueta.toLowerCase()}`}
             </span>
           </div>
 
+          {esGestion && (
+            <OpcionesFuncionario
+              reporte={reporte}
+              modificando={modificando}
+              onAccion={setAccion}
+              onModificar={() => (modificando ? setModificando(false) : empezarAModificar())}
+            />
+          )}
+
           <section className="detalle-desglose" aria-label="Desglose">
             <h2>Desglose</h2>
-            <dl>
+            {modificando && (
+              <div className="detalle-desglose-edicion">
+                <CamposDesglose
+                  categoria={edicion.categoria}
+                  volumen={edicion.volumen}
+                  distancia={edicion.distancia}
+                  errores={{ categoria: '', volumen: '', distancia: '' }}
+                  onCategoria={(categoria) => setEdicion({ ...edicion, categoria })}
+                  onVolumen={(volumen) => setEdicion({ ...edicion, volumen })}
+                  onDistancia={(distancia) => setEdicion({ ...edicion, distancia })}
+                />
+              </div>
+            )}
+            <dl hidden={modificando}>
               {desglose.map((dato) => (
                 <div key={dato.etiqueta}>
                   <dt>{dato.etiqueta}</dt>
@@ -165,6 +247,21 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
               ))}
             </dl>
           </section>
+
+          {modificando && (
+            <div className="detalle-gestion-botones">
+              <IonButton
+                className="detalle-descartar"
+                onClick={() => setModificando(false)}
+                disabled={guardandoDesglose}
+              >
+                Descartar cambios
+              </IonButton>
+              <IonButton className="detalle-aceptar" onClick={guardarDesglose} disabled={guardandoDesglose}>
+                {guardandoDesglose ? <IonSpinner name="crescent" /> : 'Aceptar cambios'}
+              </IonButton>
+            </div>
+          )}
 
           <section className="detalle-clima" aria-label="Clima al reportar">
             <h2>Clima al reportar</h2>
@@ -193,6 +290,21 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
           </section>
         </aside>
 
+        {/* Solo se muestra en PC: se arrastra para cambiar el ancho de la columna izquierda */}
+        <div
+          className="detalle-divisor lateral"
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="Cambiar el ancho de la columna de riesgo y desglose"
+          tabIndex={0}
+          title="Arrastra para cambiar el ancho. Doble clic para restablecer."
+          onPointerDown={divisorLateral.alPresionar}
+          onKeyDown={divisorLateral.alTeclado}
+          onDoubleClick={divisorLateral.restablecer}
+        >
+          <span aria-hidden="true" />
+        </div>
+
         <div className="detalle-principal">
           <div className="detalle-barra">
             <button type="button" className="detalle-volver" onClick={volver}>
@@ -200,13 +312,13 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
                 <IonIcon icon={arrowBackOutline} aria-hidden="true" />
               </span>
               <IonIcon
-                icon={origen === 'mapa' ? mapOutline : folderOpenOutline}
+                icon={origen === 'mis-reportes' ? folderOpenOutline : mapOutline}
                 aria-hidden="true"
                 className="detalle-volver-mapa"
               />
-              {origen === 'mapa' ? 'Volver al mapa' : 'Volver a Mis reportes'}
+              {origen === 'mis-reportes' ? 'Volver a Mis reportes' : 'Volver al mapa'}
             </button>
-            {usuario && puedeModificar(reporte) && (
+            {usuario?.rol === 'vecino' && puedeModificar(reporte) && (
               <button
                 type="button"
                 className="detalle-modificar"
@@ -230,6 +342,8 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
               {reporte.estado}
             </span>
           </div>
+
+          <SeguimientoReporte gestion={reporte.gestion} />
 
           <div className={fotos.length > 1 ? 'detalle-galeria con-miniaturas' : 'detalle-galeria'}>
             <div className="detalle-foto-principal">
@@ -293,7 +407,7 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
                 <TarjetaReporte
                   reporte={otro}
                   puedeVotar={false}
-                  onDetalles={() => router.push(rutaDetalleMapa(otro.id), 'forward')}
+                  onDetalles={() => router.push(rutaDeOtro(otro.id), 'forward')}
                 />
               </div>
             ))}
@@ -305,6 +419,40 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
         abierto={explicacionAbierta}
         desglose={desgloseIndice}
         onCerrar={() => setExplicacionAbierta(false)}
+      />
+
+      {esGestion && usuario && (
+        <ModalGestion
+          accion={accion}
+          reporte={reporte}
+          funcionario={usuario.nombre}
+          onCerrar={() => setAccion(null)}
+          onHecho={() => {
+            setResultado(accion);
+            setAccion(null);
+          }}
+        />
+      )}
+
+      {esGestion && (
+        <AvisoGestion
+          resultado={resultado}
+          reporte={reporte}
+          onVolverAlMapa={() => {
+            setResultado(null);
+            router.push(RUTAS.mapa, 'back');
+          }}
+          onCerrar={() => setResultado(null)}
+        />
+      )}
+
+      <IonToast
+        isOpen={!!mensaje}
+        message={mensaje}
+        duration={3000}
+        color="success"
+        position="top"
+        onDidDismiss={() => setMensaje('')}
       />
     </AppLayout>
   );
