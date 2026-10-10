@@ -9,12 +9,10 @@ RUN npm ci
 
 # El schema de Prisma es necesario para generar el cliente en el build.
 COPY prisma ./prisma
-COPY prisma.config.ts tsconfig.json ./
+COPY prisma.config.ts tsconfig.json tsconfig.check.json ./
 
-# El código se copia antes de compilar para que tsx pueda leerlo al aplicar
-# las migraciones (las migraciones son TypeScript en este proyecto).
+# El código se copia antes de compilar porque tsc necesita las fuentes.
 COPY src ./src
-COPY scripts ./scripts
 
 RUN npm run build
 
