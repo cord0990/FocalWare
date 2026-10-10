@@ -1,0 +1,2 @@
+-- Script de la base de datos de FocalWare (PostgreSQL)
+-- Aquí va la creación de la base de datos, las tablas, sus claves y los datos de prueba.
