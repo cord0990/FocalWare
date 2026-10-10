@@ -15,6 +15,9 @@ backend/
 │   └── app.js          # Punto de entrada de la API
 ├── database/
 │   └── focalware.sql   # Tablas, claves y datos de prueba
+├── uploads/
+│   ├── reportes/       # Fotos que suben los vecinos
+│   └── controles/      # Fotos de evidencia de los funcionarios
 ├── .env.example
 └── package.json
 ```
@@ -43,6 +46,12 @@ npm run dev
 ```
 
 La API queda en `http://localhost:3000`. Para comprobar que funciona, abrir `http://localhost:3000/api/salud`.
+
+## Imágenes
+
+Las fotos se guardan como archivos en `uploads/` y en la base de datos solo se guarda su ruta (atributo `Ruta_Directorio`). Se pueden ver desde el navegador, por ejemplo: `http://localhost:3000/uploads/reportes/foto.jpg`.
+
+Las fotos no se suben al repositorio, solo las carpetas.
 
 ## Formato de respuestas
 

@@ -1,0 +1,5 @@
+# Las fotos subidas no se guardan en el repositorio, solo las carpetas
+uploads/reportes/*
+uploads/controles/*
+!uploads/reportes/.gitkeep
+!uploads/controles/.gitkeep
