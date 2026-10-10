@@ -219,6 +219,8 @@ backend/src/db/
     └── controles.ts      controles de revisión e imágenes
 ```
 
+El cliente generado por Prisma queda en `backend/src/db/generated/` y no se versiona: se regenera siempre con `npm run build` o `npm run db:generate`.
+
 **Levantar todo con Docker (recomendado)**
 
 ```bash
@@ -253,7 +255,6 @@ Otros comandos útiles:
 | `npm run db:reset` | Borra y recrea la base aplicando las migraciones |
 | `npm run typecheck` | Revisa los tipos sin generar nada |
 | `docker compose down -v` | Detiene todo y borra la base (se reconstruye sola) |
-| `npx tsx scripts/prueba-capa-datos.ts` | Prueba de humo de los repositorios |
 
 > El archivo `backend/database/focalware.sql` quedó como documentación del esquema inicial. La fuente de verdad son las migraciones de Prisma en `backend/prisma/migrations`.
 
