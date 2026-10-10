@@ -1,0 +1,46 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: focalware-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: focalware
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # No se monta focalware.sql: el esquema lo crea Prisma con las
+      # migraciones de backend/prisma/migrations (npm run db:migrate).
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d focalware"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./backend
+    container_name: focalware-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: focalware
+      DB_USER: postgres
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DATABASE_URL: postgresql://postgres:${DB_PASSWORD:-postgres}@db:5432/focalware
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+    ports:
+      - "3000:3000"
+    volumes:
+      # Para que las fotos subidas en desarrollo no se pierdan al recrear.
+      - ./backend/uploads:/app/uploads
+
+volumes:
+  pgdata:
