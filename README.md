@@ -175,7 +175,7 @@ frontend/src/
 src/
 ├── routes/         # Definición de endpoints
 ├── controllers/    # Lógica de cada endpoint
-├── models/         # Acceso a la base de datos
+├── db/             # Acceso a la base de datos con Prisma
 └── database/       # Script .sql de la base de datos
 ```
 
@@ -200,6 +200,62 @@ npm install
 | `JWT_SECRET` | Clave de firma de tokens | valor propio |
 
 El archivo `.env` no se versiona. Ya está incluido en `.gitignore`.
+
+## Base de datos
+
+El acceso a datos se hace con **Prisma ORM** en TypeScript. La capa vive en `backend/src/db` y los controladores nunca llaman a Prisma directamente: usan los repositorios.
+
+```
+backend/src/db/
+├── cliente.ts        Instancia única de PrismaClient
+├── tipos.ts          Tipos de las entidades y de los filtros de búsqueda
+├── index.ts          Punto de entrada (importar desde acá)
+└── repositorios/
+    ├── vecinos.ts        vecino, votos y cuadrillas del funcionario
+    ├── funcionarios.ts   funcionario, cuadrillas y revisiones asignadas
+    ├── revisiones.ts     revisiones, historial y cierre con notificación
+    ├── reportes.ts       reportes, filtros, imágenes y votos
+    ├── notificaciones.ts notificaciones del vecino
+    └── controles.ts      controles de revisión e imágenes
+```
+
+**Levantar todo con Docker (recomendado)**
+
+```bash
+docker compose up -d --build
+```
+
+Esto levanta dos servicios: la base de datos PostgreSQL y la API. El contenedor de la API aplica las migraciones de Prisma antes de arrancar, así que las tablas se crean solas. La API queda en `http://localhost:3000`.
+
+| Servicio | Puerto | Qué es |
+|---|---|---|
+| `db` | 5432 | PostgreSQL con el volumen `pgdata` |
+| `api` | 3000 | La API, con las migraciones aplicadas al iniciar |
+
+**Trabajar sin Docker**
+
+```bash
+cd backend
+npm install
+cp .env.example .env    # completar DATABASE_URL
+
+docker compose up -d db  # solo la base
+npm run db:migrate       # crea las tablas
+npm run build            # genera el cliente de Prisma y compila TypeScript a dist/
+npm run dev              # la API en http://localhost:3000
+```
+
+Otros comandos útiles:
+
+| Comando | Qué hace |
+|---|---|
+| `npm run db:studio` | Abre Prisma Studio para ver los datos |
+| `npm run db:reset` | Borra y recrea la base aplicando las migraciones |
+| `npm run typecheck` | Revisa los tipos sin generar nada |
+| `docker compose down -v` | Detiene todo y borra la base (se reconstruye sola) |
+| `npx tsx scripts/prueba-capa-datos.ts` | Prueba de humo de los repositorios |
+
+> El archivo `backend/database/focalware.sql` quedó como documentación del esquema inicial. La fuente de verdad son las migraciones de Prisma en `backend/prisma/migrations`.
 
 ## Ejecución
 

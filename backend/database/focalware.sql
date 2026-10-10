@@ -1,3 +1,11 @@
+-- Esquema inicial de FocalWare (documentación histórica).
+--
+-- La fuente de verdad de la base ahora es Prisma: backend/prisma/schema.prisma
+-- Docker NO carga este archivo;
+-- las tablas las crea `prisma migrate deploy` al levantar el contenedor.
+--
+-- Se conserva como referencia del modelo de datos original.
+
 CREATE TABLE vecino (
     idvecino       SERIAL PRIMARY KEY,
     nombre         VARCHAR(100) NOT NULL,

@@ -1,0 +1,176 @@
+// Schema de FocalWare. Fuente de verdad de la base de datos.
+// Las migraciones se generan con: npx prisma migrate dev --name <nombre>
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/db/generated"
+}
+
+// La URL de conexión vive en prisma.config.ts (requerido desde Prisma 7).
+datasource db {
+  provider = "postgresql"
+}
+
+// --- Personas ---
+
+model Vecino {
+  idVecino      Int            @id @default(autoincrement()) @map("idvecino")
+  nombre        String         @db.VarChar(100)
+  email         String         @unique @db.VarChar(150)
+  passwordHash  String         @map("password_hash") @db.VarChar(255)
+  telefono      String?        @db.VarChar(20)
+  reportes      Reporte[]
+  votos         Voto[]
+  notificaciones Notificacion[]
+  @@map("vecino")
+}
+
+model Funcionario {
+  idFuncionario   Int              @id @default(autoincrement()) @map("idfuncionario")
+  nombre          String           @db.VarChar(100)
+  email           String           @unique @db.VarChar(150)
+  passwordHash    String           @map("password_hash") @db.VarChar(255)
+  telefono        String?          @db.VarChar(20)
+  pertenencias    PuedePertenecer[]
+  revisiones      Revision[]
+  logs            Log[]
+  controles       ReporteControl[]
+  @@map("funcionario")
+}
+
+model Cuadrilla {
+  idCuadrilla  Int               @id @default(autoincrement()) @map("idcuadrilla")
+  nombre       String            @unique @db.VarChar(100)
+  sectorTrabajo String?          @map("sector_trabajo") @db.VarChar(100)
+  funcionarios PuedePertenecer[]
+  revisiones   Revision[]
+  @@map("cuadrilla")
+}
+
+model PuedePertenecer {
+  idFuncionario Int         @map("idfuncionario")
+  idCuadrilla   Int         @map("idcuadrilla")
+  funcionario   Funcionario @relation(fields: [idFuncionario], references: [idFuncionario], onDelete: Cascade)
+  cuadrilla     Cuadrilla   @relation(fields: [idCuadrilla], references: [idCuadrilla], onDelete: Cascade)
+
+  @@id([idFuncionario, idCuadrilla])
+  @@map("puede_pertenecer")
+}
+
+// --- Revisiones y reportes ---
+
+model Revision {
+  idRevision     Int               @id @default(autoincrement()) @map("idrevision")
+  fechaAtencion  DateTime?         @default(now()) @map("fecha_atencion")
+  estado         String            @db.VarChar(30)
+  descripcion    String?
+  idFuncionario  Int               @map("idfuncionario")
+  idCuadrilla    Int?              @map("idcuadrilla")
+  funcionario    Funcionario       @relation(fields: [idFuncionario], references: [idFuncionario])
+  cuadrilla      Cuadrilla?        @relation(fields: [idCuadrilla], references: [idCuadrilla])
+  reportes       Reporte[]
+  logs           Log[]
+  notificaciones Notificacion[]
+  controles      ReporteControl[]
+  @@map("revision")
+}
+
+model Reporte {
+  idReporte          Int            @id @default(autoincrement()) @map("idreporte")
+  titulo             String         @db.VarChar(150)
+  descripcion        String?
+  categoria          String         @db.VarChar(50)
+  tamano             String         @db.VarChar(30)
+  sector             String         @db.VarChar(100)
+  direccion          String?        @db.VarChar(200)
+  latitud            Decimal        @db.Decimal(9, 6)
+  longitud           Decimal        @db.Decimal(9, 6)
+  distanciaACasas    Decimal?       @map("distancia_a_casas") @db.Decimal(8, 2)
+  indiceRiesgo       Decimal?       @map("indice_riesgo") @db.Decimal(5, 2)
+  fechaCalculoRiesgo DateTime?      @map("fecha_calculo_riesgo")
+  fechaCreacion      DateTime?      @default(now()) @map("fecha_creacion")
+  climaTemperatura   Decimal?       @map("clima_temperatura") @db.Decimal(4, 1)
+  climaCondicion     String?        @map("clima_condicion") @db.VarChar(100)
+  climaHumedad       Decimal?       @map("clima_humedad") @db.Decimal(5, 2)
+  climaViento        Decimal?       @map("clima_viento") @db.Decimal(5, 2)
+  idVecino           Int            @map("idvecino")
+  idRevision         Int?           @map("idrevision")
+  vecino             Vecino         @relation(fields: [idVecino], references: [idVecino])
+  revision           Revision?      @relation(fields: [idRevision], references: [idRevision])
+  imagenes           ImagenReporte[]
+  votos              Voto[]
+  @@map("reporte")
+}
+
+model ImagenReporte {
+  idImagenReporte   Int     @id @default(autoincrement()) @map("idimg_reporte")
+  rutaDirectorio    String  @map("ruta_directorio") @db.VarChar(255)
+  orden             Int     @default(1)
+  idReporte         Int     @map("idreporte")
+  reporte           Reporte @relation(fields: [idReporte], references: [idReporte], onDelete: Cascade)
+
+  @@map("imagen_reporte")
+}
+
+model Voto {
+  idVoto    Int     @id @default(autoincrement()) @map("idvoto")
+  idReporte Int     @map("idreporte")
+  idVecino  Int     @map("idvecino")
+  reporte   Reporte @relation(fields: [idReporte], references: [idReporte], onDelete: Cascade)
+  vecino    Vecino  @relation(fields: [idVecino], references: [idVecino], onDelete: Cascade)
+
+  @@unique([idReporte, idVecino])
+  @@map("votos")
+}
+
+// --- Seguimiento ---
+
+model Log {
+  idHistorial   Int        @id @default(autoincrement()) @map("idhistorial")
+  fechaHora     DateTime?  @default(now()) @map("fecha_hora")
+  estadoLog     String     @map("estado_log") @db.VarChar(50)
+  comentario    String?
+  idFuncionario Int        @map("idfuncionario")
+  idRevision    Int        @map("idrevision")
+  funcionario   Funcionario @relation(fields: [idFuncionario], references: [idFuncionario])
+  revision      Revision   @relation(fields: [idRevision], references: [idRevision], onDelete: Cascade)
+
+  @@map("log")
+}
+
+model Notificacion {
+  idNotificacion Int       @id @default(autoincrement()) @map("idnotificacion")
+  mensaje        String
+  tipo           String?   @db.VarChar(50)
+  fecha          DateTime? @default(now())
+  leida          Boolean   @default(false)
+  idVecino       Int       @map("idvecino")
+  idRevision     Int       @map("idrevision")
+  vecino         Vecino    @relation(fields: [idVecino], references: [idVecino], onDelete: Cascade)
+  revision       Revision  @relation(fields: [idRevision], references: [idRevision], onDelete: Cascade)
+
+  @@map("notificacion")
+}
+
+// --- Controles ---
+
+model ReporteControl {
+  idReporteControl Int             @id @default(autoincrement()) @map("idreportecontrol")
+  descripcion      String?
+  fechaControl     DateTime?       @default(now()) @map("fecha_control")
+  idFuncionario    Int             @map("idfuncionario")
+  idRevision       Int?            @map("idrevision")
+  funcionario      Funcionario     @relation(fields: [idFuncionario], references: [idFuncionario])
+  revision         Revision?       @relation(fields: [idRevision], references: [idRevision])
+  imagenes         ImagenControl[]
+  @@map("reporte_control")
+}
+
+model ImagenControl {
+  idImagenControl   Int            @id @default(autoincrement()) @map("idimg_control")
+  rutaDirectorio    String         @map("ruta_directorio") @db.VarChar(255)
+  idReporteControl  Int            @map("idreportecontrol")
+  reporteControl    ReporteControl @relation(fields: [idReporteControl], references: [idReporteControl], onDelete: Cascade)
+
+  @@map("imagen_control")
+}

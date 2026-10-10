@@ -1,9 +1,10 @@
-const pool = require('../db/conexion');
+// Usa Prisma (src/db). Requiere que se haya ejecutado: `npm run build`.
+// para que exista dist/.
+const { verificarConexion } = require('../../dist/db/index.js');
 
-// Hace una consulta simple para saber si la base de datos responde.
+// Consulta simple para validar la existencia de la BD
 const revisarBaseDeDatos = async () => {
-  const resultado = await pool.query('SELECT NOW() AS hora');
-  return resultado.rows[0].hora;
+  return verificarConexion();
 };
 
 module.exports = { revisarBaseDeDatos };
