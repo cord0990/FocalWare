@@ -96,6 +96,7 @@ export async function cerrarRevisionYNotificar(
 export async function listarReportesParaRevisar(votosMinimos: number) {
   const conteo = await prisma.voto.groupBy({
     by: ["idReporte"],
+    where: { reporte: { idRevision: null } },
     _count: { _all: true },
     having: { idVoto: { _count: { gte: votosMinimos } } },
     orderBy: { _count: { idVoto: "desc" } },
