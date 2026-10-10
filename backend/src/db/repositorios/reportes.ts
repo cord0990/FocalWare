@@ -26,11 +26,11 @@ function construirWhere(filtros: FiltrosReporte = {}): Prisma.ReporteWhereInput 
     ...(filtros.sector !== undefined ? { sector: filtros.sector } : {}),
     ...(filtros.desde !== undefined || filtros.hasta !== undefined
       ? {
-          fechaCreacion: {
-            ...(filtros.desde !== undefined ? { gte: filtros.desde } : {}),
-            ...(filtros.hasta !== undefined ? { lte: filtros.hasta } : {}),
-          },
-        }
+        fechaCreacion: {
+          ...(filtros.desde !== undefined ? { gte: filtros.desde } : {}),
+          ...(filtros.hasta !== undefined ? { lte: filtros.hasta } : {}),
+        },
+      }
       : {}),
   };
 }
@@ -126,34 +126,20 @@ export async function listarReportesDeVecino(idVecino: number): Promise<Reporte[
   });
 }
 
-/**
- * Reportes que el vecino todavía no votó, del más votado al menos.
- *
- * Prisma 7 no permite ordenar por el conteo de una relación, así que primero
- * se cuentan los votos con un groupBy (en la base) y se reconstruye el orden
- * en memoria sobre esos resultados.
- */
+// Reportes que el vecino todavía no votó, del más votado al menos.
 export async function listarReportesPendientesDeVoto(idVecino: number): Promise<Reporte[]> {
-  const limite = 20;
-
-  const conteo = await prisma.voto.groupBy({
-    by: ["idReporte"],
-    _count: { _all: true },
-    orderBy: { _count: { idVoto: "desc" } },
-    take: limite,
-  });
-
-  const idsOrdenados = conteo.map((fila) => fila.idReporte);
-  if (idsOrdenados.length === 0) return [];
-
-  const reportes = await prisma.reporte.findMany({
-    where: { idReporte: { in: idsOrdenados }, votos: { none: { idVecino } } },
-  });
-
-  const porId = new Map(reportes.map((reporte) => [reporte.idReporte, reporte]));
-  return idsOrdenados
-    .map((id) => porId.get(id))
-    .filter((reporte): reporte is NonNullable<typeof reporte> => reporte !== undefined);
+  return prisma.$queryRaw<Reporte[]>`
+    SELECT r.*
+    FROM reporte r
+    LEFT JOIN votos v2 ON v2.idreporte = r.idreporte
+    WHERE NOT EXISTS (
+      SELECT 1 FROM votos v
+      WHERE v.idreporte = r.idreporte AND v.idvecino = ${idVecino}
+    )
+    GROUP BY r.idreporte
+    ORDER BY count(v2.idvoto) DESC, r.idreporte ASC
+    LIMIT 20
+  `;
 }
 
 /** Asigna un reporte a una revisión. */
