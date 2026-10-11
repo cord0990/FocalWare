@@ -69,7 +69,7 @@ Lo que ya está hecho:
 - El manejo de errores, que responde siempre con el mismo formato.
 - Las carpetas para las fotos.
 - Los middlewares `autenticacion.js` (revisa el token), `roles.js` (revisa si es vecino o funcionario) y `validaciones.js` (revisa que lleguen los campos y que el correo y la contraseña tengan buen formato).
-- `seguridadService.js`, que encripta y compara contraseñas con bcrypt y crea el token al iniciar sesión.
+- `seguridadService.js`, que saca el hash de las contraseñas con bcrypt, las compara y crea el token al iniciar sesión.
 - El middleware `subirFotos.js`, que recibe hasta 5 fotos (JPG, PNG o WEBP de máximo 5 MB) y las guarda en `uploads/reportes` o `uploads/controles`.
 
 ## 4. Partes que faltan

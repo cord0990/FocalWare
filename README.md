@@ -197,7 +197,8 @@ npm install
 |---|---|---|
 | `VITE_API_URL` | URL base de la API | `http://localhost:3000/api` |
 | `DATABASE_URL` | Conexión a PostgreSQL | `postgresql://user:pass@localhost:5432/focalware` |
-| `JWT_SECRET` | Clave de firma de tokens | valor propio |
+| `JWT_SECRETO` | Clave de firma de tokens | valor propio |
+| `JWT_EXPIRACION` | Tiempo que dura la sesión | `15m` |
 
 El archivo `.env` no se versiona. Ya está incluido en `.gitignore`.
 
