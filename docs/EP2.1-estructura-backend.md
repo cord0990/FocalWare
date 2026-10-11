@@ -68,6 +68,7 @@ Lo que ya está hecho:
 - El endpoint `GET /api/salud`, que sirve para comprobar que todo funciona.
 - El manejo de errores, que responde siempre con el mismo formato.
 - Las carpetas para las fotos.
+- Los middlewares `autenticacion.js` (revisa el token), `roles.js` (revisa si es vecino o funcionario) y `validaciones.js` (revisa que lleguen los campos y que el correo y la contraseña tengan buen formato).
 
 ## 4. Partes que faltan
 
