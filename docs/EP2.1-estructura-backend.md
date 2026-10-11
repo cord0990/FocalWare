@@ -69,6 +69,7 @@ Lo que ya está hecho:
 - El manejo de errores, que responde siempre con el mismo formato.
 - Las carpetas para las fotos.
 - Los middlewares `autenticacion.js` (revisa el token), `roles.js` (revisa si es vecino o funcionario) y `validaciones.js` (revisa que lleguen los campos y que el correo y la contraseña tengan buen formato).
+- `seguridadService.js`, que encripta y compara contraseñas con bcrypt y crea el token al iniciar sesión.
 
 ## 4. Partes que faltan
 
@@ -227,10 +228,10 @@ Estas partes necesitan las tablas, y algunas necesitan que otras estén listas a
 
 ### 6.3 Librerías
 
-Cuando se llegue a cuentas y fotos hay que instalar estas librerías:
+Ya están instaladas `jsonwebtoken` (token) y `bcryptjs` (contraseñas). Cuando se llegue a las fotos hay que instalar:
 
 ```bash
-npm install bcrypt jsonwebtoken multer
+npm install multer
 ```
 
 ## 7. Decisiones del modelo de datos
