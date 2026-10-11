@@ -8,8 +8,13 @@
 -- Docker NO usa este archivo: el contenedor "api" aplica las migraciones de
 -- Prisma al arrancar (ver backend/Dockerfile). Esta copia sirve para montar
 -- la base a mano, sin Docker.
+--
+-- Al final carga los datos de prueba de datos_prueba.sql (misma carpeta).
 
 CREATE DATABASE focalware;
+
+-- Se cambia a la base nueva para que las tablas se creen ahí y no en "postgres"
+\c focalware
 
 CREATE TABLE vecino (
     idvecino       SERIAL PRIMARY KEY,
@@ -123,3 +128,7 @@ CREATE TABLE imagen_control (
     ruta_directorio   VARCHAR(255) NOT NULL,
     idreportecontrol  INTEGER NOT NULL REFERENCES reporte_control(idreportecontrol) ON DELETE CASCADE
 );
+
+
+-- Datos de prueba
+\ir datos_prueba.sql
