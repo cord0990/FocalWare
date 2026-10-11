@@ -1,10 +1,15 @@
--- Esquema inicial de FocalWare (documentación histórica).
+-- Base de datos FocalWare.
 --
--- La fuente de verdad de la base ahora es Prisma: backend/prisma/schema.prisma
--- Docker NO carga este archivo;
--- las tablas las crea `prisma migrate deploy` al levantar el contenedor.
+-- Uso:  psql -U postgres -h localhost -f backend/database/focalware.sql
 --
--- Se conserva como referencia del modelo de datos original.
+-- Describe el mismo esquema que backend/prisma/schema.prisma. Si se cambia
+-- uno hay que cambiar el otro.
+--
+-- Docker NO usa este archivo: el contenedor "api" aplica las migraciones de
+-- Prisma al arrancar (ver backend/Dockerfile). Esta copia sirve para montar
+-- la base a mano, sin Docker.
+
+CREATE DATABASE focalware;
 
 CREATE TABLE vecino (
     idvecino       SERIAL PRIMARY KEY,
@@ -99,7 +104,7 @@ CREATE TABLE notificacion (
     mensaje         TEXT NOT NULL,
     tipo            VARCHAR(50),
     fecha           TIMESTAMP DEFAULT NOW(),
-    leida           BOOLEAN DEFAULT FALSE,
+    leida           BOOLEAN NOT NULL DEFAULT FALSE,
     idvecino        INTEGER NOT NULL REFERENCES vecino(idvecino) ON DELETE CASCADE,
     idrevision      INTEGER NOT NULL REFERENCES revision(idrevision) ON DELETE CASCADE
 );
