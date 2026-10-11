@@ -8,7 +8,8 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
     ports:
-      - "${DB_PORT:-5432}:5432"
+      # Se usa 5434 en el computador para no chocar con un PostgreSQL instalado en Windows
+      - "${DB_PORT:-5434}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       # No se monta focalware.sql: el esquema lo crea Prisma con las
@@ -36,6 +37,8 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-postgres}
       DATABASE_URL: postgresql://postgres:${DB_PASSWORD:-postgres}@db:5432/focalware
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      JWT_SECRETO: ${JWT_SECRETO:-cambia_esta_clave}
+      JWT_EXPIRACION: ${JWT_EXPIRACION:-15m}
     ports:
       - "3000:3000"
     volumes:
