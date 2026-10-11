@@ -70,6 +70,7 @@ Lo que ya está hecho:
 - Las carpetas para las fotos.
 - Los middlewares `autenticacion.js` (revisa el token), `roles.js` (revisa si es vecino o funcionario) y `validaciones.js` (revisa que lleguen los campos y que el correo y la contraseña tengan buen formato).
 - `seguridadService.js`, que encripta y compara contraseñas con bcrypt y crea el token al iniciar sesión.
+- El middleware `subirFotos.js`, que recibe hasta 5 fotos (JPG, PNG o WEBP de máximo 5 MB) y las guarda en `uploads/reportes` o `uploads/controles`.
 
 ## 4. Partes que faltan
 
@@ -228,11 +229,7 @@ Estas partes necesitan las tablas, y algunas necesitan que otras estén listas a
 
 ### 6.3 Librerías
 
-Ya están instaladas `jsonwebtoken` (token) y `bcryptjs` (contraseñas). Cuando se llegue a las fotos hay que instalar:
-
-```bash
-npm install multer
-```
+Ya están instaladas `jsonwebtoken` (token), `bcryptjs` (contraseñas) y `multer` (fotos). Basta con correr `npm install` dentro de `backend`.
 
 ## 7. Decisiones del modelo de datos
 

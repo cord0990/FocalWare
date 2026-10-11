@@ -63,6 +63,8 @@ Las fotos se guardan como archivos en `uploads/` y en la base de datos solo se g
 
 Las fotos no se suben al repositorio, solo las carpetas.
 
+La API recibe las fotos en el campo `fotos` de un formulario (`multipart/form-data`): máximo 5 por envío, solo JPG, PNG o WEBP y de hasta 5 MB cada una.
+
 ## Formato de respuestas
 
 Todas las respuestas son JSON:
