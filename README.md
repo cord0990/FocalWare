@@ -196,7 +196,7 @@ npm install
 | Variable | Descripción | Ejemplo |
 |---|---|---|
 | `VITE_API_URL` | URL base de la API | `http://localhost:3000/api` |
-| `DATABASE_URL` | Conexión a PostgreSQL | `postgresql://user:pass@localhost:5432/focalware` |
+| `DATABASE_URL` | Conexión a PostgreSQL | `postgresql://postgres:postgres@localhost:5434/focalware` |
 | `JWT_SECRETO` | Clave de firma de tokens | valor propio |
 | `JWT_EXPIRACION` | Tiempo que dura la sesión | `15m` |
 
@@ -232,7 +232,7 @@ Esto levanta dos servicios: la base de datos PostgreSQL y la API. El contenedor 
 
 | Servicio | Puerto | Qué es |
 |---|---|---|
-| `db` | 5432 | PostgreSQL con el volumen `pgdata` |
+| `db` | 5434 | PostgreSQL con el volumen `pgdata`. Usa el 5434 para no chocar con un PostgreSQL instalado en Windows |
 | `api` | 3000 | La API, con las migraciones aplicadas al iniciar |
 
 **Trabajar sin Docker**
@@ -258,6 +258,21 @@ Otros comandos útiles:
 | `docker compose down -v` | Detiene todo y borra la base (se reconstruye sola) |
 
 > El archivo `backend/database/focalware.sql` quedó como documentación del esquema inicial. La fuente de verdad son las migraciones de Prisma en `backend/prisma/migrations`.
+
+**Datos de prueba**
+
+`backend/database/datos_prueba.sql` trae 3 vecinos, 2 funcionarios, 3 cuadrillas y 7 reportes en distintos estados, con votos, historial y notificaciones. La contraseña de todos los usuarios es `Clave123`.
+
+| Usuario | Correo | Rol |
+|---|---|---|
+| Valentina Rojas | `valentina.rojas@correo.cl` | Vecino |
+| Javiera Muñoz | `javiera.munoz@focalware.cl` | Funcionario |
+
+Si la base se creó con `focalware.sql`, los datos ya vienen cargados. Si se creó con Docker, se cargan desde la raíz con:
+
+```bash
+docker exec -i focalware-db psql -U postgres -d focalware < backend/database/datos_prueba.sql
+```
 
 ## Ejecución
 
