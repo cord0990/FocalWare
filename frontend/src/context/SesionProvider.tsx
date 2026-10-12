@@ -6,8 +6,8 @@ import { SesionContext } from './SesionContext';
 const SesionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [usuario, setUsuario] = useState<Usuario | null>(leerSesion);
 
-  const iniciarSesion = (nuevo: Usuario) => {
-    guardarSesion(nuevo);
+  const iniciarSesion = (nuevo: Usuario, token?: string) => {
+    guardarSesion(nuevo, token);
     setUsuario(nuevo);
   };
 

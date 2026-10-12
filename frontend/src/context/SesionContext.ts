@@ -4,7 +4,7 @@ import type { Usuario } from '../services/sesionService';
 interface SesionContextValor {
   // null si nadie ha iniciado sesión.
   usuario: Usuario | null;
-  iniciarSesion: (usuario: Usuario) => void;
+  iniciarSesion: (usuario: Usuario, token?: string) => void;
   cerrarSesion: () => void;
 }
 
