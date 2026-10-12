@@ -16,11 +16,26 @@
 
 </div>
 
-![mapa](./docs/img/mapa.png)
-![reporte](./docs/img/reporte.png)
-![estadisticas](./docs/img/estadisticas.png)
+## Capturas
+
+**Mapa de reportes:** pantalla de entrada de la aplicación. Muestra los reportes de Valparaíso marcados según su nivel de riesgo y la lista ordenada a la derecha.
+
+![Mapa de Valparaíso con los reportes marcados con colores según su nivel de riesgo (crítico, alto, medio y bajo) y la lista de reportes ordenada por riesgo al costado derecho](./docs/img/mapa.png)
+
+**Inicio de sesión:** un solo formulario para vecinos y funcionarios, con campos obligatorios marcados y el formato esperado del correo.
+
+![Pantalla de inicio de sesión de FocalWare con los campos de correo y contraseña marcados como obligatorios, el botón Iniciar sesión y los enlaces para recuperar la contraseña y crear una cuenta](./docs/img/login.png)
+
+**Crear reporte (Vecino):** formulario con el desglose del riesgo, el clima actual, el mapa para marcar la ubicación y las fotos del reporte.
+
+![Formulario para crear un reporte con el riesgo estimado, el desglose de categoría, volumen y distancia a viviendas, el clima actual, un mapa para marcar la ubicación y el espacio para agregar hasta 5 fotos](./docs/img/reporte.png)
+
+**Estadísticas (Funcionario):** cifras del mes, tiempo promedio de resolución por sector y evolución mensual.
+
+![Panel de estadísticas del funcionario con los reportes totales y resueltos del mes, el tiempo promedio de resolución por sector en un gráfico de barras y la evolución mensual de reportes recibidos y resueltos](./docs/img/estadisticas.png)
 
 ## Tabla de contenidos
+- [Capturas](#capturas)
 - [Prototipo](#prototipo)
 - [Descripción general](#descripción-general)
 - [Problema que aborda](#problema-que-aborda)
@@ -93,7 +108,7 @@ La caracterización de los usuarios objetivo y las proto-personas están documen
 
 Inicio de sesión y registro no se contabilizan como requerimientos funcionales, ya que son funcionalidades transversales de soporte.
 
-La especificación completa, con tipo y dependencias de cada requerimiento, está en [docs/EP1.1-Requerimientos-del-sistema.md](docs/EP1.1-Requerimientos-del-sistema.md).
+La especificación completa, con tipo y dependencias de cada requerimiento, está en [docs/EP1.1. Requerimientos del sistema.md](docs/EP1.1.%20Requerimientos%20del%20sistema.md).
 
 | ID | Nombre | Descripción | Usuario |
 |---|---|---|---|
@@ -168,6 +183,8 @@ frontend/src/
 ├── context/            # Estado compartido (sesión y menú)
 └── utils/              # Cálculo del riesgo, validaciones y filtros
 ```
+
+La arquitectura de navegación, con las rutas, el acceso por rol y los flujos de tareas, está en [docs/EP1.4-arquitectura-navegacion.md](docs/EP1.4-arquitectura-navegacion.md).
 
 **Rama `backend`**
 
