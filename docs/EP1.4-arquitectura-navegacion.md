@@ -259,6 +259,37 @@ La organización de `pages` en subcarpetas por rol permite incorporar nuevas sec
 
 La lógica de verificación de rol se concentra en un componente de ruta protegida reutilizable, de modo que el criterio de acceso se define en un solo lugar y se aplica por composición.
 
+### 7.5 Por qué el mapa es la pantalla de entrada
+
+La ruta `/` redirige a `/mapa`, y lo mismo ocurre con cualquier ruta que no exista.
+
+La tarea más frecuente de todos los perfiles es saber qué está pasando en su sector, y el mapa la resuelve en la primera pantalla y sin iniciar sesión (sección 3.3). Así, quien entra por primera vez ve de inmediato los reportes y su nivel de riesgo, que es el valor de la plataforma, en lugar de encontrarse con una portada o un formulario de acceso.
+
+El mapa es además el punto de partida de los demás flujos: desde ahí se abre el detalle de un reporte, se apoya un reporte existente o se pasa a crear uno nuevo. Para el funcionario entrega una vista territorial de los focos antes de entrar a gestionarlos. Una portada intermedia solo agregaría un paso antes de llegar a esa información.
+
+### 7.6 Por qué `/reportar` exige sesión
+
+Ver reportes no modifica nada, pero crear uno escribe datos y cambia el orden de la cola municipal, porque cada reporte entra al cálculo del índice ponderado. Por eso esta ruta pide sesión con rol Vecino:
+
+- **Trazabilidad del autor:** el reporte queda asociado a quien lo creó, para avisarle cada cambio de estado (RF-08) y mostrarlo en "Mis reportes".
+- **Control de abusos:** sin sesión, cualquiera podría enviar reportes falsos o repetidos y alterar la priorización. Con sesión se controlan los duplicados (RNF-08) y que cada vecino apoye un reporte una sola vez (RF-14).
+- **Sin exponer al autor:** la sesión sirve para el registro interno. El nombre y el correo del vecino no se muestran en el mapa ni en el detalle público (RNF-07).
+
+Si alguien sin sesión entra a `/reportar`, el componente de ruta protegida lo envía al login y recuerda la ruta de origen, para devolverlo ahí después de autenticarse.
+
+### 7.7 Cómo escala el menú si aparece otro rol
+
+El menú lateral se arma con una lista de opciones por rol (`OPCIONES_VECINO` y `OPCIONES_FUNCIONARIO` en `MenuLateral.tsx`), y se muestra la que corresponde al rol de la sesión. Las opciones comunes, como Mapa y Mi perfil, aparecen en ambas listas.
+
+Si se agregara un rol nuevo, por ejemplo un administrador municipal, los pasos serían:
+
+1. Agregar el rol al tipo `Rol` de la sesión.
+2. Crear su lista de opciones de menú, reutilizando las comunes.
+3. Agrupar sus vistas bajo un prefijo propio, igual que `/municipal`, protegidas con `RutaProtegida` indicando el nuevo rol.
+4. Cambiar la elección de la lista: hoy distingue dos casos, y con un tercer rol pasaría a una tabla que asocia cada rol con sus opciones.
+
+Las vistas, rutas y opciones de los roles actuales no se modifican, por lo que el cambio queda acotado a la sesión, al menú y a las rutas nuevas.
+
 
 ### 8. Alcance de la Entrega 1
 
