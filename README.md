@@ -2,7 +2,7 @@
 
 <img src="docs/img/header.svg" alt="FocalWare: priorización de limpieza por riesgo de incendio en las quebradas de Valparaíso" width="100%">
 
-[![Prototipo en Figma](https://img.shields.io/badge/Prototipo-Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white)](https://www.figma.com/proto/NMUudu0YPxumGuZedsLVDS/FocalWare?node-id=0-1&t=nKgN063FMb7m3uT6-1)
+[![Prototipo en Figma](https://img.shields.io/badge/Prototipo-Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white)](https://www.figma.com/design/NMUudu0YPxumGuZedsLVDS/FocalWare?node-id=52-15&t=YzxsRCsrL1DTuLju-1)
 [![Requerimientos](https://img.shields.io/badge/Requerimientos-1F2937?style=for-the-badge)](#requerimientos-funcionales)
 [![Instalación](https://img.shields.io/badge/Instalación-1F2937?style=for-the-badge)](#instalación)
 
@@ -16,13 +16,45 @@
 
 </div>
 
----
+## Capturas
+
+**Mapa de reportes:** pantalla de entrada de la aplicación. Muestra los reportes de Valparaíso marcados según su nivel de riesgo y la lista ordenada a la derecha.
+
+![Mapa de Valparaíso con los reportes marcados con colores según su nivel de riesgo (crítico, alto, medio y bajo) y la lista de reportes ordenada por riesgo al costado derecho](./docs/img/mapa.png)
+
+**Inicio de sesión:** un solo formulario para vecinos y funcionarios, con campos obligatorios marcados y el formato esperado del correo.
+
+![Pantalla de inicio de sesión de FocalWare con los campos de correo y contraseña marcados como obligatorios, el botón Iniciar sesión y los enlaces para recuperar la contraseña y crear una cuenta](./docs/img/login.png)
+
+**Crear reporte (Vecino):** formulario con el desglose del riesgo, el clima actual, el mapa para marcar la ubicación y las fotos del reporte.
+
+![Formulario para crear un reporte con el riesgo estimado, el desglose de categoría, volumen y distancia a viviendas, el clima actual, un mapa para marcar la ubicación y el espacio para agregar hasta 5 fotos](./docs/img/reporte.png)
+
+**Estadísticas (Funcionario):** cifras del mes, tiempo promedio de resolución por sector y evolución mensual.
+
+![Panel de estadísticas del funcionario con los reportes totales y resueltos del mes, el tiempo promedio de resolución por sector en un gráfico de barras y la evolución mensual de reportes recibidos y resueltos](./docs/img/estadisticas.png)
+
+## Tabla de contenidos
+- [Capturas](#capturas)
+- [Prototipo](#prototipo)
+- [Descripción general](#descripción-general)
+- [Problema que aborda](#problema-que-aborda)
+- [Objetivos](#objetivos)
+- [Equipo](#equipo)
+- [Roles del sistema](#roles-del-sistema)
+- [Requerimientos funcionales](#requerimientos-funcionales)
+- [Requerimientos no funcionales](#requerimientos-no-funcionales)
+- [Tecnologías](#tecnologías)
+- [Estructura del repositorio](#estructura-del-repositorio)
+- [Instalación](#instalación)
+- [Ejecución](#ejecución)
+- [Estado del proyecto](#estado-del-proyecto)
 
 ## Prototipo
 
 El diseño de las pantallas fue elaborado manualmente en Figma, considerando versión móvil y versión web.
 
-[Ver prototipo en Figma](https://www.figma.com/proto/NMUudu0YPxumGuZedsLVDS/FocalWare?node-id=0-1&t=nKgN063FMb7m3uT6-1)
+[Ver prototipo en Figma](https://www.figma.com/design/NMUudu0YPxumGuZedsLVDS/FocalWare?node-id=52-15&t=YzxsRCsrL1DTuLju-1)
 
 La documentación del diseño, con paleta, correspondencia entre pantallas y requerimientos, y justificación de los formularios, está en [docs/EP1.3-diseno-ui-ux.md](docs/EP1.3-diseno-ui-ux.md).
 
@@ -76,7 +108,7 @@ La caracterización de los usuarios objetivo y las proto-personas están documen
 
 Inicio de sesión y registro no se contabilizan como requerimientos funcionales, ya que son funcionalidades transversales de soporte.
 
-La especificación completa, con tipo y dependencias de cada requerimiento, está en [docs/EP1.1-Requerimientos-del-sistema.md](docs/EP1.1-Requerimientos-del-sistema.md).
+La especificación completa, con tipo y dependencias de cada requerimiento, está en [docs/EP1.1. Requerimientos del sistema.md](docs/EP1.1.%20Requerimientos%20del%20sistema.md).
 
 | ID | Nombre | Descripción | Usuario |
 |---|---|---|---|
@@ -122,7 +154,7 @@ La especificación completa, con tipo y dependencias de cada requerimiento, est�
 |---|---|
 | Frontend | Ionic 8, React 18, TypeScript |
 | Navegación | React Router |
-| Mapas | Leaflet con OpenStreetMap |
+| Mapas | [Leaflet](https://leafletjs.com/) con React Leaflet. Mapa base de [Esri World Street Map](https://www.arcgis.com/home/item.html?id=3b93337983e9436f8db950e38a8629af) (vista simple) y [OpenStreetMap](https://www.openstreetmap.org/) (vista detallada), con mapa de calor mediante `leaflet.heat` |
 | Backend | Node.js con Express |
 | Base de datos | PostgreSQL |
 | Servicio externo | [Open-Meteo](https://open-meteo.com/) (temperatura, humedad y viento) |
@@ -139,12 +171,20 @@ La especificación completa, con tipo y dependencias de cada requerimiento, est�
 **Rama `frontend`**
 
 ```
-src/
-├── pages/          # Vistas de la aplicación
-├── components/     # Componentes reutilizables
-├── routes/         # Rutas y protección por rol
-└── services/       # Consumo de la API
+frontend/src/
+├── pages/
+│   ├── publico/        # Mapa, detalle, login, registro y ayuda (sin sesión)
+│   ├── compartido/     # Crear reporte, mis reportes y perfil (con sesión)
+│   └── municipal/      # Estadísticas (solo funcionario)
+├── components/         # Componentes reutilizables
+├── routes/             # Rutas y protección por rol
+├── services/           # Datos y consumo de la API
+├── hooks/              # Lógica reutilizable
+├── context/            # Estado compartido (sesión y menú)
+└── utils/              # Cálculo del riesgo, validaciones y filtros
 ```
+
+La arquitectura de navegación, con las rutas, el acceso por rol y los flujos de tareas, está en [docs/EP1.4-arquitectura-navegacion.md](docs/EP1.4-arquitectura-navegacion.md).
 
 **Rama `backend`**
 
@@ -164,8 +204,8 @@ Requisitos previos: Node.js 18 o superior, npm 9 o superior.
 git clone https://github.com/cord0990/FocalWare.git
 cd FocalWare
 git checkout frontend
+cd frontend
 npm install
-cp .env.example .env
 ```
 
 **Variables de entorno**
@@ -181,18 +221,29 @@ El archivo `.env` no se versiona. Ya está incluido en `.gitignore`.
 ## Ejecución
 
 ```bash
+cd frontend
 npm run dev
 ```
 
 La aplicación queda disponible en `http://localhost:5173`.
 
+**Acceso según rol de usuario:**
+* **Vecino:** Iniciar sesión con un correo general (ej. `@gmail.com`).
+* **Funcionario:** Iniciar sesión con correo institucional `@focalware.cl`.
+
 ## Estado del proyecto
 
 | Entrega | Contenido | Estado |
 |---|---|---|
-| **EP1** | Requerimientos, proto-personas, Figma, estructura Ionic con React | En desarrollo |
+| **EP1** | Requerimientos, proto-personas, Figma, estructura Ionic con React | Completado |
 | **EP2** | Backend, base de datos, API REST, autenticación JWT | Pendiente |
 | **EF** | Funcionalidades completas, seguridad, Docker | Pendiente |
+
+
+---
+## Declaración de uso de Inteligencia Artificial
+
+Durante el desarrollo de este proyecto se utilizaron herramientas de Inteligencia Artificial Generativa como apoyo complementario para la revisión de código, redacción de documentación y optimización de flujos de trabajo. Todo el análisis conceptual, diseño de arquitectura, lógica de negocio e implementación final fueron realizados y validados de forma autónoma por el equipo.
 
 ---
 
