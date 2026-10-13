@@ -3,6 +3,15 @@
 
 const BASE_URL = (import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api').replace(/\/+$/, '');
 
+const ORIGEN = BASE_URL.replace(/\/api$/, '');
+
+export const urlDeImagen = (ruta: string): string => {
+  if (!ruta) return '';
+  if (ruta.startsWith('data:')) return ruta;
+  if (ruta.startsWith('http://') || ruta.startsWith('https://')) return ruta;
+  return `${ORIGEN}/uploads/${ruta.replace(/^\/+/, '')}`;
+};
+
 const CLAVE_TOKEN = 'focalware-token';
 
 export const guardarToken = (token: string) => {
@@ -41,15 +50,17 @@ export class ErrorApi extends Error {
 }
 
 type Opciones = {
-  metodo?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
+  metodo?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   cuerpo?: unknown;
   autenticado?: boolean; // si es false, no se manda el token
+  esFormulario?: boolean;
 };
 
 export const pedir = async <T>(ruta: string, opciones: Opciones = {}): Promise<T> => {
-  const { metodo = 'GET', cuerpo, autenticado = true } = opciones;
+  const { metodo = 'GET', cuerpo, autenticado = true, esFormulario = false } = opciones;
 
-  const cabeceras: Record<string, string> = { 'Content-Type': 'application/json' };
+  const cabeceras: Record<string, string> = {};
+  if (!esFormulario) cabeceras['Content-Type'] = 'application/json';
 
   if (autenticado) {
     const token = leerToken();
@@ -61,7 +72,12 @@ export const pedir = async <T>(ruta: string, opciones: Opciones = {}): Promise<T
     respuesta = await fetch(`${BASE_URL}${ruta}`, {
       method: metodo,
       headers: cabeceras,
-      body: cuerpo === undefined ? undefined : JSON.stringify(cuerpo),
+      body:
+        cuerpo === undefined
+          ? undefined
+          : esFormulario
+            ? (cuerpo as FormData)
+            : JSON.stringify(cuerpo),
     });
   } catch {
     throw new ErrorApi('No se pudo conectar con el servidor', 0);

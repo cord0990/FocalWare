@@ -31,6 +31,7 @@ import SelectorUbicacion, { type Ubicacion } from '../../components/reportes/Sel
 import { useConexion } from '../../hooks/useConexion';
 import { useUbicacionActual } from '../../hooks/useUbicacionActual';
 import { RUTAS, rutaEditarReporte, rutaMapaConReporte } from '../../routes/rutas';
+import { ErrorApi, urlDeImagen } from '../../services/api';
 import { esClimaDeRiesgo, obtenerClimaActual, type Clima } from '../../services/climaService';
 import { guardarPendiente } from '../../services/pendientesService';
 import { crearReporte, type DatosNuevoReporte, type Reporte } from '../../services/reportesService';
@@ -157,13 +158,20 @@ const CrearReporte: React.FC = () => {
           'Gracias por ayudar a tu comunidad. Tu reporte ya está en el mapa y quedará Pendiente hasta que el municipio lo revise.',
       });
     } catch (causa) {
+      // Si el servidor respondió con un motivo concreto (reporte duplicado, campo
+      // inválido, sesión vencida), se muestra ese texto. Solo si la conexión
+      // misma falló se usa el mensaje genérico.
       const sinEspacio = causa instanceof DOMException && causa.name === 'QuotaExceededError';
+      const sinConexion = causa instanceof ErrorApi && causa.estado === 0;
+
       setAviso({
         tipo: 'error',
         titulo: 'No pudimos crear el reporte',
         mensaje: sinEspacio
           ? 'Las fotos ocupan demasiado espacio en tu dispositivo. Prueba con menos fotos.'
-          : 'Ocurrió un problema al enviarlo. Revisa tu conexión e inténtalo de nuevo.',
+          : sinConexion
+            ? 'No pudimos conectarnos con el servidor. Revisa tu conexión e inténtalo de nuevo.'
+            : (causa as Error).message || 'Ocurrió un problema al enviarlo.',
       });
     }
     setEnviando(false);
@@ -388,7 +396,7 @@ const CrearReporte: React.FC = () => {
           <div className="resumen-creado">
             <div className="resumen-creado-foto">
               {creado.imagenes[0] ? (
-                <img src={creado.imagenes[0]} alt="" />
+                <img src={urlDeImagen(creado.imagenes[0])} alt="" />
               ) : (
                 <IonIcon icon={imageOutline} aria-hidden="true" />
               )}
