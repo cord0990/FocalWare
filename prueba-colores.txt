@@ -1,0 +1,11 @@
+Archivo de prueba para aprender los colores de Git en VS Code.
+No se sube al repositorio: al terminar hay que borrarlo.
+
+1. Ahora está en VERDE con una U (Untracked): es nuevo y Git todavía no lo sigue.
+2. Con "git add prueba-colores.txt" pasa a VERDE con una A (Added): está listo para el commit.
+3. Si después cambias este texto y guardas, aparece en AMARILLO con una M (Modified).
+4. Si lo borras cuando ya estaba agregado, se ve en ROJO con una D (Deleted).
+
+Los archivos en GRIS (como backend/.env o node_modules) están ignorados por el .gitignore y nunca se suben.
+
+Escribe algo aquí abajo para probar el paso 3:
