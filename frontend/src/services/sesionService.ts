@@ -1,10 +1,12 @@
-// Sesión del usuario guardada en el navegador. En la Entrega 2 aquí se guardará el token (JWT)
-// que entregue el backend al iniciar sesión.
+// Sesión del usuario. El token JWT que entrega la API queda guardado acá y
+// `api.ts` lo manda en cada petición.
+
+import { borrarToken, guardarToken } from './api';
 
 export type Rol = 'vecino' | 'funcionario';
 
 export interface Usuario {
-  id: string;
+  id: number;
   nombre: string;
   correo: string;
   telefono?: string;
@@ -27,7 +29,8 @@ export const leerSesion = (): Usuario | null => {
   }
 };
 
-export const guardarSesion = (usuario: Usuario) => {
+export const guardarSesion = (usuario: Usuario, token?: string) => {
+  if (token) guardarToken(token);
   try {
     localStorage.setItem(CLAVE_SESION, JSON.stringify(usuario));
   } catch {
@@ -41,6 +44,7 @@ export const borrarSesion = () => {
   } catch {
     // Nada que borrar si el navegador no permite guardar datos.
   }
+  borrarToken();
 };
 
 // "Valentina Rojas" -> "VR"; "valentina" -> "V".

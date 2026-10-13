@@ -56,10 +56,15 @@ const Registro: React.FC = () => {
     setEnviando(true);
     setErrorRegistro('');
     try {
-      const usuario = await registrarUsuario({ nombre, correo, telefono, contrasena });
+      const { token, usuario } = await registrarUsuario({
+        nombre,
+        email: correo,
+        telefono,
+        password: contrasena,
+      });
       setMensaje('Cuenta creada correctamente.');
       // Se muestra el aviso un momento y se entra a la app con la cuenta nueva.
-      setTimeout(() => sesion.iniciarSesion(usuario), 1200);
+      setTimeout(() => sesion.iniciarSesion(usuario, token), 1200);
     } catch (causa) {
       setErrorRegistro(causa instanceof Error ? causa.message : 'No pudimos crear la cuenta.');
     }
