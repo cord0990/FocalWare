@@ -45,6 +45,11 @@ export interface Reporte {
   // Solo lo reciben el dueño del reporte y los funcionarios.
   nombreVecino?: string;
   emailVecino?: string;
+  // true si el vecino conectado ya apoyan este reporte. Sin sesión viene false.
+  miVoto?: boolean;
+  // true si el reporte es del vecino conectado. Sirve para no ofrecer el botón de
+  // apoyar en el reporte propio. Sin sesión viene false.
+  esMio?: boolean;
   gestion?: GestionReporte;
   editadoEn?: string;
 }
@@ -226,6 +231,20 @@ export const actualizarReporte = async (id: string, cambios: CambiosReporte): Pr
 export const eliminarReporte = async (id: string): Promise<void> => {
   await pedir(`/reportes/${id}`, { metodo: 'DELETE' });
   avisarCambio();
+};
+
+// --- Votos de apoyo ---
+
+export const apoyarReporte = async (id: string): Promise<number> => {
+  const datos = await pedir<{ votos: number }>(`/reportes/${id}/votos`, { metodo: 'POST' });
+  avisarCambio();
+  return datos.votos;
+};
+
+export const quitarApoyo = async (id: string): Promise<number> => {
+  const datos = await pedir<{ votos: number }>(`/reportes/${id}/votos`, { metodo: 'DELETE' });
+  avisarCambio();
+  return datos.votos;
 };
 
 // Solo el dueño puede modificar, y solo mientras no esté Controlado ni Rechazado.

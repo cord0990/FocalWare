@@ -53,7 +53,15 @@ const listar = async (req, res, next) => {
   try {
     const { sector, categoria, estado } = req.query;
 
-    const reportes = await reportesService.listar({ sector, categoria, estado });
+    // El id del vecino viene del token, si es que vino.
+    // Se usa para responder `miVoto` en cada reporte (si ya lo apoyan),
+    // sin romper el anonimato.
+    const reportes = await reportesService.listar({
+      sector,
+      categoria,
+      estado,
+      idVecino: req.usuario?.rol === 'vecino' ? req.usuario.id : null,
+    });
 
     res.json({ ok: true, data: { reportes } });
   } catch (error) {
