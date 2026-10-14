@@ -12,6 +12,7 @@ import { CENTRO_VALPARAISO, ESTILOS_MAPA } from './capasMapa';
 import { ICONOS_RIESGO } from './iconosMapa';
 import { NIVELES_RIESGO, obtenerNivelRiesgo } from '../../utils/riesgo';
 import './MapaReportes.css';
+import { urlDeImagen } from '../../services/api';
 
 const CLAVE_ESTILO_MAPA = 'focalware-estilo-mapa';
 const CLAVE_MAPA_CALOR = 'focalware-mapa-calor';
@@ -130,7 +131,7 @@ const MapaReportes: React.FC<MapaReportesProps> = ({
               <Popup className="popup-reporte" minWidth={250} maxWidth={330} autoPanPadding={[16, 16]}>
                 <div className="popup-imagen">
                   {reporte.imagenes[0] ? (
-                    <img src={reporte.imagenes[0]} alt={reporte.nombre} />
+                    <img src={urlDeImagen(reporte.imagenes[0])} alt={reporte.nombre} />
                   ) : (
                     <>
                       <IonIcon icon={imageOutline} aria-hidden="true" />

@@ -24,6 +24,7 @@ import TarjetaReporte from '../../components/reportes/TarjetaReporte';
 import { useAnchoRedimensionable } from '../../hooks/useAnchoRedimensionable';
 import { useSesion } from '../../hooks/useSesion';
 import { RUTAS, rutaDetalleMapa, rutaEditarReporte, rutaMunicipalReporte } from '../../routes/rutas';
+import { urlDeImagen } from '../../services/api';
 import { esClimaDeRiesgo } from '../../services/climaService';
 import {
   corregirDesglose,
@@ -165,7 +166,9 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
     setModificando(false);
     setMensaje('Desglose actualizado. El riesgo se recalculó con los nuevos datos.');
   };
-  const fotos = reporte.imagenes;
+  // Las fotos llegan como rutas del servidor; acá se convierten a direcciones para
+  // poder mostrarlas.
+  const fotos = reporte.imagenes.map(urlDeImagen);
 
   const desglose = [
     { etiqueta: 'Categoría', valor: reporte.categoria },

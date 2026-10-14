@@ -5,6 +5,7 @@ import { ESTILO_ESTADO } from '../../utils/estados';
 import { formatearFecha } from '../../utils/fechas';
 import { obtenerNivelRiesgo } from '../../utils/riesgo';
 import './TarjetaReporte.css';
+import { urlDeImagen } from '../../services/api';
 
 interface TarjetaReporteProps {
   reporte: Reporte;
@@ -44,7 +45,7 @@ const TarjetaReporte: React.FC<TarjetaReporteProps> = ({
       )}
       <div className="tarjeta-imagen">
         {reporte.imagenes[0] ? (
-          <img src={reporte.imagenes[0]} alt={reporte.nombre} />
+          <img src={urlDeImagen(reporte.imagenes[0])} alt={reporte.nombre} />
         ) : (
           <IonIcon icon={imageOutline} aria-label="Sin fotografía" />
         )}

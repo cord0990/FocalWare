@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { IonIcon, IonSpinner } from '@ionic/react';
 import { add, cameraOutline, closeOutline, star, starOutline } from 'ionicons/icons';
+import { urlDeImagen } from '../../services/api';
 import { comprimirImagen } from '../../utils/imagenes';
 import { MAXIMO_FOTOS } from '../../utils/validacionReporte';
 import './GaleriaEditable.css';
@@ -13,10 +14,12 @@ interface GaleriaEditableProps {
 }
 
 // Fotografías de un reporte: la portada en grande y las complementarias en una columna al lado.
+// Recibe las fotos como vienen (rutas del servidor o data URL de las recién cargadas) y
+// solo convierte a dirección para mostrarlas.
 const GaleriaEditable: React.FC<GaleriaEditableProps> = ({ imagenes, error, onCambiar, onErrorCarga }) => {
   const entrada = useRef<HTMLInputElement>(null);
   const [procesando, setProcesando] = useState(false);
-  const [portada, ...complementarias] = imagenes;
+  const [portada, ...complementarias] = imagenes.map(urlDeImagen);
   const hayEspacio = imagenes.length < MAXIMO_FOTOS;
 
   const abrirSelector = () => entrada.current?.click();

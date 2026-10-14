@@ -18,15 +18,9 @@ const datosUsuario = (persona, rol) => ({
 
 // Crea una cuenta de vecino. La contraseña se guarda hasheada.
 const registrarVecino = async ({ nombre, email, password }) => {
-  const existente = await vecinos.obtenerVecinoPorEmail(email);
+  const correo = email.trim().toLowerCase();
 
-  if (existente) {
-    const error = new Error('Ya existe una cuenta con ese correo');
-    error.estado = 409;
-    throw error;
-  }
-
-  if (esCorreoInstitucional(email)) {
+  if (esCorreoInstitucional(correo)) {
     const error = new Error(
       'Las cuentas de funcionario las entrega la administración. Inicia sesión con tu cuenta.',
     );
@@ -34,9 +28,22 @@ const registrarVecino = async ({ nombre, email, password }) => {
     throw error;
   }
 
+  // El UNIQUE de la base es por tabla, así que se revisa en las dos: si un
+  // funcionario ya tiene ese correo, tampoco se puede crear un vecino con él.
+  const [existeVecino, existeFuncionario] = await Promise.all([
+    vecinos.obtenerVecinoPorEmail(correo),
+    funcionarios.obtenerFuncionarioPorEmail(correo),
+  ]);
+
+  if (existeVecino || existeFuncionario) {
+    const error = new Error('Ya existe una cuenta con ese correo');
+    error.estado = 409;
+    throw error;
+  }
+
   const vecino = await vecinos.crearVecino({
     nombre: nombre.trim(),
-    email: email.trim().toLowerCase(),
+    email: correo,
     passwordHash: await hashearPassword(password),
   });
 
