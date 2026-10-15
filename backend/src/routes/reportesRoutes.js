@@ -1,5 +1,6 @@
 const { Router } = require('express');
 const reportesController = require('../controllers/reportesController');
+const revisionController = require('../controllers/revisionController');
 const votosRoutes = require('./votosRoutes');
 const { verificarToken, verificarTokenOpcional } = require('../middlewares/autenticacion');
 const { permitirRoles } = require('../middlewares/roles');
@@ -34,5 +35,8 @@ router.put(
 router.use(votosRoutes);
 
 router.delete('/:id', verificarToken, permitirRoles('vecino'), reportesController.eliminar);
+
+// Revisión de un reporte por parte de un funcionario.
+router.post('/:id/revision', verificarToken, permitirRoles('funcionario'), revisionController.postRevisionReporte);
 
 module.exports = router;

@@ -29,6 +29,9 @@ services:
       db:
         condition: service_healthy
     environment:
+      # Debe coincidir con el puerto del mapeo de ports (3000) y con el
+      # EXPOSE del Dockerfile. Con 3001 la API escuchaba en un puerto que
+      # Docker no publica y el frontend se quedaba sin conexión.
       PORT: 3000
       DB_HOST: db
       DB_PORT: 5432

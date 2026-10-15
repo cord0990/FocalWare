@@ -71,6 +71,8 @@ const borradorComoReporte = (borrador: ReportePendiente): Reporte => ({
   fecha: borrador.guardadoEn.slice(0, 10),
   riesgo: borrador.riesgo ?? 0,
   votos: 0,
+  // Un borrador local nunca llegó a la base, así que no tiene revisión.
+  idRevision: null,
 });
 
 interface EditarReporteProps {
