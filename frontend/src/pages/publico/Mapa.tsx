@@ -20,7 +20,13 @@ import { useIrAlLogin } from '../../hooks/useIrAlLogin';
 import { useSesion } from '../../hooks/useSesion';
 import { NIVELES_RIESGO, rangoNivel } from '../../utils/riesgo';
 import { rutaDetalleMapa, rutaMunicipalReporte } from '../../routes/rutas';
-import { EVENTO_REPORTES, obtenerReportes, type Reporte } from '../../services/reportesService';
+import {
+  EVENTO_REPORTES,
+  obtenerReportes,
+  apoyarReporte,
+  quitarApoyo,
+  type Reporte,
+} from '../../services/reportesService';
 import {
   aplicarFiltros,
   buscarReportes,
@@ -47,7 +53,6 @@ const Mapa: React.FC = () => {
   const [filtros, setFiltros] = useState<FiltrosReportes>(FILTROS_INICIALES);
   const [filtrosAbiertos, setFiltrosAbiertos] = useState(false);
   const [seleccionadoId, setSeleccionadoId] = useState<string>();
-  const [votados, setVotados] = useState<Set<string>>(new Set());
   const divisor = useAnchoRedimensionable({
     clave: 'focalware-ancho-lista',
     minimo: 320,
@@ -100,18 +105,29 @@ const Mapa: React.FC = () => {
       ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
 
-  const alternarVoto = (id: string) => {
+  const alternarVoto = async (id: string) => {
     if (!usuario) {
       irAlLogin();
       return;
     }
-    setVotados((actuales) => {
-      const nuevos = new Set(actuales);
-      if (nuevos.has(id)) nuevos.delete(id);
-      else nuevos.add(id);
-      return nuevos;
-    });
+
+    const actual = reportes.find((reporte) => reporte.id === id);
+    const yaVotado = Boolean(actual?.miVoto);
+
+    try {
+      const votos = yaVotado ? await quitarApoyo(id) : await apoyarReporte(id);
+      setReportes((actuales) =>
+        actuales.map((reporte) =>
+          reporte.id === id ? { ...reporte, votos, miVoto: !yaVotado } : reporte,
+        ),
+      );
+    } catch {
+      setReportes(await obtenerReportes());
+    }
   };
+
+  const puedeVotar = (reporte: Reporte) =>
+    usuario?.rol !== 'funcionario' && !reporte.esMio;
 
   const aplicarNuevosFiltros = (nuevos: FiltrosReportes) => {
     setFiltros(nuevos);
@@ -226,7 +242,8 @@ const Mapa: React.FC = () => {
               key={reporte.id}
               reporte={reporte}
               seleccionada={reporte.id === seleccionadoId}
-              votado={votados.has(reporte.id)}
+              votado={reporte.miVoto}
+              puedeVotar={puedeVotar(reporte)}
               onDetalles={() => router.push(rutaDetalle(reporte.id), 'forward')}
               onVotar={() => alternarVoto(reporte.id)}
             />

@@ -24,4 +24,23 @@ const verificarToken = (req, res, next) => {
   }
 };
 
-module.exports = { verificarToken };
+// Igual que verificarToken, pero no corta la petición si no hay token.
+const verificarTokenOpcional = (req, res, next) => {
+  const cabecera = req.headers.authorization;
+
+  if (!cabecera || !cabecera.startsWith('Bearer ')) {
+    return next();
+  }
+
+  try {
+    const datos = jwt.verify(cabecera.split(' ')[1], process.env.JWT_SECRETO);
+    req.usuario = { id: datos.id, rol: datos.rol };
+  } catch {
+    // Un token inválido en una ruta pública no es motivo para cortar: se sigue
+    // como si fuera una visita anónima.
+  }
+
+  next();
+};
+
+module.exports = { verificarToken, verificarTokenOpcional };

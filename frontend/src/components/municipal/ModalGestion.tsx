@@ -11,11 +11,11 @@ import {
 import { closeOutline } from 'ionicons/icons';
 import SelectorFecha from '../SelectorFecha';
 import GaleriaEditable from '../reportes/GaleriaEditable';
+import { ErrorApi } from '../../services/api';
 import {
-  aprobarReporte,
-  controlarReporte,
   fechaDeHoy,
-  rechazarReporte,
+  registrarControl,
+  revisarReporteApi,
   type Reporte,
 } from '../../services/reportesService';
 import { formatearFecha } from '../../utils/fechas';
@@ -52,6 +52,7 @@ const ModalGestion: React.FC<ModalGestionProps> = ({ accion, reporte, funcionari
   const [imagenes, setImagenes] = useState<string[]>([]);
   const [intento, setIntento] = useState(false);
   const [guardando, setGuardando] = useState(false);
+  const [errorGuardado, setErrorGuardado] = useState('');
   const [errorFotos, setErrorFotos] = useState('');
 
   // Cada vez que se abre, el formulario parte vacío.
@@ -62,6 +63,7 @@ const ModalGestion: React.FC<ModalGestionProps> = ({ accion, reporte, funcionari
     setTexto('');
     setImagenes([]);
     setIntento(false);
+    setErrorGuardado('');
     setErrorFotos('');
   }, [accion]);
 
@@ -84,15 +86,48 @@ const ModalGestion: React.FC<ModalGestionProps> = ({ accion, reporte, funcionari
     setIntento(true);
     if (Object.values(errores).some(Boolean)) return;
     setGuardando(true);
-    if (accion === 'aprobar') {
-      await aprobarReporte(reporte.id, { cuadrilla, fechaAtencion, detalle: texto.trim() }, funcionario);
-    } else if (accion === 'rechazar') {
-      await rechazarReporte(reporte.id, texto.trim(), funcionario);
-    } else {
-      await controlarReporte(reporte.id, { detalle: texto.trim(), imagenes }, funcionario);
+    setErrorGuardado('');
+    try {
+      if (accion === 'aprobar') {
+        await revisarReporteApi(reporte.id, {
+          estado: 'Aprobado',
+          cuadrilla,
+          fechaAtencion,
+          detalle: texto.trim(),
+        });
+      } else if (accion === 'rechazar') {
+        await revisarReporteApi(reporte.id, {
+          estado: 'Rechazado',
+          motivo: texto.trim(),
+        });
+      } else {
+        // DECISIÓN DE DISEÑO: acá se lanza un throw y no se hace un return temprano.
+        //
+        // Un return dentro del try saltaría al finally, pero onHecho() ya se
+        // llamaría igual y cerraría el modal con el aviso de éxito, haciendo creer
+        // al funcionario que el control quedó registrado cuando nunca se mandó
+        // nada. Lanzar el error deja que lo capture el catch de abajo, que muestra
+        // el mensaje en el modal y mantiene todo el flujo como estaba.
+        //
+        // El error se crea como ErrorApi para que el catch lo muestre con el
+        // mismo formato que los errores que vienen del backend.
+        if (!reporte.idRevision) {
+          throw new ErrorApi('Este reporte todavía no tiene una revisión registrada.', 409);
+        }
+        // Ojo con el identificador: la URL pide /revisiones/{idRevision}, no el
+        // id del reporte. El backend no acepta el id del reporte y responde 400.
+        await registrarControl(reporte.idRevision, { detalle: texto.trim(), imagenes });
+      }
+      onHecho();
+    } catch (error) {
+      setErrorGuardado(
+        error instanceof ErrorApi
+          ? error.message
+          : 'No se pudo guardar la gestión. Revisa que la sesión siga vigente.',
+      );
+    } finally {
+      setGuardando(false);
     }
-    onHecho();
-    setGuardando(false);
   };
 
   const etiquetaTexto =
@@ -211,6 +246,12 @@ const ModalGestion: React.FC<ModalGestionProps> = ({ accion, reporte, funcionari
             errorText={error('texto')}
             onIonInput={(e) => setTexto(e.detail.value ?? '')}
           />
+
+          {errorGuardado && (
+            <p className="gestion-error" role="alert">
+              {errorGuardado}
+            </p>
+          )}
 
           <div className="gestion-botones">
             <IonButton className="gestion-cancelar" onClick={onCerrar} disabled={guardando}>

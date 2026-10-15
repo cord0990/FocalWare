@@ -38,6 +38,7 @@ import {
   obtenerPendientePorId,
   type ReportePendiente,
 } from '../../services/pendientesService';
+import { ErrorApi } from '../../services/api';
 import {
   actualizarReporte,
   eliminarReporte,
@@ -70,6 +71,8 @@ const borradorComoReporte = (borrador: ReportePendiente): Reporte => ({
   fecha: borrador.guardadoEn.slice(0, 10),
   riesgo: borrador.riesgo ?? 0,
   votos: 0,
+  // Un borrador local nunca llegó a la base, así que no tiene revisión.
+  idRevision: null,
 });
 
 interface EditarReporteProps {
@@ -248,12 +251,15 @@ const EditarReporte: React.FC<EditarReporteProps> = ({ origen }) => {
       });
     } catch (causa) {
       const sinEspacio = causa instanceof DOMException && causa.name === 'QuotaExceededError';
+      const sinConexion = causa instanceof ErrorApi && causa.estado === 0;
       setAviso({
         tipo: 'error',
         titulo: 'No pudimos guardar los cambios',
         mensaje: sinEspacio
           ? 'Las fotos ocupan demasiado espacio en tu dispositivo. Prueba con menos fotos.'
-          : 'Ocurrió un problema al guardarlos. Revisa tu conexión e inténtalo de nuevo.',
+          : sinConexion
+            ? 'No pudimos conectarnos con el servidor. Revisa tu conexión e inténtalo de nuevo.'
+            : (causa as Error).message || 'Ocurrió un problema al guardarlos.',
       });
     }
     setGuardando(false);
