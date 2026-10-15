@@ -67,17 +67,50 @@ const estadoDe = (reporte) => reporte.revision?.estado ?? 'Pendiente';
 const esAprobada = (estado) => estado === 'Aprobado' || estado === 'En atención';
 
 const gestionDe = (reporte) => {
-  if (!reporte.revision || !esAprobada(estadoDe(reporte))) return undefined;
+  if (!reporte.revision) return undefined;
 
-  return {
-    aprobacion: {
+  const estado = estadoDe(reporte);
+  if (estado === 'Rechazado') {
+    return {
+      rechazo: {
+        motivo: reporte.revision.descripcion ?? '',
+        funcionario: reporte.revision.funcionario?.nombre ?? '',
+        fecha: reporte.revision.fechaAtencion?.toISOString() ?? '',
+      },
+    };
+  }
+
+  // Un reporte controlado conserva también la aprobación con la que arrancó el
+  // trabajo, así que el vecino ve el recorrido completo: aprobado y luego
+  // controlado.
+  const control = reporte.revision?.controles?.[0];
+
+  const gestion = {};
+
+  if (esAprobada(estado) || estado === 'Controlado') {
+    gestion.aprobacion = {
       cuadrilla: reporte.revision.cuadrilla?.nombre ?? '',
       fechaAtencion: reporte.revision.fechaAtencion?.toISOString().slice(0, 10) ?? '',
       detalle: reporte.revision.descripcion ?? '',
       funcionario: reporte.revision.funcionario?.nombre ?? '',
       fecha: reporte.revision.fechaAtencion?.toISOString() ?? '',
-    },
-  };
+    };
+  }
+
+  // El control viene de la tabla reporte_control, que es aparte de la revisión:
+  // se creó con PUT /api/revisiones/:id y guarda el detalle y las fotos de
+  // evidencia del cierre. Las rutas llegan como "controles/archivo.png" y el
+  // frontend las convierte a direcciones con urlDeImagen.
+  if (estado === 'Controlado' && control) {
+    gestion.control = {
+      detalle: control.descripcion ?? '',
+      imagenes: control.imagenes?.map((imagen) => imagen.rutaDirectorio) ?? [],
+      funcionario: control.funcionario?.nombre ?? '',
+      fecha: control.fechaControl?.toISOString() ?? '',
+    };
+  }
+
+  return Object.keys(gestion).length > 0 ? gestion : undefined;
 };
 
 const MAXIMO_FOTOS = 5;
@@ -89,6 +122,18 @@ const aReporte = (reporte, { conVecino = false } = {}) => ({
   sector: reporte.sector,
   categoria: reporte.categoria,
   estado: estadoDe(reporte),
+  // Id de la revisión que lleva este reporte. Solo lo reciben el dueño del
+  // reporte y los funcionarios, igual que nombreVecino y emailVecino: es la
+  // llave que permite a la gestión municipal cerrar el trabajo con
+  // PUT /api/revisiones/:id, así que no se expone en el mapa público ni en el
+  // detalle de un visitante.
+  //
+  // Es null mientras el reporte no fue revisado. Por eso el chequeo es !== null
+  // y no un String() directo: String(null) devuelve la cadena "null", que es
+  // truthy, y el frontend acabaría pidiendo /revisiones/null. Se devuelve null
+  // de verdad para que el frontend pueda distinguir "sin revisión" de "con
+  // revisión 7" y no intente cerrar un reporte que todavía no se revisó.
+  ...(conVecino && { idRevision: reporte.idRevision !== null ? String(reporte.idRevision) : null }),
   fecha: reporte.fechaCreacion?.toISOString().slice(0, 10) ?? '',
   riesgo: reporte.indiceRiesgo !== null ? Number(reporte.indiceRiesgo) : null,
   votos: reporte._count?.votos ?? 0,
@@ -115,7 +160,20 @@ const aReporte = (reporte, { conVecino = false } = {}) => ({
 
 const INCLUIR_DETALLE = {
   imagenes: { orderBy: { orden: 'asc' } },
-  revision: { include: { funcionario: true, cuadrilla: true } },
+  // Los controles cuelgan de la revisión, no del reporte: en el schema el
+  // ReporteControl se relaciona con Revision por idRevision. Van take:1 porque
+  // solo se muestra el más reciente.
+  revision: {
+    include: {
+      funcionario: true,
+      cuadrilla: true,
+      controles: {
+        take: 1,
+        orderBy: { fechaControl: 'desc' },
+        include: { imagenes: { orderBy: { idImagenControl: 'asc' } }, funcionario: true },
+      },
+    },
+  },
   _count: { select: { votos: true } },
 };
 

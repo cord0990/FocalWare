@@ -24,7 +24,7 @@ import TarjetaReporte from '../../components/reportes/TarjetaReporte';
 import { useAnchoRedimensionable } from '../../hooks/useAnchoRedimensionable';
 import { useSesion } from '../../hooks/useSesion';
 import { RUTAS, rutaDetalleMapa, rutaEditarReporte, rutaMunicipalReporte } from '../../routes/rutas';
-import { urlDeImagen } from '../../services/api';
+import { ErrorApi, urlDeImagen } from '../../services/api';
 import { esClimaDeRiesgo } from '../../services/climaService';
 import {
   corregirDesglose,
@@ -79,6 +79,17 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
 
   useEffect(() => {
     let vigente = true;
+    // obtenerReportes() trae la lista completa del mapa (hasta 300 reportes)
+    // y aquí solo se usa para la columna "otros". Ya venía así desde antes de
+    // conectar la API, no es una regresión: por ahora no es un problema porque
+    // son pocos registros y la respuesta pesa poco.
+    //
+    // REVISAR: como obtenerReportes() no incluye idRevision (el mapa es público
+    // y ese dato solo se manda al dueño y a los funcionarios), los reportes de
+    // la columna "otros" traen idRevision en null. Hoy no molesta porque el modal
+    // de gestión solo se abre sobre `reporte`, que sí viene de obtenerReportePorId
+    // y lo trae completo. Si algún día se abre la gestión desde esa columna,
+    // faltaría el id para llamar a PUT /api/revisiones/:id.
     const cargar = () =>
       Promise.all([obtenerReportePorId(id), obtenerReportes()]).then(([encontrado, todos]) => {
         if (!vigente) return;
@@ -157,14 +168,25 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
 
   const guardarDesglose = async () => {
     setGuardandoDesglose(true);
-    await corregirDesglose(reporte.id, {
-      categoria: edicion.categoria,
-      volumen: edicion.volumen,
-      distanciaViviendas: edicion.distancia,
-    });
-    setGuardandoDesglose(false);
-    setModificando(false);
-    setMensaje('Desglose actualizado. El riesgo se recalculó con los nuevos datos.');
+    try {
+      await corregirDesglose(reporte.id, {
+        categoria: edicion.categoria,
+        volumen: edicion.volumen,
+        distanciaViviendas: edicion.distancia,
+      });
+      setModificando(false);
+      setMensaje('Desglose actualizado.');
+    } catch (error) {
+      // Antes esto guardaba en localStorage y siempre confirmaba. Ahora pega a la
+      // API, así que el backend puede rechazar el cambio y hay que decirlo.
+      setMensaje(
+        error instanceof ErrorApi
+          ? `No se pudo guardar el desglose: ${error.message}`
+          : 'No se pudo guardar el desglose. Revisa tu sesión.',
+      );
+    } finally {
+      setGuardandoDesglose(false);
+    }
   };
   // Las fotos llegan como rutas del servidor; acá se convierten a direcciones para
   // poder mostrarlas.
