@@ -26,7 +26,7 @@
 
 ![Pantalla de inicio de sesión de FocalWare con los campos de correo y contraseña marcados como obligatorios, el botón Iniciar sesión y los enlaces para recuperar la contraseña y crear una cuenta](./docs/img/login.png)
 
-**Crear report (Vecino):** formulario con el desglose del riesgo, el clima actual, el mapa para marcar la ubicación y las fotos del reporte.
+**Crear reporte (Vecino):** formulario con el desglose del riesgo, el clima actual, el mapa para marcar la ubicación y las fotos del reporte.
 
 ![Formulario para crear un reporte con el riesgo estimado, el desglose de categoría, volumen y distancia a viviendas, el clima actual, un mapa para marcar la ubicación y el espacio para agregar hasta 5 fotos](./docs/img/reporte.png)
 
