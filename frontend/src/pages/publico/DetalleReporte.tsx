@@ -22,16 +22,19 @@ import ExplicacionRiesgo from '../../components/reportes/ExplicacionRiesgo';
 import MiniMapa from '../../components/reportes/MiniMapa';
 import TarjetaReporte from '../../components/reportes/TarjetaReporte';
 import { useAnchoRedimensionable } from '../../hooks/useAnchoRedimensionable';
+import { useIrAlLogin } from '../../hooks/useIrAlLogin';
 import { useSesion } from '../../hooks/useSesion';
 import { RUTAS, rutaDetalleMapa, rutaEditarReporte, rutaMunicipalReporte } from '../../routes/rutas';
 import { ErrorApi, urlDeImagen } from '../../services/api';
 import { esClimaDeRiesgo } from '../../services/climaService';
 import {
+  apoyarReporte,
   corregirDesglose,
   EVENTO_REPORTES,
   obtenerReportePorId,
   obtenerReportes,
   puedeModificar,
+  quitarApoyo,
   type Reporte,
 } from '../../services/reportesService';
 import { ESTILO_ESTADO } from '../../utils/estados';
@@ -50,6 +53,7 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
   const { id = '' } = useParams<{ id: string }>();
   const router = useIonRouter();
   const { usuario } = useSesion();
+  const irAlLogin = useIrAlLogin();
   const esGestion = origen === 'municipal';
   const rutaListado = origen === 'mis-reportes' ? RUTAS.misReportes : RUTAS.mapa;
   const rutaDeOtro = esGestion ? rutaMunicipalReporte : rutaDetalleMapa;
@@ -113,6 +117,25 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
   }, [id]);
 
   const volver = () => (router.canGoBack() ? router.goBack() : router.push(rutaListado, 'back'));
+
+  const alternarVoto = async (otro: Reporte) => {
+    if (!usuario) {
+      irAlLogin();
+      return;
+    }
+
+    try {
+      const votos = otro.miVoto ? await quitarApoyo(otro.id) : await apoyarReporte(otro.id);
+      setOtros((actuales) =>
+        actuales.map((item) => (item.id === otro.id ? { ...item, votos, miVoto: !otro.miVoto } : item)),
+      );
+    } catch {
+      const todos = await obtenerReportes();
+      setOtros(todos.filter((item) => item.id !== id).sort((a, b) => b.riesgo - a.riesgo));
+    }
+  };
+
+  const puedeVotarOtro = (otro: Reporte) => usuario?.rol !== 'funcionario' && !otro.esMio;
 
   if (reporte === undefined) {
     return (
@@ -431,7 +454,9 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
               <div key={otro.id} className="detalle-otros-celda">
                 <TarjetaReporte
                   reporte={otro}
-                  puedeVotar={false}
+                  votado={otro.miVoto}
+                  puedeVotar={puedeVotarOtro(otro)}
+                  onVotar={() => alternarVoto(otro)}
                   onDetalles={() => router.push(rutaDeOtro(otro.id), 'forward')}
                 />
               </div>

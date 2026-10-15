@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const reportesController = require('../controllers/reportesController');
 const revisionController = require('../controllers/revisionController');
+const votosRoutes = require('./votosRoutes');
 const { verificarToken, verificarTokenOpcional } = require('../middlewares/autenticacion');
 const { permitirRoles } = require('../middlewares/roles');
 const { subirFotosReporte } = require('../middlewares/subirFotos');
@@ -29,6 +30,10 @@ router.put(
   subirFotosReporte,
   reportesController.modificar,
 );
+// Los votos cuelgan de /reportes/:id/votos. El router de votos se monta sin
+// prefijo porque ya declara su propio '/:id/votos'.
+router.use(votosRoutes);
+
 router.delete('/:id', verificarToken, permitirRoles('vecino'), reportesController.eliminar);
 
 // Revisión de un reporte por parte de un funcionario.

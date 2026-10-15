@@ -29,7 +29,7 @@ const TarjetaReporte: React.FC<TarjetaReporteProps> = ({
 }) => {
   const nivel = obtenerNivelRiesgo(reporte.riesgo);
   const estado = ESTILO_ESTADO[reporte.estado];
-  const votos = reporte.votos + (votado ? 1 : 0);
+  const votos = reporte.votos;
 
   return (
     <article

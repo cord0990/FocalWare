@@ -29,8 +29,8 @@ const quitarDatosDelVecino = (reporte) => {
   return resto;
 };
 
-const aReporteVisible = (reporte, { conVecino = false } = {}) => {
-  const completo = aReporte(reporte, { conVecino });
+const aReporteVisible = (reporte, { conVecino = false, idUsuario = null } = {}) => {
+  const completo = aReporte(reporte, { conVecino, idUsuario });
   return conVecino ? completo : quitarDatosDelVecino(completo);
 };
 
@@ -116,7 +116,7 @@ const gestionDe = (reporte) => {
 const MAXIMO_FOTOS = 5;
 
 // Traduce de la base a lo que entiende el frontend.
-const aReporte = (reporte, { conVecino = false } = {}) => ({
+const aReporte = (reporte, { conVecino = false, idUsuario = null } = {}) => ({
   id: String(reporte.idReporte),
   nombre: reporte.titulo,
   sector: reporte.sector,
@@ -137,6 +137,8 @@ const aReporte = (reporte, { conVecino = false } = {}) => ({
   fecha: reporte.fechaCreacion?.toISOString().slice(0, 10) ?? '',
   riesgo: reporte.indiceRiesgo !== null ? Number(reporte.indiceRiesgo) : null,
   votos: reporte._count?.votos ?? 0,
+  miVoto: Boolean(reporte.votos?.length),
+  esMio: idUsuario !== null && reporte.idVecino === idUsuario,
   latitud: Number(reporte.latitud),
   longitud: Number(reporte.longitud),
   descripcion: reporte.descripcion ?? '',
@@ -157,6 +159,11 @@ const aReporte = (reporte, { conVecino = false } = {}) => ({
     ? { nombreVecino: reporte.vecino?.nombre, emailVecino: reporte.vecino?.email }
     : {}),
 });
+
+const incluirVotosDe = (idVecino) =>
+  idVecino === null || idVecino === undefined
+    ? {}
+    : { votos: { where: { idVecino }, select: { idVoto: true } } };
 
 const INCLUIR_DETALLE = {
   imagenes: { orderBy: { orden: 'asc' } },
@@ -179,13 +186,13 @@ const INCLUIR_DETALLE = {
 
 const MAXIMO_POR_PAGINA = 300;
 
-const listar = async ({ sector, categoria, estado }) => {
+const listar = async ({ sector, categoria, estado, idVecino = null }) => {
   const reportes = await prisma.reporte.findMany({
     where: {
       ...(sector ? { sector } : {}),
       ...(categoria ? { categoria } : {}),
     },
-    include: INCLUIR_DETALLE,
+    include: { ...INCLUIR_DETALLE, ...incluirVotosDe(idVecino) },
     orderBy: { fechaCreacion: 'desc' },
     take: MAXIMO_POR_PAGINA,
   });
@@ -202,13 +209,13 @@ const listar = async ({ sector, categoria, estado }) => {
     return true;
   });
 
-  return visibles.map((reporte) => aReporteVisible(reporte));
+  return visibles.map((reporte) => aReporteVisible(reporte, { idUsuario: idVecino }));
 };
 
 const obtenerDetalle = async (idReporte, { idUsuario = null, rol = null } = {}) => {
   const reporte = await prisma.reporte.findUnique({
     where: { idReporte },
-    include: { ...INCLUIR_DETALLE, vecino: true },
+    include: { ...INCLUIR_DETALLE, ...incluirVotosDe(idUsuario), vecino: true },
   });
 
   if (!reporte) throw noEncontrado();
@@ -218,7 +225,7 @@ const obtenerDetalle = async (idReporte, { idUsuario = null, rol = null } = {}) 
   const esDueño = idUsuario !== null && reporte.idVecino === idUsuario;
   const conVecino = esDueño || rol === 'funcionario';
 
-  return aReporteVisible(reporte, { conVecino });
+  return aReporteVisible(reporte, { conVecino, idUsuario });
 };
 
 const obtenerPorId = async (idReporte) => {
@@ -234,7 +241,7 @@ const listarMios = async (idVecino) => {
     orderBy: { fechaCreacion: 'desc' },
   });
 
-  return reportes.map((reporte) => aReporte(reporte));
+  return reportes.map((reporte) => aReporte(reporte, { idUsuario: idVecino }));
 };
 
 // Antes de crear, se revisa si ya hay un reporte parecido muy cerca.
