@@ -38,3 +38,14 @@ export async function marcarTodasComoLeidas(idVecino: number): Promise<number> {
 export async function eliminarNotificacion(idNotificacion: number): Promise<Notificacion> {
   return prisma.notificacion.delete({ where: { idNotificacion } });
 }
+
+export async function marcarComoLeidaDeVecino(
+  idNotificacion: number,
+  idVecino: number
+): Promise<number> {
+  const resultado = await prisma.notificacion.updateMany({
+    where: { idNotificacion, idVecino },
+    data: { leida: true },
+  });
+  return resultado.count;
+}
