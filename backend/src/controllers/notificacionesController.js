@@ -2,6 +2,29 @@
 // para que exista dist/.
 const { notificaciones } = require('../../dist/db/index.js');
 
+// Deja la notificación con lo que necesita la app: el reporte al que se
+// refiere y las fechas de cada cambio de estado (para la línea de tiempo).
+const aNotificacion = (notificacion) => {
+  const reporte = notificacion.revision?.reportes[0];
+  const logs = notificacion.revision?.logs ?? [];
+  const fechaDe = (estado) => logs.find((log) => log.estadoLog === estado)?.fechaHora ?? null;
+
+  return {
+    id: notificacion.idNotificacion,
+    mensaje: notificacion.mensaje,
+    estado: notificacion.tipo,
+    leida: notificacion.leida,
+    fecha: notificacion.fecha,
+    reporte: reporte ? { id: reporte.idReporte, titulo: reporte.titulo } : null,
+    fechas: {
+      creacion: reporte?.fechaCreacion ?? null,
+      aprobacion: fechaDe('Aprobado'),
+      rechazo: fechaDe('Rechazado'),
+      control: fechaDe('Controlado'),
+    },
+  };
+};
+
 // GET /api/notificaciones: las notificaciones del vecino que inició sesión.
 // Opcional: ?soloNoLeidas=true para traer únicamente las que no ha leído.
 const listarMisNotificaciones = async (req, res, next) => {
@@ -12,7 +35,7 @@ const listarMisNotificaciones = async (req, res, next) => {
     const lista = await notificaciones.listarNotificacionesDeVecino(idVecino, soloNoLeidas);
     const noLeidas = await notificaciones.contarNoLeidas(idVecino);
 
-    res.json({ ok: true, data: { notificaciones: lista, noLeidas } });
+    res.json({ ok: true, data: { notificaciones: lista.map(aNotificacion), noLeidas } });
   } catch (error) {
     next(error);
   }

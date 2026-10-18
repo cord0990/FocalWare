@@ -5,14 +5,21 @@ export async function crearNotificacion(datos: CrearNotificacion): Promise<Notif
   return prisma.notificacion.create({ data: datos });
 }
 
-export async function listarNotificacionesDeVecino(
-  idVecino: number,
-  soloNoLeidas?: boolean
-): Promise<Notificacion[]> {
+// Además de la notificación, trae el reporte al que se refiere y los cambios de
+// estado de su revisión, para mostrar la línea de tiempo en la app.
+export async function listarNotificacionesDeVecino(idVecino: number, soloNoLeidas?: boolean) {
   return prisma.notificacion.findMany({
     where: {
       idVecino,
       ...(soloNoLeidas ? { leida: false } : {}),
+    },
+    include: {
+      revision: {
+        select: {
+          reportes: { select: { idReporte: true, titulo: true, fechaCreacion: true } },
+          logs: { select: { estadoLog: true, fechaHora: true }, orderBy: { fechaHora: "asc" } },
+        },
+      },
     },
     orderBy: { fecha: "desc" },
     take: 50,

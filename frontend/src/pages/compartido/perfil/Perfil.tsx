@@ -10,7 +10,7 @@ import { settingsOutline } from 'ionicons/icons';
 
 import AppLayout from '../../../components/layout/AppLayout';
 import { useSesion } from '../../../hooks/useSesion';
-import { RUTAS } from '../../../routes/rutas';
+import { RUTAS, rutaDetalleMapa } from '../../../routes/rutas';
 import Notificaciones, { Notificacion } from './Notificaciones';
 import Configuracion from './Configuracion';
 import DetalleNotificacion from './DetalleNotificacion';
@@ -82,6 +82,7 @@ const Perfil: React.FC<{ seccion: SeccionPerfil }> = ({ seccion }) => {
           <DetalleNotificacion
             notificacion={notificacionSeleccionada}
             onVolver={() => setTabActiva('notificaciones')}
+            onIrADetallesReporte={(reporteId) => router.push(rutaDetalleMapa(reporteId), 'forward')}
           />
         )}
       </div>

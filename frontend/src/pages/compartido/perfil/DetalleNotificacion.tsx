@@ -1,29 +1,26 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { IonIcon } from '@ionic/react';
 import { arrowBack, arrowForward } from 'ionicons/icons';
-import { buscarNotificacion, type Notificacion } from '../../../services/notificacionesService';
+import { marcarNotificacionLeida, type Notificacion } from '../../../services/notificacionesService';
 import './DetalleNotificacion.css';
 
 interface Props {
   notificacion?: Notificacion | null;
-  notificacionId?: string | null;
   onVolver: () => void;
-  onIrADetallesReporte?: () => void;
+  onIrADetallesReporte?: (reporteId: string) => void;
 }
 
-const DetalleNotificacion: React.FC<Props> = ({
-  notificacion,
-  notificacionId,
-  onVolver,
-  onIrADetallesReporte
-}) => {
-  // Resolvemos la notificación activa ya sea desde la prop directa o buscándola por ID
-  const notifActiva =
-    notificacion ||
-    (notificacionId ? buscarNotificacion(notificacionId) : undefined) ||
-    null;
+const DetalleNotificacion: React.FC<Props> = ({ notificacion, onVolver, onIrADetallesReporte }) => {
+  // Al abrir una notificación nueva, se marca como leída en la API.
+  useEffect(() => {
+    if (notificacion && !notificacion.leida) {
+      marcarNotificacionLeida(notificacion.id).catch(() => {
+        // Si falla, la notificación sigue como no leída y se puede volver a abrir.
+      });
+    }
+  }, [notificacion]);
 
-  if (!notifActiva) {
+  if (!notificacion) {
     return (
       <div className="detalle-notificacion-container">
         <p>No se encontró información de la notificación.</p>
@@ -32,11 +29,12 @@ const DetalleNotificacion: React.FC<Props> = ({
     );
   }
 
-  const { estado, fechaCreacion, fechaAprobacion, fechaControl, reporteId } = notifActiva;
+  const { fechaCreacion, fechaAprobacion, fechaRechazo, fechaControl, reporteId } = notificacion;
 
-  const esRechazado = estado === 'rechazado';
-  const esAceptado = estado === 'aceptado' || estado === 'controlado';
-  const esControlado = estado === 'controlado';
+  // La línea de tiempo se arma con las fechas que ya pasaron en la revisión del reporte.
+  const esRechazado = Boolean(fechaRechazo);
+  const esAceptado = Boolean(fechaAprobacion);
+  const esControlado = Boolean(fechaControl);
 
   const getStepClass = (etapa: 'creacion' | 'aprobacion' | 'control') => {
     if (etapa === 'creacion') return 'step-completado';
@@ -69,12 +67,14 @@ const DetalleNotificacion: React.FC<Props> = ({
           <div className="badge-reporte-id">
             Reporte ID: {reporteId}
           </div>
-          <button className="btn-ir-reporte" onClick={onIrADetallesReporte}>
-            <span>Ir a detalles del reporte...</span>
-            <span className="icon-circle">
-              <IonIcon icon={arrowForward} />
-            </span>
-          </button>
+          {reporteId && (
+            <button className="btn-ir-reporte" onClick={() => onIrADetallesReporte?.(reporteId)}>
+              <span>Ir a detalles del reporte...</span>
+              <span className="icon-circle">
+                <IonIcon icon={arrowForward} />
+              </span>
+            </button>
+          )}
         </div>
 
         <div className="timeline-section">
@@ -94,7 +94,9 @@ const DetalleNotificacion: React.FC<Props> = ({
                 {esRechazado ? 'Fecha de rechazo' : 'Fecha de aprobación'}
               </span>
               <div className="step-circle" />
-              <span className="step-date">{fechaAprobacion || '--/--/----'}</span>
+              <span className="step-date">
+                {(esRechazado ? fechaRechazo : fechaAprobacion) || '--/--/----'}
+              </span>
             </div>
 
             <div className={`timeline-step ${getStepClass('control')}`}>
