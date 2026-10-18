@@ -17,10 +17,10 @@ import {
 import { useConexion } from '../../hooks/useConexion';
 import { usePendientes } from '../../hooks/usePendientes';
 import { useNotificacionesNoLeidas } from '../../hooks/useNotificacionesNoLeidas';
+import { useMiActividad } from '../../hooks/useMiActividad';
 import { RUTAS } from '../../routes/rutas';
 import { useSesion } from '../../hooks/useSesion';
 import { NOMBRE_ROL, obtenerIniciales, primerNombre } from '../../services/sesionService';
-import { ACTIVIDAD_PRUEBA } from '../../services/usuarioService';
 import './MenuCuenta.css';
 
 export const ID_MENU_CUENTA = 'menu-cuenta';
@@ -64,7 +64,7 @@ const OpcionMenu: React.FC<OpcionMenuProps> = ({
 const MenuCuenta: React.FC<{ contentId: string }> = ({ contentId }) => {
   const router = useIonRouter();
   const { usuario, cerrarSesion } = useSesion();
-  const actividad = ACTIVIDAD_PRUEBA;
+  const actividad = useMiActividad();
   const pendientes = usePendientes();
   const notificacionesNoLeidas = useNotificacionesNoLeidas();
   const enLinea = useConexion();

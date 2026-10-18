@@ -117,6 +117,8 @@ Todas las rutas empiezan con `http://localhost:3000/api`.
 | 16 | `GET` | `/revisiones/:id/controles` | Funcionario de la cuadrilla | Controles de una revisión con sus fotos |
 | 17 | `GET` | `/notificaciones` | Vecino | Notificaciones del vecino |
 | 18 | `PUT` | `/notificaciones/:id/leida` | Vecino | Marca una notificación como leída |
+| 19 | `GET` | `/estadisticas` | Funcionario | Reportes de los últimos 12 meses para el panel de estadísticas |
+| 20 | `GET` | `/estadisticas/mi-actividad` | Vecino | Reportes creados, votos dados y apoyos recibidos del vecino |
 
 En las rutas, `:id` es el número del reporte, de la revisión o de la notificación. Si no es un número entero, la API responde `400`.
 
@@ -468,9 +470,59 @@ Para cambiar las fotos se manda `imagenesActuales` (la lista en JSON de las foto
 | `400` | El id no es un número |
 | `404` | La notificación no existe **o es de otro vecino**. Se responde igual en los dos casos para no revelar que existe |
 
+### 5.7 Estadísticas
+
+#### 19. `GET /estadisticas`
+
+**Acceso:** solo funcionarios. Entrega los reportes creados en los últimos 12 meses (desde el primer día de hace 11 meses). Con ellos la pantalla de estadísticas calcula las cifras de cada mes, el tiempo promedio por sector, la evolución mensual y el archivo CSV (RF-09).
+
+Un reporte cuenta como **resuelto** cuando su revisión llegó a `Controlado`. `diasResolucion` son los días entre la creación del reporte y ese control.
+
+**Respuesta `200`:**
+
+```json
+{
+  "ok": true,
+  "data": {
+    "reportes": [
+      {
+        "id": 6,
+        "fecha": "2026-08-10T16:20:00.000Z",
+        "sector": "Cerro Alegre",
+        "riesgo": 45,
+        "fechaResolucion": "2026-08-20T16:45:00.000Z",
+        "diasResolucion": 10
+      },
+      {
+        "id": 4,
+        "fecha": "2026-08-28T12:45:00.000Z",
+        "sector": "Rodelillo",
+        "riesgo": 64,
+        "fechaResolucion": null,
+        "diasResolucion": null
+      }
+    ]
+  }
+}
+```
+
+**Errores:** `401` sin sesión y `403` si es un vecino.
+
+#### 20. `GET /estadisticas/mi-actividad`
+
+**Acceso:** solo vecinos. Entrega lo que se muestra en "Tu aporte" del menú de cuenta.
+
+**Respuesta `200`:**
+
+```json
+{ "ok": true, "data": { "reportesCreados": 8, "votosDados": 4, "apoyosRecibidos": 3 } }
+```
+
+**Errores:** `401` sin sesión y `403` si es un funcionario.
+
 ## 6. Evidencia de las pruebas
 
-La colección tiene **58 peticiones en 7 carpetas**. Cada petición revisa el código HTTP y que la respuesta tenga el formato `{ ok, data }` o `{ ok, error }`. Muchas revisan además el contenido, por ejemplo que el login no devuelva la contraseña o que un visitante no vea el correo del vecino.
+La colección tiene **63 peticiones en 8 carpetas**. Cada petición revisa el código HTTP y que la respuesta tenga el formato `{ ok, data }` o `{ ok, error }`. Muchas revisan además el contenido, por ejemplo que el login no devuelva la contraseña o que un visitante no vea el correo del vecino.
 
 Se probaron los casos que funcionan y también los de error: sin sesión (`401`), rol equivocado (`403`), datos inválidos (`400`), recursos que no existen (`404`) y datos repetidos (`409`).
 
@@ -485,13 +537,14 @@ Se probaron los casos que funcionan y también los de error: sin sesión (`401`)
 | 5. Eliminar reporte | 3 | 6 | 0 |
 | 6. Revisiones | 14 | 33 | 0 |
 | 7. Notificaciones | 6 | 16 | 0 |
-| **Total** | **58** | **146** | **0** |
+| 8. Estadísticas | 5 | 13 | 0 |
+| **Total** | **63** | **159** | **0** |
 
 ### 6.1 Capturas
 
-**Resumen del Runner:** 146 comprobaciones pasadas, 0 fallidas y 0 errores.
+**Resumen del Runner:** 159 comprobaciones pasadas, 0 fallidas y 0 errores.
 
-![Resultado del Collection Runner de Postman con 146 pruebas pasadas, 0 fallidas y 0 errores, y peticiones de notificaciones en verde](img/postman-runner.png)
+![Resultado del Collection Runner de Postman con 159 pruebas pasadas, 0 fallidas y 0 errores, y peticiones en verde](img/postman-runner.png)
 
 **Respuesta completa de un login:** `POST /auth/login` responde `200 OK` con el token y los datos del usuario, y pasan sus 3 pruebas.
 

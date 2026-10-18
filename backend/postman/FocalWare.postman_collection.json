@@ -2904,6 +2904,213 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "8. Estadísticas",
+      "description": "Cifras del panel del funcionario y el aporte del vecino en su menú.",
+      "item": [
+        {
+          "name": "Reportes del año",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const reportes = pm.response.json().data.reportes;",
+                  "pm.test(\"Entrega los reportes con fecha y sector\", () => {",
+                  "  pm.expect(reportes).to.be.an(\"array\").that.is.not.empty;",
+                  "  pm.expect(reportes[0]).to.include.keys(\"id\", \"fecha\", \"sector\", \"fechaResolucion\", \"diasResolucion\");",
+                  "});",
+                  "pm.test(\"Incluye el reporte controlado en la carpeta 6\", () => {",
+                  "  const reporte = reportes.find((r) => String(r.id) === pm.collectionVariables.get(\"idReporteRevision\"));",
+                  "  pm.expect(reporte.fechaResolucion).to.be.a(\"string\");",
+                  "  pm.expect(reporte.diasResolucion).to.be.a(\"number\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenFuncionario}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/estadisticas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "estadisticas"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reportes del año como vecino",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenVecino}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/estadisticas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "estadisticas"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reportes del año sin sesión",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 401\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/estadisticas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "estadisticas"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mi actividad",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Trae las tres cifras del aporte\", () => {",
+                  "  const datos = pm.response.json().data;",
+                  "  pm.expect(datos.reportesCreados).to.be.a(\"number\").and.at.least(1);",
+                  "  pm.expect(datos.votosDados).to.be.a(\"number\");",
+                  "  pm.expect(datos.apoyosRecibidos).to.be.a(\"number\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenVecino}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/estadisticas/mi-actividad",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "estadisticas",
+                "mi-actividad"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mi actividad como funcionario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenFuncionario}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/estadisticas/mi-actividad",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "estadisticas",
+                "mi-actividad"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }

@@ -1,6 +1,6 @@
-// Actividad del vecino que se muestra en el menú de cuenta. Por ahora son datos de prueba;
-// el nombre y el rol ya vienen de la sesión (ver sesionService). En la Entrega 2 esta
-// información se obtendrá desde la API.
+// Actividad del vecino que se muestra en el menú de cuenta ("Tu aporte").
+// El nombre y el rol vienen de la sesión (ver sesionService); estas cifras, de la API.
+import { pedir } from './api';
 
 export interface ActividadUsuario {
   reportesCreados: number;
@@ -8,8 +8,4 @@ export interface ActividadUsuario {
   apoyosRecibidos: number;
 }
 
-export const ACTIVIDAD_PRUEBA: ActividadUsuario = {
-  reportesCreados: 6,
-  votosDados: 12,
-  apoyosRecibidos: 128,
-};
+export const obtenerMiActividad = () => pedir<ActividadUsuario>('/estadisticas/mi-actividad');
