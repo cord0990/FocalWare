@@ -1,11 +1,8 @@
-import {
-  fechaHoraActual,
-  registrarReportesEnviados,
-  type DatosNuevoReporte,
-} from './reportesService';
+import { ErrorApi } from './api';
+import { crearReporte, fechaHoraActual, type DatosNuevoReporte } from './reportesService';
 
-// Reportes creados sin conexión (RF-02). Se guardan en el navegador hasta que se envían.
-// En la Entrega 2 el envío llamará a la API REST.
+// Reportes creados sin conexión (RF-02). Se guardan en el navegador hasta que se envían
+// a la API.
 
 export interface ReportePendiente extends DatosNuevoReporte {
   id: string;
@@ -15,36 +12,9 @@ export interface ReportePendiente extends DatosNuevoReporte {
 const CLAVE = 'focalware-reportes-pendientes';
 export const EVENTO_PENDIENTES = 'focalware-pendientes-cambiaron';
 
-const PENDIENTES_PRUEBA: ReportePendiente[] = [
-  {
-    id: 'P-001',
-    nombre: 'Basura acumulada en escalera',
-    sector: 'Cerro Cordillera',
-    categoria: 'Microbasural',
-    volumen: 'Mediano (un auto)',
-    distanciaViviendas: 'Menos de 10 m',
-    descripcion: 'Bolsas de basura y cartones acumulados a mitad de la escalera, bloqueando el paso.',
-    latitud: -33.0425,
-    longitud: -71.6318,
-    imagenes: [],
-    riesgo: 70,
-    guardadoEn: '2026-09-26T18:42:00',
-  },
-  {
-    id: 'P-002',
-    nombre: 'Pastizal seco en sitio eriazo',
-    sector: 'Cerro Cordillera',
-    categoria: 'Vegetación seca',
-    volumen: 'Grande (una camioneta)',
-    distanciaViviendas: 'Entre 10 y 50 m',
-    descripcion: 'Pastizal alto y seco en el sitio eriazo de la esquina, con restos de basura.',
-    latitud: -33.0409,
-    longitud: -71.6347,
-    imagenes: [],
-    riesgo: 83,
-    guardadoEn: '2026-09-26T19:05:00',
-  },
-];
+// Antes de conectar la API la app mostraba dos reportes de ejemplo con estos ids, y
+// pudieron quedar guardados en el navegador. Se descartan para no enviarlos a la base.
+const IDS_DE_EJEMPLO = ['P-001', 'P-002'];
 
 // Copia en memoria, por si el navegador no permite usar el almacenamiento local.
 let enMemoria: ReportePendiente[] | null = null;
@@ -55,22 +25,24 @@ const leer = (): ReportePendiente[] => {
     const guardado = localStorage.getItem(CLAVE);
     // Los pendientes guardados con una versión anterior pueden no tener los campos nuevos.
     enMemoria = guardado
-      ? (JSON.parse(guardado) as Partial<ReportePendiente>[]).map(
-          (pendiente) =>
-            ({
-              descripcion: '',
-              volumen: '',
-              distanciaViviendas: '',
-              imagenes: [],
-              ...pendiente,
-              riesgo: pendiente.riesgo ?? null,
-            }) as ReportePendiente,
-        )
-      : PENDIENTES_PRUEBA;
+      ? (JSON.parse(guardado) as Partial<ReportePendiente>[])
+          .filter((pendiente) => !IDS_DE_EJEMPLO.includes(pendiente.id ?? ''))
+          .map(
+            (pendiente) =>
+              ({
+                descripcion: '',
+                volumen: '',
+                distanciaViviendas: '',
+                imagenes: [],
+                ...pendiente,
+                riesgo: pendiente.riesgo ?? null,
+              }) as ReportePendiente,
+          )
+      : [];
   } catch {
-    enMemoria = PENDIENTES_PRUEBA;
+    enMemoria = [];
   }
-  return enMemoria ?? [];
+  return enMemoria;
 };
 
 const guardar = (pendientes: ReportePendiente[]) => {
@@ -103,12 +75,37 @@ export const actualizarPendiente = (id: string, cambios: Partial<DatosNuevoRepor
 export const eliminarPendiente = (id: string) =>
   guardar(leer().filter((pendiente) => pendiente.id !== id));
 
-// Simula el envío al servidor y devuelve cuántos reportes se enviaron.
-export const enviarPendientes = async (): Promise<number> => {
-  await new Promise((resolver) => setTimeout(resolver, 1200));
-  const enviados = leer();
-  // Pasan a la lista de "Mis reportes" con estado Pendiente hasta que el municipio los revise.
-  registrarReportesEnviados(enviados);
-  guardar([]);
-  return enviados.length;
+export interface ResultadoEnvio {
+  enviados: number;
+  // Reportes que la API rechazó (por ejemplo, uno repetido). Se quedan guardados para
+  // que el vecino los corrija o los elimine.
+  rechazados: { nombre: string; motivo: string }[];
+  // true si se cortó la conexión o venció la sesión: lo que faltaba se intenta después.
+  interrumpido: boolean;
+}
+
+// Envía a la API los reportes guardados sin conexión, uno por uno. Cada reporte que
+// llega se borra del teléfono en ese momento, así un corte a la mitad no duplica nada.
+export const enviarPendientes = async (): Promise<ResultadoEnvio> => {
+  const resultado: ResultadoEnvio = { enviados: 0, rechazados: [], interrumpido: false };
+
+  for (const pendiente of leer()) {
+    try {
+      await crearReporte(pendiente);
+      eliminarPendiente(pendiente.id);
+      resultado.enviados += 1;
+    } catch (error) {
+      // Sin conexión (0) o con la sesión vencida (401) los demás también van a fallar.
+      if (error instanceof ErrorApi && (error.estado === 0 || error.estado === 401)) {
+        resultado.interrumpido = true;
+        break;
+      }
+      resultado.rechazados.push({
+        nombre: pendiente.nombre,
+        motivo: error instanceof Error ? error.message : 'Ocurrió un problema al enviarlo.',
+      });
+    }
+  }
+
+  return resultado;
 };
