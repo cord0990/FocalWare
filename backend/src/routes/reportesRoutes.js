@@ -8,7 +8,9 @@ const { subirFotosReporte } = require('../middlewares/subirFotos');
 
 const router = Router();
 
-router.get('/mios', verificarToken, reportesController.listarMios);
+// Solo vecinos: el id del token se busca como idVecino, y un funcionario con el
+// mismo número recibiría los reportes de ese vecino.
+router.get('/mios', verificarToken, permitirRoles('vecino'), reportesController.listarMios);
 
 // Públicas: el mapa y el detalle se ven sin sesión.
 // deja pasar a cualquiera, pero si viene token el service muestra los datos

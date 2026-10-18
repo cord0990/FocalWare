@@ -1402,6 +1402,46 @@
           "response": []
         },
         {
+          "name": "Mis reportes como funcionario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenFuncionario}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reportes/mios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reportes",
+                "mios"
+              ]
+            },
+            "description": "La ruta es solo para vecinos: un funcionario no puede ver los reportes de un vecino con su mismo id."
+          },
+          "response": []
+        },
+        {
           "name": "Modificar reporte",
           "event": [
             {

@@ -105,7 +105,7 @@ Todas las rutas empiezan con `http://localhost:3000/api`.
 | 4 | `GET` | `/auth/perfil` | Con sesión | Datos del usuario que inició sesión |
 | 5 | `GET` | `/reportes` | Público | Lista los reportes del mapa |
 | 6 | `GET` | `/reportes/:id` | Público | Detalle de un reporte |
-| 7 | `GET` | `/reportes/mios` | Con sesión | Reportes del vecino que inició sesión |
+| 7 | `GET` | `/reportes/mios` | Vecino | Reportes del vecino que inició sesión |
 | 8 | `POST` | `/reportes` | Vecino | Crea un reporte con hasta 5 fotos |
 | 9 | `PUT` | `/reportes/:id` | Vecino dueño | Modifica un reporte que aún no se revisa |
 | 10 | `DELETE` | `/reportes/:id` | Vecino dueño | Elimina un reporte que aún no se revisa |
@@ -265,7 +265,9 @@ Detalle de un reporte, con fotos, clima y el avance de su gestión. El correo y 
 
 #### 7. `GET /reportes/mios`
 
-**Acceso:** con sesión. Lista los reportes que creó el vecino que inició sesión, en el mismo formato.
+**Acceso:** solo vecinos. Lista los reportes que creó el vecino que inició sesión, en el mismo formato.
+
+**Errores:** `401` sin sesión y `403` si es un funcionario.
 
 #### 8. `POST /reportes`
 
@@ -468,7 +470,7 @@ Para cambiar las fotos se manda `imagenesActuales` (la lista en JSON de las foto
 
 ## 6. Evidencia de las pruebas
 
-La colección tiene **57 peticiones en 7 carpetas**. Cada petición revisa el código HTTP y que la respuesta tenga el formato `{ ok, data }` o `{ ok, error }`. Muchas revisan además el contenido, por ejemplo que el login no devuelva la contraseña o que un visitante no vea el correo del vecino.
+La colección tiene **58 peticiones en 7 carpetas**. Cada petición revisa el código HTTP y que la respuesta tenga el formato `{ ok, data }` o `{ ok, error }`. Muchas revisan además el contenido, por ejemplo que el login no devuelva la contraseña o que un visitante no vea el correo del vecino.
 
 Se probaron los casos que funcionan y también los de error: sin sesión (`401`), rol equivocado (`403`), datos inválidos (`400`), recursos que no existen (`404`) y datos repetidos (`409`).
 
@@ -478,18 +480,18 @@ Se probaron los casos que funcionan y también los de error: sin sesión (`401`)
 |---|---|---|---|
 | 1. Salud | 2 | 6 | 0 |
 | 2. Autenticación | 14 | 37 | 0 |
-| 3. Reportes | 13 | 34 | 0 |
+| 3. Reportes | 14 | 36 | 0 |
 | 4. Votos | 5 | 12 | 0 |
 | 5. Eliminar reporte | 3 | 6 | 0 |
 | 6. Revisiones | 14 | 33 | 0 |
 | 7. Notificaciones | 6 | 16 | 0 |
-| **Total** | **57** | **144** | **0** |
+| **Total** | **58** | **146** | **0** |
 
 ### 6.1 Capturas
 
-**Resumen del Runner:** 144 comprobaciones pasadas, 0 fallidas y 0 errores.
+**Resumen del Runner:** 146 comprobaciones pasadas, 0 fallidas y 0 errores.
 
-![Resultado del Collection Runner de Postman con 144 pruebas pasadas, 0 fallidas y 0 errores, y las primeras peticiones de Salud y Autenticación en verde](img/postman-runner.png)
+![Resultado del Collection Runner de Postman con 146 pruebas pasadas, 0 fallidas y 0 errores, y las primeras peticiones de Salud y Autenticación en verde](img/postman-runner.png)
 
 **Respuesta completa de un login:** `POST /auth/login` responde `200 OK` con el token y los datos del usuario, y pasan sus 3 pruebas.
 
