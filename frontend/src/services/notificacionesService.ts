@@ -1,87 +1,68 @@
-// Notificaciones de cada rol. Por ahora son datos de prueba; en la Entrega 2 vendrán de la API
-// y se generarán cuando cambie el estado de un reporte (RF-08).
-import type { Rol } from './sesionService';
+// Notificaciones del vecino. Vienen de la API y se crean cuando un funcionario
+// cambia el estado de uno de sus reportes (RF-08).
+import { pedir } from './api';
 
 export interface Notificacion {
   id: string;
   reporteId: string;
+  tituloReporte: string;
   mensaje: string;
-  estado: 'controlado' | 'aceptado' | 'rechazado';
+  estado: string;
+  leida: boolean;
   fechaCreacion: string;
   fechaAprobacion?: string;
-  fechaControl?: string;
   fechaRechazo?: string;
+  fechaControl?: string;
 }
 
-// El vecino recibe avisos sobre sus propios reportes.
-const NOTIFICACIONES_VECINO: Notificacion[] = [
-  {
-    id: 'notif-8f3a91b2',
-    reporteId: 'REP-2026-0482',
-    mensaje: '¡Tu reporte ha sido controlado!, ¡Gracias por ayudar a la comunidad!',
-    estado: 'controlado',
-    fechaCreacion: '12/03/2026',
-    fechaAprobacion: '14/03/2026',
-    fechaControl: '20/03/2026',
-  },
-  {
-    id: 'notif-4c1e78a9',
-    reporteId: 'REP-2026-0391',
-    mensaje: '¡Tu reporte ha sido aceptado!',
-    estado: 'aceptado',
-    fechaCreacion: '01/03/2026',
-    fechaAprobacion: '05/03/2026',
-  },
-  {
-    id: 'notif-1b9d45e3',
-    reporteId: 'REP-2026-0215',
-    mensaje: 'Tu reporte ha sido rechazado.',
-    estado: 'rechazado',
-    fechaCreacion: '10/02/2026',
-    fechaRechazo: '10/02/2026',
-  },
-];
+// Así llega cada notificación desde GET /api/notificaciones.
+interface NotificacionApi {
+  id: number;
+  mensaje: string;
+  estado: string | null;
+  leida: boolean;
+  reporte: { id: number; titulo: string } | null;
+  fechas: {
+    creacion: string | null;
+    aprobacion: string | null;
+    rechazo: string | null;
+    control: string | null;
+  };
+}
 
-// El funcionario no crea reportes: recibe avisos de las cuadrillas, atenciones y controles.
-const NOTIFICACIONES_FUNCIONARIO: Notificacion[] = [
-  {
-    id: 'notif-f-4d21a7c0',
-    reporteId: 'R-009',
-    mensaje: 'La Cuadrilla Norte (Operaciones) registró el control del reporte, con evidencia de cierre.',
-    estado: 'controlado',
-    fechaCreacion: '22/09/2026',
-    fechaAprobacion: '23/09/2026',
-    fechaControl: '24/09/2026',
-  },
-  {
-    id: 'notif-f-9b3e52f1',
-    reporteId: 'R-002',
-    mensaje: 'Se asignó la Cuadrilla Quebradas (OMZ). Atención programada para el 30/09/2026.',
-    estado: 'aceptado',
-    fechaCreacion: '20/09/2026',
-    fechaAprobacion: '22/09/2026',
-  },
-  {
-    id: 'notif-f-2c8a6d14',
-    reporteId: 'R-001',
-    mensaje: 'La Cuadrilla Cerros (DIMAO) comenzó la atención del reporte.',
-    estado: 'aceptado',
-    fechaCreacion: '02/09/2026',
-    fechaAprobacion: '04/09/2026',
-  },
-  {
-    id: 'notif-f-7e1f03b9',
-    reporteId: 'R-006',
-    mensaje: 'Se cerró el reporte con el control de la Cuadrilla Norte (Operaciones).',
-    estado: 'controlado',
-    fechaCreacion: '10/08/2026',
-    fechaAprobacion: '12/08/2026',
-    fechaControl: '20/08/2026',
-  },
-];
+// Se avisa a la app cuando cambia algo, para que el contador del menú se actualice.
+export const EVENTO_NOTIFICACIONES = 'focalware-notificaciones-cambiaron';
 
-export const obtenerNotificaciones = (rol: Rol): Notificacion[] =>
-  rol === 'funcionario' ? NOTIFICACIONES_FUNCIONARIO : NOTIFICACIONES_VECINO;
+// "2026-09-29T11:00:00.000Z" -> "29/09/2026"
+const aFecha = (fecha: string | null): string => {
+  if (!fecha) return '';
+  const d = new Date(fecha);
+  const dia = String(d.getDate()).padStart(2, '0');
+  const mes = String(d.getMonth() + 1).padStart(2, '0');
+  return `${dia}/${mes}/${d.getFullYear()}`;
+};
 
-export const buscarNotificacion = (id: string): Notificacion | undefined =>
-  [...NOTIFICACIONES_VECINO, ...NOTIFICACIONES_FUNCIONARIO].find((n) => n.id === id);
+const aNotificacion = (n: NotificacionApi): Notificacion => ({
+  id: String(n.id),
+  reporteId: n.reporte ? String(n.reporte.id) : '',
+  tituloReporte: n.reporte?.titulo ?? '',
+  mensaje: n.mensaje,
+  estado: n.estado ?? '',
+  leida: n.leida,
+  fechaCreacion: aFecha(n.fechas.creacion),
+  fechaAprobacion: aFecha(n.fechas.aprobacion) || undefined,
+  fechaRechazo: aFecha(n.fechas.rechazo) || undefined,
+  fechaControl: aFecha(n.fechas.control) || undefined,
+});
+
+export const obtenerNotificaciones = async () => {
+  const datos = await pedir<{ notificaciones: NotificacionApi[]; noLeidas: number }>(
+    '/notificaciones',
+  );
+  return { notificaciones: datos.notificaciones.map(aNotificacion), noLeidas: datos.noLeidas };
+};
+
+export const marcarNotificacionLeida = async (id: string) => {
+  await pedir(`/notificaciones/${id}/leida`, { metodo: 'PUT' });
+  window.dispatchEvent(new Event(EVENTO_NOTIFICACIONES));
+};

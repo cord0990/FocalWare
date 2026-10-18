@@ -16,10 +16,10 @@ import {
 } from 'ionicons/icons';
 import { useConexion } from '../../hooks/useConexion';
 import { usePendientes } from '../../hooks/usePendientes';
+import { useNotificacionesNoLeidas } from '../../hooks/useNotificacionesNoLeidas';
 import { RUTAS } from '../../routes/rutas';
 import { useSesion } from '../../hooks/useSesion';
 import { NOMBRE_ROL, obtenerIniciales, primerNombre } from '../../services/sesionService';
-import { obtenerNotificaciones } from '../../services/notificacionesService';
 import { ACTIVIDAD_PRUEBA } from '../../services/usuarioService';
 import './MenuCuenta.css';
 
@@ -66,6 +66,7 @@ const MenuCuenta: React.FC<{ contentId: string }> = ({ contentId }) => {
   const { usuario, cerrarSesion } = useSesion();
   const actividad = ACTIVIDAD_PRUEBA;
   const pendientes = usePendientes();
+  const notificacionesNoLeidas = useNotificacionesNoLeidas();
   const enLinea = useConexion();
   const irA = (ruta: string) => router.push(ruta, 'root');
 
@@ -133,7 +134,7 @@ const MenuCuenta: React.FC<{ contentId: string }> = ({ contentId }) => {
               <OpcionMenu
                 icono={notificationsOutline}
                 texto="Notificaciones"
-                contador={obtenerNotificaciones(usuario.rol).length}
+                contador={notificacionesNoLeidas}
                 onClick={() => irA(RUTAS.perfil)}
               />
               {esVecino && (

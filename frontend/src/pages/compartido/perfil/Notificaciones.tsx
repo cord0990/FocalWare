@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   IonSearchbar,
   IonButton,
@@ -44,30 +44,36 @@ const Notificaciones: React.FC<Props> = ({ onVerDetalles }) => {
   const [modalAbierto, setModalAbierto] = useState(false);
 
   const filtrosActivos = listarFiltrosActivos(filtros).length;
-  // Cada rol ve sus propias notificaciones: el vecino, las de sus reportes; el funcionario,
-  // las de cuadrillas y controles.
+  // Las notificaciones son del vecino: avisan los cambios de estado de sus reportes.
   const { usuario } = useSesion();
-  const notificaciones = usuario ? obtenerNotificaciones(usuario.rol) : [];
+  const esVecino = usuario?.rol === 'vecino';
+  const [notificaciones, setNotificaciones] = useState<Notificacion[]>([]);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!esVecino) {
+      setCargando(false);
+      return;
+    }
+    obtenerNotificaciones()
+      .then((datos) => setNotificaciones(datos.notificaciones))
+      .catch(() => setError('No se pudieron cargar las notificaciones. Intenta de nuevo más tarde.'))
+      .finally(() => setCargando(false));
+  }, [esVecino]);
 
   const notificacionesFiltradas = notificaciones.filter((n) => {
     const termino = normalizarTexto(busqueda.trim());
     const coincideTexto =
       !termino ||
       normalizarTexto(n.mensaje).includes(termino) ||
+      normalizarTexto(n.tituloReporte).includes(termino) ||
       normalizarTexto(n.reporteId).includes(termino);
 
     if (!coincideTexto) return false;
 
-    if (filtros.estado) {
-      const estadoFiltro = normalizarTexto(filtros.estado);
-      const estadoNotif = normalizarTexto(n.estado);
-
-      const coincideEstado =
-        (estadoFiltro === 'aprobado' || estadoFiltro === 'aceptado')
-          ? (estadoNotif === 'aceptado' || estadoNotif === 'controlado')
-          : estadoNotif === estadoFiltro;
-
-      if (!coincideEstado) return false;
+    if (filtros.estado && normalizarTexto(n.estado) !== normalizarTexto(filtros.estado)) {
+      return false;
     }
 
     const fechaNotif = parseFechaString(n.fechaCreacion);
@@ -115,13 +121,28 @@ const Notificaciones: React.FC<Props> = ({ onVerDetalles }) => {
       </div>
 
       <div className="notificaciones-lista">
-        {notificacionesFiltradas.length === 0 ? (
+        {!esVecino ? (
+          <p className="sin-resultados-texto">
+            Las notificaciones son para los vecinos: les avisan cuando cambia el estado de sus reportes.
+          </p>
+        ) : cargando ? (
+          <p className="sin-resultados-texto">Cargando notificaciones...</p>
+        ) : error ? (
+          <p className="sin-resultados-texto">{error}</p>
+        ) : notificaciones.length === 0 ? (
+          <p className="sin-resultados-texto">
+            Todavía no tienes notificaciones. Te avisaremos cuando cambie el estado de tus reportes.
+          </p>
+        ) : notificacionesFiltradas.length === 0 ? (
           <p className="sin-resultados-texto">
             No se encontraron notificaciones con los criterios ingresados.
           </p>
         ) : (
           notificacionesFiltradas.map((notif) => (
-            <IonCard key={notif.id} className="tarjeta-notificacion">
+            <IonCard
+              key={notif.id}
+              className={notif.leida ? 'tarjeta-notificacion' : 'tarjeta-notificacion no-leida'}
+            >
               <IonCardContent className="notificacion-content">
                 <div className="notificacion-badge-id">
                   <span>Reporte</span>
@@ -129,6 +150,7 @@ const Notificaciones: React.FC<Props> = ({ onVerDetalles }) => {
                 </div>
 
                 <div className="notificacion-body">
+                  {!notif.leida && <span className="notificacion-nueva">Nueva</span>}
                   <p className="notificacion-mensaje">{notif.mensaje}</p>
 
                   <div className="notificacion-accion">
