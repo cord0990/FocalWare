@@ -491,7 +491,7 @@ Se probaron los casos que funcionan y también los de error: sin sesión (`401`)
 
 **Resumen del Runner:** 146 comprobaciones pasadas, 0 fallidas y 0 errores.
 
-![Resultado del Collection Runner de Postman con 146 pruebas pasadas, 0 fallidas y 0 errores, y las primeras peticiones de Salud y Autenticación en verde](img/postman-runner.png)
+![Resultado del Collection Runner de Postman con 146 pruebas pasadas, 0 fallidas y 0 errores, y peticiones de notificaciones en verde](img/postman-runner.png)
 
 **Respuesta completa de un login:** `POST /auth/login` responde `200 OK` con el token y los datos del usuario, y pasan sus 3 pruebas.
 
