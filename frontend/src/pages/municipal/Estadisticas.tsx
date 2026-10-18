@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { IonIcon, IonSelect, IonSelectOption, IonToast } from '@ionic/react';
 import { downloadOutline, statsChart } from 'ionicons/icons';
 import AppLayout from '../../components/layout/AppLayout';
@@ -8,8 +8,10 @@ import {
   cifrasDelMes,
   evolucionMensual,
   generarCsv,
+  obtenerReportesDelAnio,
   promedioPorSector,
   ultimosMeses,
+  type ReporteHistorico,
 } from '../../services/estadisticasService';
 import { fechaDeHoy } from '../../services/reportesService';
 import './Estadisticas.css';
@@ -19,12 +21,24 @@ const Estadisticas: React.FC = () => {
   const meses = ultimosMeses();
   const [mes, setMes] = useState(meses[meses.length - 1].valor);
   const [mensaje, setMensaje] = useState('');
-  const cifras = cifrasDelMes(mes);
+  const [historial, setHistorial] = useState<ReporteHistorico[]>([]);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    obtenerReportesDelAnio()
+      .then(setHistorial)
+      .catch(() => setError('No se pudieron cargar las estadísticas. Intenta de nuevo más tarde.'))
+      .finally(() => setCargando(false));
+  }, []);
+
+  const cifras = cifrasDelMes(historial, mes);
   const porcentajeResuelto = cifras.total ? Math.round((cifras.resueltos / cifras.total) * 100) : 0;
+  const sectores = promedioPorSector(historial);
 
   const exportar = () => {
     // El BOM hace que Excel reconozca los tildes al abrir el archivo.
-    const archivo = new Blob(['﻿', generarCsv()], { type: 'text/csv;charset=utf-8' });
+    const archivo = new Blob(['﻿', generarCsv(historial)], { type: 'text/csv;charset=utf-8' });
     const enlace = document.createElement('a');
     enlace.href = URL.createObjectURL(archivo);
     enlace.download = `focalware-reportes-${fechaDeHoy()}.csv`;
@@ -67,6 +81,12 @@ const Estadisticas: React.FC = () => {
                 ))}
               </IonSelect>
 
+              {(cargando || error) && (
+                <p className="estadisticas-estado" role="status">
+                  {cargando ? 'Cargando estadísticas...' : error}
+                </p>
+              )}
+
               <dl>
                 <div>
                   <dt>Reportes totales</dt>
@@ -91,7 +111,12 @@ const Estadisticas: React.FC = () => {
             </div>
           </section>
 
-          <button type="button" className="estadisticas-exportar" onClick={exportar}>
+          <button
+            type="button"
+            className="estadisticas-exportar"
+            onClick={exportar}
+            disabled={cargando || historial.length === 0}
+          >
             <IonIcon icon={downloadOutline} aria-hidden="true" />
             Exportar a CSV
           </button>
@@ -101,13 +126,21 @@ const Estadisticas: React.FC = () => {
           <article className="estadisticas-tarjeta">
             <h2>Tiempo promedio de resolución por sector</h2>
             <p>Días desde que se recibe un reporte hasta que queda controlado.</p>
-            <GraficoSectores datos={promedioPorSector()} />
+            {sectores.length > 0 ? (
+              <GraficoSectores datos={sectores} />
+            ) : (
+              <p className="estadisticas-estado">
+                {cargando
+                  ? 'Cargando...'
+                  : 'Todavía no hay reportes controlados en los últimos 12 meses.'}
+              </p>
+            )}
           </article>
 
           <article className="estadisticas-tarjeta">
             <h2>Evolución mensual</h2>
             <p>Reportes recibidos y resueltos cada mes.</p>
-            <GraficoEvolucion datos={evolucionMensual()} />
+            <GraficoEvolucion datos={evolucionMensual(historial)} />
           </article>
         </section>
       </div>

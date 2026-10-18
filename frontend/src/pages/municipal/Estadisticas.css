@@ -138,8 +138,14 @@
   cursor: pointer;
 }
 
-.estadisticas-exportar:hover {
+.estadisticas-exportar:hover:not(:disabled) {
   background: #5a4545;
+}
+
+/* Mientras cargan los datos, o si no hay reportes, no hay nada que exportar. */
+.estadisticas-exportar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .estadisticas-exportar ion-icon {
@@ -173,6 +179,12 @@
   margin: 4px 0 16px;
   color: #6b5a5a;
   font-size: 0.9rem;
+}
+
+.estadisticas-estado {
+  margin: 0;
+  color: #6b5a5a;
+  font-size: 0.95rem;
 }
 
 @media (max-width: 1000px) {
