@@ -75,14 +75,28 @@ const MisReportes: React.FC = () => {
 
   const enviar = async () => {
     setEnviando(true);
-    const cantidad = await enviarPendientes();
-    await cargarReportes();
+    const { enviados, rechazados, interrumpido } = await enviarPendientes();
+    await cargarReportes().catch(() => undefined);
     setEnviando(false);
+
+    const partes: string[] = [];
+    if (enviados > 0) {
+      partes.push(
+        `${enviados === 1 ? 'Se envió 1 reporte' : `Se enviaron ${enviados} reportes`}. ` +
+          'Ya aparecen en tu lista con estado Pendiente.',
+      );
+    }
+    if (rechazados.length > 0) {
+      const detalle = rechazados.map(({ nombre, motivo }) => `"${nombre}" (${motivo})`).join(', ');
+      partes.push(`No se pudo enviar ${detalle}. Puedes editarlo o eliminarlo.`);
+    }
+    if (interrumpido) {
+      partes.push('No hay conexión con el servidor o tu sesión expiró. Los que faltan siguen guardados.');
+    }
+
     setMensaje({
-      texto:
-        `${cantidad === 1 ? 'Se envió 1 reporte' : `Se enviaron ${cantidad} reportes`}. ` +
-        'Ya aparecen en tu lista con estado Pendiente.',
-      exito: true,
+      texto: partes.join(' ') || 'No había reportes para enviar.',
+      exito: enviados > 0 && rechazados.length === 0 && !interrumpido,
     });
   };
 
@@ -276,7 +290,7 @@ const MisReportes: React.FC = () => {
       <IonToast
         isOpen={!!mensaje}
         message={mensaje?.texto}
-        duration={3000}
+        duration={mensaje?.exito ? 3000 : 7000}
         color={mensaje?.exito ? 'success' : 'dark'}
         position="top"
         onDidDismiss={() => setMensaje(null)}

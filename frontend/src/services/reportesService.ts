@@ -298,12 +298,6 @@ export const fechaHoraActual = () => {
   return `${fechaDeHoy()}T${dosDigitos(fecha.getHours())}:${dosDigitos(fecha.getMinutes())}`;
 };
 
-// Registra los reportes que estaban guardados sin conexión y ya se enviaron.
-export const registrarReportesEnviados = async (enviados: DatosNuevoReporte[]): Promise<void> => {
-  void enviados;
-  await Promise.resolve();
-};
-
 // =====================================================================
 // SIMULADORES DE LA GESTIÓN MUNICIPAL — VERIFICAR ANTES DE BORRAR
 // =====================================================================
