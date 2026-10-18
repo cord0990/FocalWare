@@ -61,6 +61,7 @@ const CrearReporte: React.FC = () => {
   const [enfocar, setEnfocar] = useState<Ubicacion | null>(null);
   const [imagenes, setImagenes] = useState<string[]>([]);
   const [clima, setClima] = useState<Clima>();
+  const [sinClima, setSinClima] = useState(false);
   const [intentoEnviar, setIntentoEnviar] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const gps = useUbicacionActual();
@@ -69,9 +70,27 @@ const CrearReporte: React.FC = () => {
   const [creado, setCreado] = useState<Reporte>();
   const [explicacionAbierta, setExplicacionAbierta] = useState(false);
 
+  // El clima se pide para el punto elegido en el mapa, así el riesgo se calcula con el
+  // mismo clima que la API guarda con el reporte. Si el clima no carga (sin conexión o
+  // Open-Meteo caído), el reporte se puede crear igual.
   useEffect(() => {
-    obtenerClimaActual().then(setClima);
-  }, []);
+    // Si el vecino mueve el punto antes de que llegue la respuesta, la anterior se ignora.
+    let vigente = true;
+    obtenerClimaActual(ubicacion ?? undefined)
+      .then((nuevo) => {
+        if (!vigente) return;
+        setClima(nuevo);
+        setSinClima(false);
+      })
+      .catch(() => {
+        if (!vigente) return;
+        setClima(undefined);
+        setSinClima(true);
+      });
+    return () => {
+      vigente = false;
+    };
+  }, [ubicacion]);
 
   // Un reporte nuevo todavía no tiene apoyos ni antigüedad; se usa el clima de ahora.
   const desglose = calcularIndice({ categoria, volumen, distancia, votos: 0, clima });
@@ -276,6 +295,8 @@ const CrearReporte: React.FC = () => {
                   </p>
                 )}
               </>
+            ) : sinClima ? (
+              <p className="formulario-clima-condicion">No se pudo obtener el clima ahora.</p>
             ) : (
               <IonSpinner name="dots" />
             )}

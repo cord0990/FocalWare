@@ -28,7 +28,7 @@ Se usa `npm start` y no `npm run dev`, porque el modo de desarrollo reinicia la 
 2. Para la prueba que sube una foto, ir al engranaje > **App settings > General > Working directory** y elegir la carpeta `backend/postman`. Ahí está `foto-prueba.png`.
 3. Abrir la colección **FocalWare API**, apretar **Run** y después **Start run**.
 
-Las pruebas **se corren en orden**: los logins guardan los tokens y los reportes que se crean se usan en las carpetas siguientes. Se pueden correr las veces que se quiera, porque cada corrida usa un correo y una ubicación nuevos.
+Las pruebas **se corren en orden**: los logins guardan los tokens y los reportes que se crean se usan en las carpetas siguientes. Se pueden correr las veces que se quiera, porque cada corrida usa un correo y una ubicación nuevos. Las pruebas del clima necesitan internet, porque la API lo consulta en Open-Meteo.
 
 ### 1.2 Por consola (opcional)
 
@@ -72,6 +72,7 @@ Todas las respuestas son JSON y tienen el mismo formato.
 | `404` | No existe | Un reporte que fue borrado |
 | `409` | Choca con algo que ya existe | Votar dos veces el mismo reporte |
 | `500` | Error interno | El mensaje no muestra detalles del servidor |
+| `503` | Un servicio externo no responde | Open-Meteo no entrega el clima |
 
 ## 3. Autenticación
 
@@ -119,6 +120,7 @@ Todas las rutas empiezan con `http://localhost:3000/api`.
 | 18 | `PUT` | `/notificaciones/:id/leida` | Vecino | Marca una notificación como leída |
 | 19 | `GET` | `/estadisticas` | Funcionario | Reportes de los últimos 12 meses para el panel de estadísticas |
 | 20 | `GET` | `/estadisticas/mi-actividad` | Vecino | Reportes creados, votos dados y apoyos recibidos del vecino |
+| 21 | `GET` | `/clima` | Público | Clima actual de Valparaíso, consultado en Open-Meteo |
 
 En las rutas, `:id` es el número del reporte, de la revisión o de la notificación. Si no es un número entero, la API responde `400`.
 
@@ -287,6 +289,8 @@ Detalle de un reporte, con fotos, clima y el avance de su gestión. El correo y 
 | `distanciaViviendas` | texto | No | `Menos de 10 m`, `Entre 10 y 50 m`, `Entre 50 y 100 m` o `Más de 100 m` |
 | `riesgo` | número | No | Entre 0 y 100 |
 | `fotos` | archivos | No | Hasta 5 fotos JPG, PNG o WEBP de máximo 5 MB cada una |
+
+El clima **no** se manda en el formulario: el backend lo consulta en Open-Meteo para la ubicación del reporte y lo guarda junto a él. Si Open-Meteo no responde, el reporte se guarda igual, sin clima.
 
 **Respuesta `201`:** `{ "ok": true, "data": { "reporte": { ... } } }`, con el reporte en estado `Pendiente`.
 
@@ -520,9 +524,49 @@ Un reporte cuenta como **resuelto** cuando su revisión llegó a `Controlado`. `
 
 **Errores:** `401` sin sesión y `403` si es un funcionario.
 
+### 5.8 Clima
+
+#### 21. `GET /clima`
+
+**Acceso:** público. Entrega el clima actual de Valparaíso, que la API consulta en [Open-Meteo](https://open-meteo.com/), un servicio gratuito que no pide clave. Lo usa el formulario de crear reporte para mostrar el clima y calcular el riesgo (regla 30-30-30).
+
+**Filtros opcionales (query):** `latitud` y `longitud`, para pedir el clima de la zona de ese punto. Si no vienen, se usa el centro de Valparaíso. El formulario de crear reporte manda el punto elegido en el mapa, así el riesgo se calcula con el mismo clima que se guarda con el reporte.
+
+**Respuesta `200`:**
+
+```json
+{
+  "ok": true,
+  "data": { "clima": { "temperatura": 17.4, "humedad": 76, "viento": 16.6, "condicion": "Nublado" } }
+}
+```
+
+La temperatura va en °C, la humedad en % y el viento en km/h.
+
+Para no consultar Open-Meteo en cada pedido, el clima se maneja **por zona**. Valparaíso se divide en 3 zonas y cada pedido usa la más cercana:
+
+| Zona | Ejemplos |
+|---|---|
+| Borde costero y Playa Ancha | Playa Ancha, Quebrada Verde, Cerro Artillería, Cerro Cordillera |
+| Plan y cerros centrales | El Plan, Cerro Alegre, Cerro Barón, Las Cañas |
+| Sector alto | Placeres, Rodelillo, Santos Ossa |
+
+- El clima de cada zona se guarda **hasta que Open-Meteo publica el siguiente dato**, lo que pasa cada 15 minutos. Consultar antes devolvería el mismo dato, y guardarlo más tiempo dejaría pasar uno más nuevo.
+- Si llegan varios pedidos de la misma zona al mismo tiempo, todos esperan **una sola consulta**.
+- Si Open-Meteo falla, la zona espera 1 minuto antes de reintentar, y mientras tanto los reportes se guardan sin clima y sin esperar.
+
+En total son como máximo 12 consultas por hora (3 zonas × 4), sin importar cuántos reportes lleguen.
+
+**Errores:**
+
+| Código | Cuándo |
+|---|---|
+| `400` | La latitud o la longitud no son válidas |
+| `503` | Open-Meteo no respondió |
+
 ## 6. Evidencia de las pruebas
 
-La colección tiene **63 peticiones en 8 carpetas**. Cada petición revisa el código HTTP y que la respuesta tenga el formato `{ ok, data }` o `{ ok, error }`. Muchas revisan además el contenido, por ejemplo que el login no devuelva la contraseña o que un visitante no vea el correo del vecino.
+La colección tiene **65 peticiones en 8 carpetas**. Cada petición revisa el código HTTP y que la respuesta tenga el formato `{ ok, data }` o `{ ok, error }`. Muchas revisan además el contenido, por ejemplo que el login no devuelva la contraseña o que un visitante no vea el correo del vecino.
 
 Se probaron los casos que funcionan y también los de error: sin sesión (`401`), rol equivocado (`403`), datos inválidos (`400`), recursos que no existen (`404`) y datos repetidos (`409`).
 
@@ -530,21 +574,21 @@ Se probaron los casos que funcionan y también los de error: sin sesión (`401`)
 
 | Carpeta | Peticiones | Comprobaciones | Fallas |
 |---|---|---|---|
-| 1. Salud | 2 | 6 | 0 |
+| 1. Salud | 4 | 11 | 0 |
 | 2. Autenticación | 14 | 37 | 0 |
-| 3. Reportes | 14 | 36 | 0 |
+| 3. Reportes | 14 | 37 | 0 |
 | 4. Votos | 5 | 12 | 0 |
 | 5. Eliminar reporte | 3 | 6 | 0 |
 | 6. Revisiones | 14 | 33 | 0 |
 | 7. Notificaciones | 6 | 16 | 0 |
 | 8. Estadísticas | 5 | 13 | 0 |
-| **Total** | **63** | **159** | **0** |
+| **Total** | **65** | **165** | **0** |
 
 ### 6.1 Capturas
 
-**Resumen del Runner:** 159 comprobaciones pasadas, 0 fallidas y 0 errores.
+**Resumen del Runner:** 165 comprobaciones pasadas, 0 fallidas y 0 errores.
 
-![Resultado del Collection Runner de Postman con 159 pruebas pasadas, 0 fallidas y 0 errores, y peticiones en verde](img/postman-runner.png)
+![Resultado del Collection Runner de Postman con 165 pruebas pasadas, 0 fallidas y 0 errores, y peticiones en verde](img/postman-runner.png)
 
 **Respuesta completa de un login:** `POST /auth/login` responde `200 OK` con el token y los datos del usuario, y pasan sus 3 pruebas.
 

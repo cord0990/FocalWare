@@ -2,6 +2,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { prisma } = require('../../dist/db/index.js');
+const climaService = require('./climaService');
 
 // Carpeta donde multer deja las fotos.
 const CARPETA_UPLOADS = path.join(__dirname, '..', '..', 'uploads');
@@ -283,6 +284,10 @@ const crear = async ({ idVecino, datos, fotos }) => {
       throw error;
     }
 
+    // El clima lo consulta el backend en Open-Meteo, no se toma del formulario.
+    // Si Open-Meteo falla, el reporte se guarda igual, sin clima.
+    const clima = await climaService.obtenerClima(datos.latitud, datos.longitud);
+
     const reporte = await prisma.reporte.create({
       data: {
         titulo: datos.nombre.trim(),
@@ -294,10 +299,10 @@ const crear = async ({ idVecino, datos, fotos }) => {
         longitud: datos.longitud,
         distanciaACasas: metrosDeDistancia(datos.distanciaViviendas),
         indiceRiesgo: datos.riesgo,
-        climaTemperatura: datos.clima?.temperatura ?? null,
-        climaHumedad: datos.clima?.humedad ?? null,
-        climaViento: datos.clima?.viento ?? null,
-        climaCondicion: datos.clima?.condicion ?? null,
+        climaTemperatura: clima?.temperatura ?? null,
+        climaHumedad: clima?.humedad ?? null,
+        climaViento: clima?.viento ?? null,
+        climaCondicion: clima?.condicion ?? null,
         idVecino,
         imagenes: {
           create: fotos.map((foto, indice) => ({

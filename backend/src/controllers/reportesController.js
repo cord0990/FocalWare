@@ -114,7 +114,6 @@ const crear = async (req, res, next) => {
       longitud,
       distanciaViviendas,
       riesgo,
-      clima,
     } = req.body;
 
     // multer deja los archivos en req.files y su nombre ya es la ruta relativa.
@@ -132,7 +131,6 @@ const crear = async (req, res, next) => {
       longitud: Number(longitud),
       distanciaViviendas,
       riesgo: numero(riesgo),
-      clima,
     };
 
     const problema = problemaDelReporte(datos);

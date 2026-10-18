@@ -1,5 +1,5 @@
-// Clima de Valparaíso. Por ahora son datos de prueba; en la entrega final se obtendrán
-// desde una API meteorológica externa (EF5).
+// Clima actual de Valparaíso. Lo entrega la API, que lo consulta en Open-Meteo (EF5).
+import { pedir } from './api';
 
 export interface Clima {
   temperatura: number;
@@ -8,10 +8,13 @@ export interface Clima {
   condicion: string;
 }
 
-export const obtenerClimaActual = (): Promise<Clima> =>
-  new Promise((resolver) =>
-    setTimeout(() => resolver({ temperatura: 24, humedad: 38, viento: 22, condicion: 'Despejado' }), 400),
-  );
+// Sin ubicación entrega el clima del centro de Valparaíso. Con ubicación, el de su
+// zona, que es el mismo que la API guarda al crear un reporte en ese punto.
+export const obtenerClimaActual = async (punto?: { latitud: number; longitud: number }): Promise<Clima> => {
+  const consulta = punto ? `?latitud=${punto.latitud}&longitud=${punto.longitud}` : '';
+  const datos = await pedir<{ clima: Clima }>(`/clima${consulta}`, { autenticado: false });
+  return datos.clima;
+};
 
 // Regla 30-30-30: el riesgo de incendio es extremo con más de 30 °C, menos de 30 % de humedad
 // y viento sobre 30 km/h. Se evalúa cada condición por separado.
