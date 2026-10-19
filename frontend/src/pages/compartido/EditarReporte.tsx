@@ -162,7 +162,7 @@ const EditarReporte: React.FC<EditarReporteProps> = ({ origen }) => {
           <h1>{reporte ? 'No puedes modificar este reporte' : 'No encontramos este reporte'}</h1>
           <p>
             {reporte
-              ? 'Solo quien creó el reporte puede modificarlo, y no una vez que el problema está controlado.'
+              ? 'Los reportes enviados a la plataforma no se pueden modificar. Solo los borradores guardados sin conexión son editables.'
               : 'Puede que haya sido eliminado o que el enlace esté incompleto.'}
           </p>
           <IonButton className="formulario-subir" onClick={() => router.push(RUTAS.misReportes, 'root')}>

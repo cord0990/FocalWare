@@ -238,7 +238,7 @@ const obtenerPorId = async (idReporte) => {
 const listarMios = async (idVecino) => {
   const reportes = await prisma.reporte.findMany({
     where: { idVecino },
-    include: INCLUIR_DETALLE,
+    include: { ...INCLUIR_DETALLE, ...incluirVotosDe(idVecino) },
     orderBy: { fechaCreacion: 'desc' },
   });
 

@@ -50,7 +50,7 @@ const Perfil: React.FC<{ seccion: SeccionPerfil }> = ({ seccion }) => {
           value={tabActiva === 'configuracion' ? 'configuracion' : undefined}
           onIonChange={(e) => {
             const nueva = e.detail.value as SeccionPerfil;
-            if (nueva !== seccion) router.push(RUTA_SECCION[nueva], 'none', 'replace');
+            if (nueva !== seccion) router.push(RUTA_SECCION[nueva], 'forward');
             else setTabActiva(nueva);
           }}
           className="perfil-segment"

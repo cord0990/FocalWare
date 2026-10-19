@@ -55,7 +55,6 @@
   contain: content;
 }
 
-/* Colores de la app en el calendario (día seleccionado, botones y flechas) */
 .calendario {
   --background: #fff;
   --ion-text-color: #1f1f1f;
@@ -66,4 +65,37 @@
   --ion-color-primary-tint: #e33e4e;
   width: 100%;
   color: #1f1f1f;
+}
+
+.calendario-contenedor {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.calendario-acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 8px 12px 12px;
+  border-top: 1px solid #eee;
+}
+
+.calendario-acciones ion-button {
+  --color: #e0283a;
+  --background: transparent;
+  --background-hover: #fde8ea;
+  --background-activated: #fde8ea;
+  --border-radius: 8px;
+  text-transform: none;
+  font-weight: 600;
+}
+
+.calendario-acciones ion-button.calendario-confirmar {
+  --background: #e0283a;
+  --color: #fff;
+  --background-hover: #c5233a;
+  --background-activated: #c5233a;
 }
