@@ -114,6 +114,86 @@
           "response": []
         },
         {
+          "name": "Clima actual",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Trae temperatura, humedad, viento y condición\", () => {",
+                  "  const clima = pm.response.json().data.clima;",
+                  "  pm.expect(clima.temperatura).to.be.a(\"number\");",
+                  "  pm.expect(clima.humedad).to.be.a(\"number\");",
+                  "  pm.expect(clima.viento).to.be.a(\"number\");",
+                  "  pm.expect(clima.condicion).to.be.a(\"string\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/clima",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clima"
+              ]
+            },
+            "description": "La API consulta Open-Meteo, así que esta prueba necesita internet."
+          },
+          "response": []
+        },
+        {
+          "name": "Clima con ubicación inválida",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/clima?latitud=abc&longitud=-71.6",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clima"
+              ],
+              "query": [
+                {
+                  "key": "latitud",
+                  "value": "abc"
+                },
+                {
+                  "key": "longitud",
+                  "value": "-71.6"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Ruta que no existe",
           "event": [
             {
@@ -1188,6 +1268,10 @@
                   "  pm.expect(reporte.estado).to.eql(\"Pendiente\");",
                   "  pm.expect(reporte.nombre).to.eql(\"Basura en escalera (prueba Postman)\");",
                   "  pm.expect(reporte.categoria).to.eql(\"Microbasural\");",
+                  "});",
+                  "pm.test(\"Guarda el clima consultado por la API\", () => {",
+                  "  pm.expect(reporte.clima).to.be.an(\"object\");",
+                  "  pm.expect(reporte.clima.temperatura).to.be.a(\"number\");",
                   "});",
                   "pm.collectionVariables.set(\"idReporte\", reporte.id);"
                 ]

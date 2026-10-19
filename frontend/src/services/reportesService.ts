@@ -116,10 +116,7 @@ const aFormulario = async (datos: DatosNuevoReporte): Promise<FormData> => {
     formulario.append('riesgo', String(datos.riesgo));
   }
 
-  if (datos.clima) {
-    formulario.append('clima', JSON.stringify(datos.clima));
-  }
-
+  // El clima no se manda: el backend lo consulta en Open-Meteo al guardar el reporte.
   const fotos = datos.imagenes.filter((foto) => typeof foto === 'string' && foto.startsWith('data:'));
   for (const [indice, foto] of fotos.slice(0, MAXIMO_FOTOS).entries()) {
     const blob = await dataUrlABlob(foto);
