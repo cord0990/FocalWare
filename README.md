@@ -372,9 +372,9 @@ La aplicación queda disponible en `http://localhost:5173`.
 
 ## Pruebas de la API (Postman)
 
-La API debe estar corriendo en `http://localhost:3000` (ver [Instalación](#instalación)).
+La API debe estar corriendo en `http://localhost:3000` (ver Instalación).
 
-1. Abrir Postman, importar la colección [`backend/postman/FocalWare.postman_collection.json`](backend/postman/FocalWare.postman_collection.json).
+1. Abrir Postman, importar la colección `backend/postman/FocalWare.postman_collection.json`.
 2. Para la prueba que sube una foto, configurar en Postman el directorio de trabajo en `backend/postman` (ahí está `foto-prueba.png`).
 3. Ejecutar la colección en orden: los logins guardan los tokens y los reportes creados se usan en las carpetas siguientes.
 4. (Opcional) Por consola, con Newman: `npx newman run FocalWare.postman_collection.json --working-dir .` desde `backend/postman`.
