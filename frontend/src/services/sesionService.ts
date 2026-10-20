@@ -11,7 +11,7 @@ export interface Usuario {
   correo: string;
   telefono?: string;
   rol: Rol;
-  // Solo para funcionarios: cuadrillas a las que pertenece.
+  // Logica: Variable que solo Aplica para funcionarios: cuadrillas a las que pertenece.
   cuadrillas?: string[];
 }
 
