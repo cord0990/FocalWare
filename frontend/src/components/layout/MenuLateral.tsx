@@ -18,15 +18,16 @@ const OPCIONES_VECINO = [
   { texto: 'Mapa', ruta: RUTAS.mapa, icono: mapOutline },
   { texto: 'Crear reporte', ruta: RUTAS.reportar, icono: documentTextOutline },
   { texto: 'Mis reportes', ruta: RUTAS.misReportes, icono: folderOpenOutline },
-  { texto: 'Mi perfil', ruta: RUTAS.perfilConfiguracion, icono: personOutline },
+  { texto: 'Mi perfil', ruta: RUTAS.perfil, icono: personOutline },
 ];
 
+//Logica: Se modifico la ruta de mi perfil para evitar errores de "pantalla negra".
 // El Funcionario gestiona los reportes desde el mapa pero no los crea, así que no tiene
 // Crear ni Mis reportes.
 const OPCIONES_FUNCIONARIO = [
   { texto: 'Mapa', ruta: RUTAS.mapa, icono: mapOutline },
   { texto: 'Estadísticas', ruta: RUTAS.municipalEstadisticas, icono: statsChartOutline },
-  { texto: 'Mi perfil', ruta: RUTAS.perfilConfiguracion, icono: personOutline },
+  { texto: 'Mi perfil', ruta: RUTAS.perfil, icono: personOutline },
 ];
 
 // La sección sigue marcada en sus subpáginas (por ejemplo, /mis-reportes/R-001).

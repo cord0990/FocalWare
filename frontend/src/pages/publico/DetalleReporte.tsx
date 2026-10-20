@@ -116,7 +116,7 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
     };
   }, [id]);
 
-  const volver = () => (router.canGoBack() ? router.goBack() : router.push(rutaListado, 'back'));
+  const volver = () => router.push(rutaListado, 'back');
 
   const alternarVoto = async (otro: Reporte) => {
     if (!usuario) {
@@ -266,6 +266,7 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
             <OpcionesFuncionario
               reporte={reporte}
               modificando={modificando}
+              cuadrillas={usuario?.cuadrillas}
               onAccion={setAccion}
               onModificar={() => (modificando ? setModificando(false) : empezarAModificar())}
             />

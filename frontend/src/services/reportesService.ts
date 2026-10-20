@@ -274,12 +274,14 @@ export const quitarApoyo = async (id: string): Promise<number> => {
   return datos.votos;
 };
 
-// Solo el dueño puede modificar, y solo mientras no esté Controlado ni Rechazado.
-export const puedeModificar = (reporte: Reporte) =>
-  reporte.estado !== 'Controlado' && reporte.estado !== 'Rechazado';
+// Un reporte ya enviado a la plataforma no se edita desde el front: solo los
+// borradores guardados sin conexión (locales) son modificables. Por eso acá
+// siempre es false para los reportes que llegan de la API.
+export const puedeModificar = (_reporte: Reporte) => false;
 
-// Solo se puede eliminar mientras nadie lo ha revisado.
-export const puedeEliminar = (reporte: Reporte) => puedeModificar(reporte) && reporte.estado === 'Pendiente';
+// Solo se puede eliminar un reporte enviado mientras nadie lo ha revisado
+// (estado Pendiente, sin revisión). 
+export const puedeEliminar = (reporte: Reporte) => reporte.estado === 'Pendiente';
 
 const dosDigitos = (numero: number) => String(numero).padStart(2, '0');
 

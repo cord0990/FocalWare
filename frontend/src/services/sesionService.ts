@@ -11,6 +11,8 @@ export interface Usuario {
   correo: string;
   telefono?: string;
   rol: Rol;
+  // Logica: Variable que solo Aplica para funcionarios: cuadrillas a las que pertenece.
+  cuadrillas?: string[];
 }
 
 export const NOMBRE_ROL: Record<Rol, string> = {

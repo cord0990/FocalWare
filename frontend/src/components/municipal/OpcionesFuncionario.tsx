@@ -8,6 +8,9 @@ export type AccionFuncionario = 'aprobar' | 'rechazar' | 'controlar';
 interface OpcionesFuncionarioProps {
   reporte: Reporte;
   modificando: boolean;
+  // Cuadrillas a las que pertenece el funcionario conectado. Sirve para
+  // deshabilitar "Reporte controlado" cuando no es parte de la asignada.
+  cuadrillas?: string[];
   onAccion: (accion: AccionFuncionario) => void;
   onModificar: () => void;
 }
@@ -17,11 +20,18 @@ interface OpcionesFuncionarioProps {
 const OpcionesFuncionario: React.FC<OpcionesFuncionarioProps> = ({
   reporte,
   modificando,
+  cuadrillas = [],
   onAccion,
   onModificar,
 }) => {
   const { estado } = reporte;
   const cerrado = estado === 'Controlado' || estado === 'Rechazado';
+
+  // Cuadrilla asignada al reporte (si ya fue aprobado/en atención).
+  const cuadrillaAsignada = reporte.gestion?.aprobacion?.cuadrilla ?? '';
+  // El funcionario puede controlar solo si pertenece a esa cuadrilla.
+  const puedeControlar =
+    cuadrillaAsignada === '' || cuadrillas.includes(cuadrillaAsignada);
 
   const opciones: { accion: AccionFuncionario; texto: string; hecha: boolean; habilitada: boolean }[] = [
     {
@@ -35,18 +45,20 @@ const OpcionesFuncionario: React.FC<OpcionesFuncionarioProps> = ({
       accion: 'controlar',
       texto: 'Reporte controlado',
       hecha: estado === 'Controlado',
-      habilitada: estado === 'Aprobado' || estado === 'En atención',
+      habilitada: (estado === 'Aprobado' || estado === 'En atención') && puedeControlar,
     },
   ];
 
   const ayuda =
     estado === 'Pendiente'
-      ? 'Revisa el reporte y apruébalo o recházalo.'
+      ? ''
       : estado === 'Rechazado'
         ? 'Este reporte fue rechazado.'
         : estado === 'Controlado'
           ? 'Este reporte ya fue controlado.'
-          : 'Cuando la cuadrilla termine, registra el reporte de control.';
+          : !puedeControlar
+            ? 'Solo un funcionario de la cuadrilla asignada puede registrar el control.'
+            : 'Cuando la cuadrilla termine, registra el reporte de control.';
 
   return (
     <section className="opciones-funcionario" aria-label="Opciones de funcionario">
@@ -84,7 +96,7 @@ const OpcionesFuncionario: React.FC<OpcionesFuncionarioProps> = ({
         </button>
       </div>
 
-      <p className="opciones-ayuda">{ayuda}</p>
+      {ayuda && <p className="opciones-ayuda">{ayuda}</p>}
     </section>
   );
 };

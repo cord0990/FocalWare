@@ -8,12 +8,14 @@ const DOMINIO_INSTITUCIONAL = 'focalware.cl';
 const esCorreoInstitucional = (email) =>
   email.trim().toLowerCase().endsWith(`@${DOMINIO_INSTITUCIONAL}`);
 
-const datosUsuario = (persona, rol) => ({
+const datosUsuario = (persona, rol, cuadrillas = []) => ({
   id: persona.idVecino ?? persona.idFuncionario,
   nombre: persona.nombre,
   email: persona.email,
   telefono: persona.telefono ?? undefined,
   rol,
+  ...(rol === 'funcionario' ? { cuadrillas } : {}),
+  //Logica: Si el usuario es funcionario, se agregan las cuadrillas a las que pertenece. Si es vecino, no se agrega nada.
 });
 
 // Crea una cuenta de vecino. La contraseña se guarda hasheada.
@@ -73,9 +75,11 @@ const iniciarSesion = async ({ email, password }) => {
   const funcionario = await funcionarios.obtenerFuncionarioPorEmail(correo);
 
   if (funcionario && (await compararPassword(password, funcionario.passwordHash))) {
+    const cuadrillas = (await vecinos.listarCuadrillasDeFuncionario(funcionario.idFuncionario))
+      .map((cuadrilla) => cuadrilla.nombre);
     return {
       token: generarToken(funcionario.idFuncionario, 'funcionario'),
-      usuario: datosUsuario(funcionario, 'funcionario'),
+      usuario: datosUsuario(funcionario, 'funcionario', cuadrillas),
     };
   }
 
@@ -86,7 +90,10 @@ const iniciarSesion = async ({ email, password }) => {
 const obtenerPerfil = async ({ id, rol }) => {
   if (rol === 'funcionario') {
     const funcionario = await funcionarios.obtenerFuncionarioPorId(id);
-    return funcionario ? datosUsuario(funcionario, 'funcionario') : null;
+    if (!funcionario) return null;
+    const cuadrillas = (await vecinos.listarCuadrillasDeFuncionario(id))
+      .map((cuadrilla) => cuadrilla.nombre);
+    return datosUsuario(funcionario, 'funcionario', cuadrillas);
   }
 
   const vecino = await vecinos.obtenerVecinoPorId(id);
