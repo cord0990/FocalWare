@@ -241,7 +241,7 @@ const listarMios = async (idVecino) => {
     include: { ...INCLUIR_DETALLE, ...incluirVotosDe(idVecino) },
     orderBy: { fechaCreacion: 'desc' },
   });
-
+//Logica: Se agrego incluirVotosDe(idVecino) para reflejar desde el frontend los votos que a realizado el vecino a las publicaciones que tiene vision.
   return reportes.map((reporte) => aReporte(reporte, { idUsuario: idVecino }));
 };
 
