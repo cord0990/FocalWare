@@ -15,7 +15,7 @@ const datosUsuario = (persona, rol, cuadrillas = []) => ({
   telefono: persona.telefono ?? undefined,
   rol,
   ...(rol === 'funcionario' ? { cuadrillas } : {}),
-  //Si el usuario es funcionario, se agregan las cuadrillas a las que pertenece. Si es vecino, no se agrega nada.
+  //Logica: Si el usuario es funcionario, se agregan las cuadrillas a las que pertenece. Si es vecino, no se agrega nada.
 });
 
 // Crea una cuenta de vecino. La contraseña se guarda hasheada.
