@@ -14,7 +14,23 @@ export const urlDeImagen = (ruta: string): string => {
 
 const CLAVE_TOKEN = 'focalware-token';
 
+// Mensaje que ve la persona cuando el token venció o dejó de ser válido.
+export const MENSAJE_SESION_EXPIRADA = 'Tu sesión expiró';
+
+// Función que la app registra para reaccionar cuando la sesión expira
+// (limpiar el usuario, volver al login y mostrar el aviso).
+let manejadorSesionExpirada: (() => void) | null = null;
+
+// Evita avisar varias veces cuando varias pantallas piden datos a la vez y todas reciben 401.
+let sesionExpiradaNotificada = false;
+
+export const alExpirarSesion = (manejador: (() => void) | null) => {
+  manejadorSesionExpirada = manejador;
+};
+
 export const guardarToken = (token: string) => {
+  // Con una sesión nueva se vuelve a permitir el aviso de expiración.
+  sesionExpiradaNotificada = false;
   try {
     localStorage.setItem(CLAVE_TOKEN, token);
   } catch {
@@ -62,9 +78,14 @@ export const pedir = async <T>(ruta: string, opciones: Opciones = {}): Promise<T
   const cabeceras: Record<string, string> = {};
   if (!esFormulario) cabeceras['Content-Type'] = 'application/json';
 
+  // Se guarda si realmente se mandó un token: un 401 sin token no es una sesión expirada.
+  let tokenEnviado = false;
   if (autenticado) {
     const token = leerToken();
-    if (token) cabeceras.Authorization = `Bearer ${token}`;
+    if (token) {
+      cabeceras.Authorization = `Bearer ${token}`;
+      tokenEnviado = true;
+    }
   }
 
   let respuesta: Response;
@@ -88,6 +109,17 @@ export const pedir = async <T>(ruta: string, opciones: Opciones = {}): Promise<T
     datos = await respuesta.json();
   } catch {
     // Respuesta sin JSON (por ejemplo, un 502 del proxy).
+  }
+
+  // 401 con token enviado: venció o es inválido. Se cierra la sesión una sola vez
+  // y se avisa. Las llamadas sin token (como el login con clave incorrecta) no entran acá.
+  if (respuesta.status === 401 && tokenEnviado) {
+    borrarToken();
+    if (!sesionExpiradaNotificada) {
+      sesionExpiradaNotificada = true;
+      manejadorSesionExpirada?.();
+    }
+    throw new ErrorApi(MENSAJE_SESION_EXPIRADA, 401);
   }
 
   if (!respuesta.ok) {
