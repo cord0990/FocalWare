@@ -15,7 +15,7 @@ import CampoFormulario from '../../../components/CampoFormulario';
 import RequisitosContrasena from '../../../components/RequisitosContrasena';
 import { useCamposTocados } from '../../../hooks/useCamposTocados';
 import { useSesion } from '../../../hooks/useSesion';
-import { cambiarContrasena } from '../../../services/authService';
+import { actualizarPerfil, cambiarContrasena } from '../../../services/authService';
 import { obtenerIniciales } from '../../../services/sesionService';
 import { esContrasenaSegura, esCorreoValido } from '../../../utils/validaciones';
 import './Configuracion.css';
@@ -71,21 +71,29 @@ const Configuracion: React.FC = () => {
 
     setGuardandoPerfil(true);
 
-    // Simulación de actualización de datos de perfil
-    setTimeout(() => {
-      iniciarSesion({
-        ...usuario,
+    try {
+      const actualizado = await actualizarPerfil({
         nombre: nombre.trim(),
-        correo: email.trim(),
+        email: email.trim(),
       });
-      setGuardandoPerfil(false);
+
+      iniciarSesion(actualizado);
+      setNombre(actualizado.nombre);
+      setEmail(actualizado.correo);
       setToastMensaje({ texto: 'Perfil actualizado con éxito.', color: 'success' });
-    }, 600);
+    } catch (error) {
+      setToastMensaje({
+        texto: error instanceof Error ? error.message : 'No se pudo actualizar el perfil.',
+        color: 'danger',
+      });
+    } finally {
+      setGuardandoPerfil(false);
+    }
   };
 
   const handleGuardarContrasena = async (evento: React.FormEvent) => {
     evento.preventDefault();
-    tocar('passNueva', 'passConfirm');
+    tocar('passActual', 'passNueva', 'passConfirm');
 
     if (!passActual) {
       setToastMensaje({ texto: 'Ingresa tu contraseña actual.', color: 'danger' });
@@ -97,21 +105,23 @@ const Configuracion: React.FC = () => {
     setGuardandoPass(true);
     try {
       await cambiarContrasena({
-        correo: usuario.correo,
-        codigo: '', // En configuración directa se valida mediante contraseña actual
-        contrasena: passNueva,
+        passwordActual: passActual,
+        passwordNueva: passNueva,
       });
 
-      setGuardandoPass(false);
       setModalPasswordOpen(false);
       setPassActual('');
       setPassNueva('');
       setPassConfirm('');
       reiniciar();
       setToastMensaje({ texto: 'Contraseña actualizada con éxito.', color: 'success' });
-    } catch {
+    } catch (error) {
+      setToastMensaje({
+        texto: error instanceof Error ? error.message : 'Error al cambiar la contraseña.',
+        color: 'danger',
+      });
+    } finally {
       setGuardandoPass(false);
-      setToastMensaje({ texto: 'Error al cambiar la contraseña.', color: 'danger' });
     }
   };
 

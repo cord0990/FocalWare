@@ -104,23 +104,28 @@ Todas las rutas empiezan con `http://localhost:3000/api`.
 | 2 | `POST` | `/auth/registro` | Público | Crea una cuenta de vecino |
 | 3 | `POST` | `/auth/login` | Público | Inicia sesión y entrega el token |
 | 4 | `GET` | `/auth/perfil` | Con sesión | Datos del usuario que inició sesión |
-| 5 | `GET` | `/reportes` | Público | Lista los reportes del mapa |
-| 6 | `GET` | `/reportes/:id` | Público | Detalle de un reporte |
-| 7 | `GET` | `/reportes/mios` | Vecino | Reportes del vecino que inició sesión |
-| 8 | `POST` | `/reportes` | Vecino | Crea un reporte con hasta 5 fotos |
-| 9 | `PUT` | `/reportes/:id` | Vecino dueño | Modifica un reporte que aún no se revisa |
-| 10 | `DELETE` | `/reportes/:id` | Vecino dueño | Elimina un reporte que aún no se revisa |
-| 11 | `POST` | `/reportes/:id/votos` | Vecino | Apoya un reporte de otro vecino |
-| 12 | `DELETE` | `/reportes/:id/votos` | Vecino | Quita el apoyo |
-| 13 | `GET` | `/revisiones/cola` | Funcionario | Reportes que esperan revisión, del más riesgoso al menos |
-| 14 | `POST` | `/reportes/:id/revision` | Funcionario | Aprueba, rechaza o deja en atención un reporte |
-| 15 | `PUT` | `/revisiones/:id` | Funcionario de la cuadrilla | Registra el control (cierre del trabajo) con fotos |
-| 16 | `GET` | `/revisiones/:id/controles` | Funcionario de la cuadrilla | Controles de una revisión con sus fotos |
-| 17 | `GET` | `/notificaciones` | Vecino | Notificaciones del vecino |
-| 18 | `PUT` | `/notificaciones/:id/leida` | Vecino | Marca una notificación como leída |
-| 19 | `GET` | `/estadisticas` | Funcionario | Reportes de los últimos 12 meses para el panel de estadísticas |
-| 20 | `GET` | `/estadisticas/mi-actividad` | Vecino | Reportes creados, votos dados y apoyos recibidos del vecino |
-| 21 | `GET` | `/clima` | Público | Clima actual de Valparaíso, consultado en Open-Meteo |
+| 5 | `PUT` | `/auth/perfil` | Con sesión | Guarda nombre y correo del usuario |
+| 6 | `PUT` | `/auth/password` | Con sesión | Cambia la contraseña del usuario |
+| 7 | `POST` | `/auth/recuperacion/solicitar` | Público | Genera un código y lo imprime en consola |
+| 8 | `POST` | `/auth/recuperacion/verificar` | Público | Revisa que el código sea válido |
+| 9 | `POST` | `/auth/recuperacion/restablecer` | Público | Cambia la contraseña usando el código |
+| 10 | `GET` | `/reportes` | Público | Lista los reportes del mapa |
+| 11 | `GET` | `/reportes/:id` | Público | Detalle de un reporte |
+| 12 | `GET` | `/reportes/mios` | Vecino | Reportes del vecino que inició sesión |
+| 13 | `POST` | `/reportes` | Vecino | Crea un reporte con hasta 5 fotos |
+| 14 | `PUT` | `/reportes/:id` | Vecino dueño | Modifica un reporte que aún no se revisa |
+| 15 | `DELETE` | `/reportes/:id` | Vecino dueño | Elimina un reporte que aún no se revisa |
+| 16 | `POST` | `/reportes/:id/votos` | Vecino | Apoya un reporte de otro vecino |
+| 17 | `DELETE` | `/reportes/:id/votos` | Vecino | Quita el apoyo |
+| 18 | `GET` | `/revisiones/cola` | Funcionario | Reportes que esperan revisión, del más riesgoso al menos |
+| 19 | `POST` | `/reportes/:id/revision` | Funcionario | Aprueba, rechaza o deja en atención un reporte |
+| 20 | `PUT` | `/revisiones/:id` | Funcionario de la cuadrilla | Registra el control (cierre del trabajo) con fotos |
+| 21 | `GET` | `/revisiones/:id/controles` | Funcionario de la cuadrilla | Controles de una revisión con sus fotos |
+| 22 | `GET` | `/notificaciones` | Vecino | Notificaciones del vecino |
+| 23 | `PUT` | `/notificaciones/:id/leida` | Vecino | Marca una notificación como leída |
+| 24 | `GET` | `/estadisticas` | Funcionario | Reportes de los últimos 12 meses para el panel de estadísticas |
+| 25 | `GET` | `/estadisticas/mi-actividad` | Vecino | Reportes creados, votos dados y apoyos recibidos del vecino |
+| 26 | `GET` | `/clima` | Público | Clima actual de Valparaíso, consultado en Open-Meteo |
 
 En las rutas, `:id` es el número del reporte, de la revisión o de la notificación. Si no es un número entero, la API responde `400`.
 
@@ -215,6 +220,109 @@ Revisa el correo y la contraseña. Busca primero en vecinos y después en funcio
 |---|---|
 | `401` | No hay token, el token es inválido o expiró |
 | `404` | El usuario del token ya no existe |
+
+#### 5. `PUT /auth/perfil`
+
+**Acceso:** cualquier usuario con sesión. Guarda el nombre y el correo.
+
+**Body (JSON):**
+
+```json
+{ "nombre": "Valentina Rojas", "email": "valentina.nueva@correo.cl" }
+```
+
+**Respuesta `200`:** el usuario actualizado, con el mismo formato del login.
+
+**Errores:**
+
+| Código | Cuándo |
+|---|---|
+| `400` | Falta el nombre o el correo, el correo no es válido, o el dominio no corresponde al rol |
+| `401` | No hay token, el token es inválido o expiró |
+| `409` | Ya existe otra cuenta con ese correo |
+
+#### 6. `PUT /auth/password`
+
+**Acceso:** cualquier usuario con sesión. Cambia la contraseña.
+
+**Body (JSON):**
+
+```json
+{ "passwordActual": "Clave123", "passwordNueva": "Nueva123" }
+```
+
+**Respuesta `200`:**
+
+```json
+{ "ok": true, "data": { "mensaje": "Contraseña actualizada" } }
+```
+
+**Errores:**
+
+| Código | Cuándo |
+|---|---|
+| `400` | Faltan campos, la contraseña nueva es débil, es igual a la actual o la contraseña actual no es correcta |
+| `401` | No hay token, el token es inválido o expiró |
+
+La contraseña actual incorrecta responde `400` y no `401` para no cerrar la sesión del usuario.
+
+#### 7. `POST /auth/recuperacion/solicitar`
+
+**Acceso:** público. Genera un código de 6 dígitos.
+
+```json
+{ "email": "valentina.rojas@correo.cl" }
+```
+
+**Respuesta `200`:** siempre es el mismo mensaje, exista o no el correo:
+
+```json
+{
+  "ok": true,
+  "data": { "mensaje": "Si el correo está registrado, enviamos un código de recuperación" }
+}
+```
+
+Como el proyecto no envía correos reales, el código aparece en la consola del backend:
+
+```
+[RECUPERACIÓN] Código para valentina.rojas@correo.cl: 483920
+```
+
+El código dura 10 minutos, permite 5 intentos y se guarda en memoria. Si la API se reinicia, hay que solicitar uno nuevo.
+
+#### 8. `POST /auth/recuperacion/verificar`
+
+**Acceso:** público. Revisa el código sin cambiar la contraseña.
+
+```json
+{ "email": "valentina.rojas@correo.cl", "codigo": "483920" }
+```
+
+**Respuesta `200`:** `{ "ok": true, "data": { "valido": true } }`
+
+**Errores:**
+
+| Código | Cuándo |
+|---|---|
+| `400` | Faltan campos, el correo no es válido, el código no tiene 6 dígitos, expiró o ya se agotaron los intentos |
+
+#### 9. `POST /auth/recuperacion/restablecer`
+
+**Acceso:** público. Cambia la contraseña usando el código.
+
+```json
+{ "email": "valentina.rojas@correo.cl", "codigo": "483920", "passwordNueva": "Nueva123" }
+```
+
+**Respuesta `200`:** `{ "ok": true, "data": { "mensaje": "Contraseña actualizada" } }`
+
+**Errores:**
+
+| Código | Cuándo |
+|---|---|
+| `400` | Faltan campos, el correo no es válido, el código no sirve o la contraseña nueva es débil |
+| `404` | El usuario del código ya no existe |
 
 ### 5.3 Reportes
 
@@ -566,7 +674,9 @@ En total son como máximo 12 consultas por hora (3 zonas × 4), sin importar cu�
 
 ## 6. Evidencia de las pruebas
 
-La colección tiene **65 peticiones en 8 carpetas**. Cada petición revisa el código HTTP y que la respuesta tenga el formato `{ ok, data }` o `{ ok, error }`. Muchas revisan además el contenido, por ejemplo que el login no devuelva la contraseña o que un visitante no vea el correo del vecino.
+La colección tiene **79 peticiones en 9 carpetas**. Cada petición revisa el código HTTP y que la respuesta tenga el formato `{ ok, data }` o `{ ok, error }`. Muchas revisan además el contenido, por ejemplo que el login no devuelva la contraseña o que un visitante no vea el correo del vecino. La carpeta **9. Cuentas y contraseña** registra una cuenta propia para probar el perfil, el cambio de contraseña y los errores de recuperación sin modificar a los usuarios de prueba.
+
+El camino exitoso de recuperación se prueba a mano: ejecutar “Solicitar código de recuperación”, copiar el código que aparece en la consola del backend y usarlo en “Verificar código” y “Restablecer contraseña”. El código no se devuelve en la respuesta HTTP.
 
 Se probaron los casos que funcionan y también los de error: sin sesión (`401`), rol equivocado (`403`), datos inválidos (`400`), recursos que no existen (`404`) y datos repetidos (`409`).
 

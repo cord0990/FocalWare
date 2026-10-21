@@ -389,6 +389,11 @@ Las pruebas cubren casos exitosos y de error (`401`, `403`, `400`, `404`, `409`)
 | `POST` | `/auth/registro` | Público |
 | `POST` | `/auth/login` | Público |
 | `GET` | `/auth/perfil` | Con sesión |
+| `PUT` | `/auth/perfil` | Con sesión |
+| `PUT` | `/auth/password` | Con sesión |
+| `POST` | `/auth/recuperacion/solicitar` | Público |
+| `POST` | `/auth/recuperacion/verificar` | Público |
+| `POST` | `/auth/recuperacion/restablecer` | Público |
 | `GET` | `/reportes` | Público |
 | `GET` | `/reportes/:id` | Público |
 | `GET` | `/reportes/mios` | Vecino |
@@ -406,6 +411,8 @@ Las pruebas cubren casos exitosos y de error (`401`, `403`, `400`, `404`, `409`)
 | `GET` | `/estadisticas` | Funcionario |
 | `GET` | `/estadisticas/mi-actividad` | Vecino |
 | `GET` | `/clima` | Público |
+
+La recuperación de contraseña no envía correos reales: el código de 6 dígitos aparece en la consola del backend. Está pensado así para poder probar el flujo en el proyecto universitario.
 
 ## Usuarios de prueba
 
