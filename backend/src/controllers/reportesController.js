@@ -1,10 +1,13 @@
 const reportesService = require('../services/reportesService');
+const { primerErrorDeTextos } = require('../middlewares/validaciones');
 
 const numero = (valor) => (valor === undefined || valor === null || valor === '' ? null : Number(valor));
 
 // Tope de las columnas en la base.
 const MAXIMO_TITULO = 150;
 const MAXIMO_SECTOR = 100;
+const MAXIMO_CATEGORIA = 50;
+const MAXIMO_VOLUMEN = 30;
 
 const DISTANCIAS_VALIDAS = [
   'Menos de 10 m',
@@ -24,7 +27,13 @@ const problemaDelReporte = (datos) => {
     return `El título puede tener máximo ${MAXIMO_TITULO} caracteres.`;
   }
   if (!texto(categoria)) return 'Elige una categoría.';
+  if (texto(categoria).length > MAXIMO_CATEGORIA) {
+    return `La categoría puede tener máximo ${MAXIMO_CATEGORIA} caracteres.`;
+  }
   if (!texto(volumen)) return 'Elige el volumen estimado.';
+  if (texto(volumen).length > MAXIMO_VOLUMEN) {
+    return `El volumen puede tener máximo ${MAXIMO_VOLUMEN} caracteres.`;
+  }
   if (!texto(sector)) return 'Escribe el sector o la dirección aproximada.';
   if (texto(sector).length > MAXIMO_SECTOR) {
     return `El sector puede tener máximo ${MAXIMO_SECTOR} caracteres.`;
@@ -173,11 +182,17 @@ const modificar = async (req, res, next) => {
       }
     }
 
-    if (categoria !== undefined && !texto(categoria)) {
-      problemas.push('La categoría no puede quedar vacía.');
+    if (categoria !== undefined) {
+      if (!texto(categoria)) problemas.push('La categoría no puede quedar vacía.');
+      else if (texto(categoria).length > MAXIMO_CATEGORIA) {
+        problemas.push(`La categoría puede tener máximo ${MAXIMO_CATEGORIA} caracteres.`);
+      }
     }
-    if (volumen !== undefined && !texto(volumen)) {
-      problemas.push('El volumen no puede quedar vacío.');
+    if (volumen !== undefined) {
+      if (!texto(volumen)) problemas.push('El volumen no puede quedar vacío.');
+      else if (texto(volumen).length > MAXIMO_VOLUMEN) {
+        problemas.push(`El volumen puede tener máximo ${MAXIMO_VOLUMEN} caracteres.`);
+      }
     }
     if (sector !== undefined) {
       if (!texto(sector)) problemas.push('El sector no puede quedar vacío.');
@@ -258,6 +273,61 @@ const modificar = async (req, res, next) => {
   }
 };
 
+// PATCH /api/reportes/:id/desglose: un funcionario corrige la categoría, el volumen
+// y la distancia a las viviendas de un reporte. Todos los campos son opcionales,
+// pero tiene que venir al menos uno. Si el frontend recalculó el riesgo con los
+// datos nuevos, puede mandarlo también en `riesgo`.
+const corregirDesglose = async (req, res, next) => {
+  try {
+    const idReporte = Number(req.params.id);
+
+    if (!Number.isInteger(idReporte)) {
+      return res.status(400).json({ ok: false, error: 'El número de reporte no es válido' });
+    }
+
+    const { categoria, volumen, distanciaViviendas, riesgo } = req.body ?? {};
+
+    // Tipo y largo de los textos, solo de los campos que llegaron.
+    const reglas = {};
+    if (categoria !== undefined) reglas.categoria = { max: MAXIMO_CATEGORIA };
+    if (volumen !== undefined) reglas.volumen = { max: MAXIMO_VOLUMEN };
+
+    const problemaDeTextos = primerErrorDeTextos(req.body, reglas);
+    if (problemaDeTextos) {
+      return res.status(400).json({ ok: false, error: problemaDeTextos });
+    }
+
+    if (distanciaViviendas !== undefined && !DISTANCIAS_VALIDAS.includes(distanciaViviendas)) {
+      return res.status(400).json({ ok: false, error: 'La distancia a las viviendas no es válida.' });
+    }
+
+    const hayRiesgo = riesgo !== undefined && riesgo !== null && riesgo !== '';
+    if (hayRiesgo && (!Number.isFinite(Number(riesgo)) || Number(riesgo) < 0 || Number(riesgo) > 100)) {
+      return res.status(400).json({ ok: false, error: 'El índice de riesgo debe estar entre 0 y 100.' });
+    }
+
+    const cambios = {
+      ...(categoria !== undefined && { categoria: categoria.trim() }),
+      ...(volumen !== undefined && { volumen: volumen.trim() }),
+      ...(distanciaViviendas !== undefined && { distanciaViviendas }),
+      ...(hayRiesgo && { riesgo: Number(riesgo) }),
+    };
+
+    if (Object.keys(cambios).length === 0) {
+      return res.status(400).json({
+        ok: false,
+        error: 'Indica al menos un dato para corregir: categoria, volumen o distanciaViviendas.',
+      });
+    }
+
+    const reporte = await reportesService.corregirDesglose({ idReporte, cambios });
+
+    res.json({ ok: true, data: { reporte } });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const eliminar = async (req, res, next) => {
   try {
     const idReporte = Number(req.params.id);
@@ -274,4 +344,4 @@ const eliminar = async (req, res, next) => {
   }
 };
 
-module.exports = { listar, listarMios, obtenerDetalle, crear, modificar, eliminar };
+module.exports = { listar, listarMios, obtenerDetalle, crear, modificar, corregirDesglose, eliminar };

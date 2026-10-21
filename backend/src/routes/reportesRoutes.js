@@ -32,6 +32,16 @@ router.put(
   subirFotosReporte,
   reportesController.modificar,
 );
+
+// Un funcionario corrige categoría, volumen y distancia a viviendas de un reporte.
+// Es una ruta aparte de PUT /:id, que solo puede usar el vecino dueño.
+router.patch(
+  '/:id/desglose',
+  verificarToken,
+  permitirRoles('funcionario'),
+  reportesController.corregirDesglose,
+);
+
 // Los votos cuelgan de /reportes/:id/votos. El router de votos se monta sin
 // prefijo porque ya declara su propio '/:id/votos'.
 router.use(votosRoutes);
