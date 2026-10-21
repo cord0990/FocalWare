@@ -21,6 +21,7 @@ const OPCIONES_VECINO = [
   { texto: 'Mi perfil', ruta: RUTAS.perfil, icono: personOutline },
 ];
 
+//Logica: Se modifico la ruta de mi perfil para evitar errores de "pantalla negra".
 // El Funcionario gestiona los reportes desde el mapa pero no los crea, así que no tiene
 // Crear ni Mis reportes.
 const OPCIONES_FUNCIONARIO = [
