@@ -258,11 +258,13 @@ const METROS_POR_GRADO = 111320;
 const gradosLongitud = (latitud) =>
   CERCANIA_METROS / (METROS_POR_GRADO * Math.cos((latitud * Math.PI) / 180));
 
-const buscarParecido = async ({ latitud, longitud, categoria }) => {
+// `cliente` es prisma normalmente, o el `tx` de una transacción cuando la
+// búsqueda y el guardado tienen que ir juntos (ver crear).
+const buscarParecido = async ({ latitud, longitud, categoria }, cliente = prisma) => {
   const diferenciaLatitud = CERCANIA_METROS / METROS_POR_GRADO;
   const diferenciaLongitud = gradosLongitud(latitud);
 
-  return prisma.reporte.findFirst({
+  return cliente.reporte.findFirst({
     where: {
       categoria,
       latitud: { gte: latitud - diferenciaLatitud, lte: latitud + diferenciaLatitud },
@@ -272,47 +274,77 @@ const buscarParecido = async ({ latitud, longitud, categoria }) => {
   });
 };
 
+const errorDeDuplicado = (antecedente) => {
+  const error = new Error('Ya existe un antecedente previo de este reporte');
+  error.estado = 409;
+  error.detalle = antecedente;
+  return error;
+};
+
+// Número fijo que identifica el bloqueo de "crear un reporte". Cualquier número
+// sirve, mientras todas las creaciones usen el mismo.
+const CLAVE_BLOQUEO_CREAR = 7310424;
+
 // Crea un reporte con sus fotos.
+//
+// Duplicados simultáneos: si dos vecinos reportan el mismo lugar al mismo tiempo,
+// las dos búsquedas de parecidos pueden salir vacías antes de que cualquiera de
+// los dos guarde, y se guardarían ambos. Una transacción sola no lo evita, porque
+// en PostgreSQL cada una ve la base como estaba al empezar. Por eso, dentro de la
+// transacción se pide un bloqueo (pg_advisory_xact_lock): quien llega segundo
+// espera a que el primero termine y su búsqueda ya encuentra el reporte guardado.
+// El bloqueo se suelta solo al terminar la transacción.
+//
+// Es global para todos los reportes (no por zona) para que no se escape un
+// duplicado cerca del borde de dos zonas. La transacción es corta: el clima se
+// consulta antes, porque es una llamada externa lenta.
 const crear = async ({ idVecino, datos, fotos }) => {
   try {
-    const antecedente = await buscarParecido(datos);
-
-    if (antecedente) {
-      const error = new Error('Ya existe un antecedente previo de este reporte');
-      error.estado = 409;
-      error.detalle = antecedente;
-      throw error;
-    }
+    // Revisión rápida: si ya hay uno parecido, se responde sin consultar el clima.
+    const antecedenteRapido = await buscarParecido(datos);
+    if (antecedenteRapido) throw errorDeDuplicado(antecedenteRapido);
 
     // El clima lo consulta el backend en Open-Meteo, no se toma del formulario.
     // Si Open-Meteo falla, el reporte se guarda igual, sin clima.
     const clima = await climaService.obtenerClima(datos.latitud, datos.longitud);
 
-    const reporte = await prisma.reporte.create({
-      data: {
-        titulo: datos.nombre.trim(),
-        descripcion: datos.descripcion?.trim() || null,
-        categoria: datos.categoria,
-        tamano: datos.volumen,
-        sector: datos.sector,
-        latitud: datos.latitud,
-        longitud: datos.longitud,
-        distanciaACasas: metrosDeDistancia(datos.distanciaViviendas),
-        indiceRiesgo: datos.riesgo,
-        climaTemperatura: clima?.temperatura ?? null,
-        climaHumedad: clima?.humedad ?? null,
-        climaViento: clima?.viento ?? null,
-        climaCondicion: clima?.condicion ?? null,
-        idVecino,
-        imagenes: {
-          create: fotos.map((foto, indice) => ({
-            rutaDirectorio: foto.ruta,
-            orden: indice + 1,
-          })),
-        },
+    const reporte = await prisma.$transaction(
+      async (tx) => {
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(${CLAVE_BLOQUEO_CREAR})`;
+
+        // Revisión definitiva, ya con el bloqueo: aquí se ven los reportes que
+        // otra petición haya guardado un instante antes.
+        const antecedente = await buscarParecido(datos, tx);
+        if (antecedente) throw errorDeDuplicado(antecedente);
+
+        return tx.reporte.create({
+          data: {
+            titulo: datos.nombre.trim(),
+            descripcion: datos.descripcion?.trim() || null,
+            categoria: datos.categoria,
+            tamano: datos.volumen,
+            sector: datos.sector,
+            latitud: datos.latitud,
+            longitud: datos.longitud,
+            distanciaACasas: metrosDeDistancia(datos.distanciaViviendas),
+            indiceRiesgo: datos.riesgo,
+            climaTemperatura: clima?.temperatura ?? null,
+            climaHumedad: clima?.humedad ?? null,
+            climaViento: clima?.viento ?? null,
+            climaCondicion: clima?.condicion ?? null,
+            idVecino,
+            imagenes: {
+              create: fotos.map((foto, indice) => ({
+                rutaDirectorio: foto.ruta,
+                orden: indice + 1,
+              })),
+            },
+          },
+          include: INCLUIR_DETALLE,
+        });
       },
-      include: INCLUIR_DETALLE,
-    });
+      { maxWait: 5000, timeout: 10000 },
+    );
 
     return aReporte(reporte);
   } catch (error) {
@@ -405,6 +437,33 @@ const modificar = async ({ idReporte, idVecino, cambios, fotosNuevas = [], rutas
   }
 };
 
+// Un funcionario corrige la categoría, el volumen y la distancia a las viviendas
+// de un reporte. A diferencia de modificar, no hace falta ser el dueño ni que el
+// reporte esté sin revisar. El índice de riesgo no se recalcula acá (la fórmula
+// vive en el frontend): si viene un riesgo nuevo, se guarda junto con su fecha.
+const corregirDesglose = async ({ idReporte, cambios }) => {
+  await obtenerPorId(idReporte); // 404 si el reporte no existe
+
+  const actualizado = await prisma.reporte.update({
+    where: { idReporte },
+    data: {
+      ...(cambios.categoria !== undefined && { categoria: cambios.categoria }),
+      ...(cambios.volumen !== undefined && { tamano: cambios.volumen }),
+      ...(cambios.distanciaViviendas !== undefined && {
+        distanciaACasas: metrosDeDistancia(cambios.distanciaViviendas),
+      }),
+      ...(cambios.riesgo !== undefined && {
+        indiceRiesgo: cambios.riesgo,
+        fechaCalculoRiesgo: new Date(),
+      }),
+    },
+    include: { ...INCLUIR_DETALLE, vecino: true },
+  });
+
+  // Quien llega acá es funcionario, así que ve también los datos del vecino.
+  return aReporteVisible(actualizado, { conVecino: true });
+};
+
 // Organiza las fotos siguiendo el orden del frontend
 const reorganizarImagenes = async ({ idReporte, imagenesActuales, rutasConservadas, fotosNuevas }) => {
   const porRuta = new Map(imagenesActuales.map((imagen) => [imagen.rutaDirectorio, imagen]));
@@ -475,5 +534,6 @@ module.exports = {
   listarMios,
   crear,
   modificar,
+  corregirDesglose,
   eliminar,
 };

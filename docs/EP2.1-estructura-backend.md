@@ -94,8 +94,23 @@ Cuando una ruta tiene `{id}`, se reemplaza por el número de lo que se busca. Po
 - `POST /api/auth/registro`: crea una cuenta de vecino. La contraseña se guarda con bcrypt.
 - `POST /api/auth/login`: revisa correo y contraseña y entrega el token.
 - `GET /api/auth/perfil`: entrega los datos del usuario que inició sesión.
+- `PUT /api/auth/perfil`: guarda el nombre y el correo del usuario con sesión.
+- `PUT /api/auth/password`: cambia la contraseña, pidiendo la contraseña actual.
+- `POST /api/auth/recuperacion/solicitar`: genera un código de 6 dígitos y lo imprime en la consola del backend.
+- `POST /api/auth/recuperacion/verificar`: revisa que el código sea válido.
+- `POST /api/auth/recuperacion/restablecer`: cambia la contraseña usando el código.
 
 Solo los vecinos se registran. Los funcionarios vienen creados en `focalware.sql`.
+
+La recuperación de contraseña no envía correos reales.
+El código se imprime en la consola del backend.
+Los códigos se guardan en memoria, así que si la API se reinicia hay que solicitar uno nuevo.
+
+Para ver los códigos hay que entrar al directorio 'backend' y ejecutar el siguiente comando:
+
+```sh
+❯ docker compose logs -f api
+```
 
 ### 4.2 Reportes
 

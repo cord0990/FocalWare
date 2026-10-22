@@ -8,11 +8,13 @@
 
 <br>
 
-![Ionic](https://img.shields.io/badge/Ionic-3880FF?style=flat-square&logo=ionic&logoColor=white)
-![React](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black)
+![Ionic](https://img.shields.io/badge/Ionic-9-3880FF?style=flat-square&logo=ionic&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
-![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=nodedotjs&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-22-339933?style=flat-square&logo=nodedotjs&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-7-2D3748?style=flat-square&logo=prisma&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
 
 </div>
 
@@ -47,8 +49,12 @@
 - [Tecnologías](#tecnologías)
 - [Estructura del repositorio](#estructura-del-repositorio)
 - [Instalación](#instalación)
+- [Variables de entorno](#variables-de-entorno)
+- [Base de datos](#base-de-datos)
 - [Ejecución](#ejecución)
+- [Usuarios de prueba](#usuarios-de-prueba)
 - [Estado del proyecto](#estado-del-proyecto)
+- [Documentación](#documentación)
 
 ## Prototipo
 
@@ -79,7 +85,6 @@ Desafíos CTD Litoral abordados: **#11** (capacidad para manejo de residuos) y *
 **Objetivo general.** Desarrollar una plataforma web y móvil que capture reportes ciudadanos georreferenciados de acumulación de residuos y priorice automáticamente su atención según un índice de riesgo de incendio.
 
 **Objetivos específicos**
-
 1. Implementar el reporte georreferenciado con fotografía, operativo con conectividad intermitente.
 2. Desarrollar un motor de priorización que combine atributos del reporte con datos meteorológicos en tiempo real.
 3. Construir un panel de gestión municipal con triage, asignación y seguimiento de estados.
@@ -152,11 +157,15 @@ La especificación completa, con tipo y dependencias de cada requerimiento, est�
 
 | Capa | Herramientas |
 |---|---|
-| Frontend | Ionic 8, React 18, TypeScript |
+| Frontend | Ionic 9, React 19, TypeScript, Vite |
 | Navegación | React Router |
 | Mapas | [Leaflet](https://leafletjs.com/) con React Leaflet. Mapa base de [Esri World Street Map](https://www.arcgis.com/home/item.html?id=3b93337983e9436f8db950e38a8629af) (vista simple) y [OpenStreetMap](https://www.openstreetmap.org/) (vista detallada), con mapa de calor mediante `leaflet.heat` |
-| Backend | Node.js con Express |
-| Base de datos | PostgreSQL |
+| Backend | Node.js (20.19+), Express |
+| Base de datos | PostgreSQL 16, Prisma 7 (ORM) |
+| Seguridad | JWT (`jsonwebtoken`), bcrypt (`bcryptjs`) |
+| Archivos | `multer` (fotos JPG/PNG/WEBP, hasta 5 por envío) |
+| Contenerización | Docker y Docker Compose |
+| Pruebas de API | Postman (colección en `backend/postman/`) |
 | Servicio externo | [Open-Meteo](https://open-meteo.com/) (temperatura, humedad y viento) |
 | Herramientas | Git, GitHub, Figma |
 
@@ -164,9 +173,9 @@ La especificación completa, con tipo y dependencias de cada requerimiento, est�
 
 | Rama | Contenido |
 |---|---|
-| `main` | Documentación general del proyecto |
-| `frontend` | Interfaz, componentes y documentación de requerimientos |
-| `backend` | Servidor, API, base de datos y archivo `.sql` |
+| `main` | Documentación general del proyecto y entregas (EP1/EP2) |
+| `frontend` | Interfaz Ionic/React, componentes, servicios y pruebas end-to-end (Cypress) |
+| `backend` | API REST, Prisma, migraciones, scripts SQL, Postman y uploads |
 
 **Rama `frontend`**
 
@@ -189,107 +198,164 @@ La arquitectura de navegación, con las rutas, el acceso por rol y los flujos de
 **Rama `backend`**
 
 ```
-src/
-├── routes/         # Definición de endpoints
-├── controllers/    # Lógica de cada endpoint
-├── db/             # Acceso a la base de datos con Prisma
-└── database/       # Script .sql de la base de datos
+backend/
+├── src/
+│   ├── routes/         # Definición de endpoints
+│   ├── controllers/    # Lógica de cada endpoint
+│   ├── services/       # Lógica de negocio y acceso a datos
+│   ├── middlewares/    # Sesión, roles, validaciones y subida de fotos
+│   └── db/             # Prisma: cliente, tipos y repositorios
+├── prisma/
+│   ├── schema.prisma   # Esquema (fuente de verdad)
+│   └── migrations/     # Migraciones aplicadas por Docker
+├── database/
+│   ├── focalware.sql   # Esquema + datos para montar a mano
+│   └── datos_prueba.sql
+├── postman/            # Colección de pruebas de la API
+└── uploads/
+    ├── reportes/       # Fotos de los vecinos
+    └── controles/     # Fotos de evidencia de los funcionarios
 ```
+
+El detalle de la estructura del backend está en [docs/EP2.1-estructura-backend.md](docs/EP2.1-estructura-backend.md).
 
 ## Instalación
 
-Requisitos previos: Node.js 18 o superior, npm 9 o superior.
+Requisitos previos: Node.js **20.19 o superior** (Prisma 7 lo exige), npm 9 o superior, Git y, para la opción con Docker, Docker y Docker Compose.
+
+Hay dos formas de levantar el proyecto: **con Docker** (recomendada) y **sin Docker**. En ambos casos el frontend se levanta al final con `npm run dev`.
+
+> Para la Opción A, asegúrate de tener **Docker Desktop abierto y activo** antes de ejecutar los comandos.
+
+### Opción A: con Docker (recomendada)
+
+Levanta la base de datos y la API. El contenedor de la API aplica las migraciones de Prisma al arrancar.
+
+1. Clonar el repositorio:
 
 ```bash
 git clone https://github.com/cord0990/FocalWare.git
 cd FocalWare
-git checkout frontend
-cd frontend
-npm install
 ```
 
-**Variables de entorno**
+2. Crear el archivo de entorno del backend copiando el ejemplo. Los valores por defecto ya funcionan con Docker; solo hay que ajustarlos si se cambia la contraseña o el puerto:
 
-| Variable | Descripción | Ejemplo |
-|---|---|---|
-| `VITE_API_URL` | URL base de la API | `http://localhost:3000/api` |
-| `DATABASE_URL` | Conexión a PostgreSQL | `postgresql://postgres:postgres@localhost:5434/focalware` |
-| `JWT_SECRETO` | Clave de firma de tokens | valor propio |
-| `JWT_EXPIRACION` | Tiempo que dura la sesión | `15m` |
-
-El archivo `.env` no se versiona. Ya está incluido en `.gitignore`.
-
-## Base de datos
-
-El acceso a datos se hace con **Prisma ORM** en TypeScript. La capa vive en `backend/src/db` y los controladores nunca llaman a Prisma directamente: usan los repositorios.
-
-```
-backend/src/db/
-├── cliente.ts        Instancia única de PrismaClient
-├── tipos.ts          Tipos de las entidades y de los filtros de búsqueda
-├── index.ts          Punto de entrada (importar desde acá)
-└── repositorios/
-    ├── vecinos.ts        vecino, votos y cuadrillas del funcionario
-    ├── funcionarios.ts   funcionario, cuadrillas y revisiones asignadas
-    ├── revisiones.ts     revisiones, historial y cierre con notificación
-    ├── reportes.ts       reportes, filtros, imágenes y votos
-    ├── notificaciones.ts notificaciones del vecino
-    └── controles.ts      controles de revisión e imágenes
+```bash
+cp backend/.env.example backend/.env
 ```
 
-El cliente generado por Prisma queda en `backend/src/db/generated/` y no se versiona: se regenera siempre con `npm run build` o `npm run db:generate`.
-
-**Levantar todo con Docker (recomendado)**
+3. Levantar base de datos + API:
 
 ```bash
 docker compose up -d --build
 ```
 
-Esto levanta dos servicios: la base de datos PostgreSQL y la API. El contenedor de la API aplica las migraciones de Prisma antes de arrancar, así que las tablas se crean solas. La API queda en `http://localhost:3000`.
-
-| Servicio | Puerto | Qué es |
-|---|---|---|
-| `db` | 5434 | PostgreSQL con el volumen `pgdata`. Usa el 5434 para no chocar con un PostgreSQL instalado en Windows |
-| `api` | 3000 | La API, con las migraciones aplicadas al iniciar |
-
-**Trabajar sin Docker**
-
-```bash
-cd backend
-npm install
-cp .env.example .env    # completar DATABASE_URL
-
-docker compose up -d db  # solo la base
-npm run db:migrate       # crea las tablas
-npm run build            # genera el cliente de Prisma y compila TypeScript a dist/
-npm run dev              # la API en http://localhost:3000
-```
-
-Otros comandos útiles:
-
-| Comando | Qué hace |
-|---|---|
-| `npm run db:studio` | Abre Prisma Studio para ver los datos |
-| `npm run db:reset` | Borra y recrea la base aplicando las migraciones |
-| `npm run typecheck` | Revisa los tipos sin generar nada |
-| `docker compose down -v` | Detiene todo y borra la base (se reconstruye sola) |
-
-> El archivo `backend/database/focalware.sql` quedó como documentación del esquema inicial. La fuente de verdad son las migraciones de Prisma en `backend/prisma/migrations`.
-
-**Datos de prueba**
-
-`backend/database/datos_prueba.sql` trae 3 vecinos, 2 funcionarios, 3 cuadrillas y 7 reportes en distintos estados, con votos, historial y notificaciones. La contraseña de todos los usuarios es `Clave123`.
-
-| Usuario | Correo | Rol |
-|---|---|---|
-| Valentina Rojas | `valentina.rojas@correo.cl` | Vecino |
-| Javiera Muñoz | `javiera.munoz@focalware.cl` | Funcionario |
-
-Si la base se creó con `focalware.sql`, los datos ya vienen cargados. Si se creó con Docker, se cargan desde la raíz con:
+4. Cargar los datos de prueba (opcional, recomendado):
 
 ```bash
 docker exec -i focalware-db psql -U postgres -d focalware < backend/database/datos_prueba.sql
 ```
+
+5. Frontend:
+
+```bash
+cd frontend
+npm install
+# opcional: crear frontend/.env con VITE_API_URL (ver sección de variables)
+npm run dev
+```
+
+### Opción B: sin Docker
+
+Usa un PostgreSQL instalado en el equipo. El script `backend/database/focalware.sql` crea la base, las tablas y carga los datos de prueba.
+
+1. Clonar el repositorio (si no se hizo):
+
+```bash
+git clone https://github.com/cord0990/FocalWare.git
+cd FocalWare
+```
+
+2. Crear la base de datos a partir del script:
+
+```bash
+psql -U postgres -h localhost -f backend/database/focalware.sql
+```
+
+> Si `psql` no se reconoce, usa la ruta completa (por ejemplo `C:\Program Files\PostgreSQL\18\bin\psql.exe`) o agrega esa carpeta al `PATH`.
+
+3. Backend (API):
+
+```bash
+cd backend
+npm install
+cp .env.example .env   # los valores por defecto apuntan a localhost:5434; ajustar si tu PostgreSQL usa otro puerto/contraseña
+npm start              # compila (prestart) y levanta la API en http://localhost:3000
+```
+
+4. Frontend:
+
+```bash
+cd ../frontend
+npm install
+# opcional: crear frontend/.env con VITE_API_URL (ver sección de variables)
+npm run dev
+```
+
+En ambos casos la aplicación queda disponible en `http://localhost:5173` y la API en `http://localhost:3000`.
+## Variables de entorno
+
+Los archivos `.env` no se versionan (están en `.gitignore`).
+
+### Backend (`backend/.env`, copiado de `backend/.env.example`)
+
+| Variable | Descripción | Ejemplo |
+|---|---|---|
+| `PORT` | Puerto donde corre la API | `3000` |
+| `DB_HOST` | Host de PostgreSQL | `localhost` |
+| `DB_PORT` | Puerto de PostgreSQL | `5434` |
+| `DB_NAME` | Nombre de la base | `focalware` |
+| `DB_USER` | Usuario de PostgreSQL | `postgres` |
+| `DB_PASSWORD` | Contraseña de PostgreSQL | `postgres` |
+| `DATABASE_URL` | URL que usa Prisma | `postgresql://postgres:postgres@localhost:5434/focalware` |
+| `FRONTEND_URL` | Origen permitido por CORS | `http://localhost:5173` |
+| `JWT_SECRETO` | Clave para firmar los tokens | valor propio (largo y privado) |
+| `JWT_EXPIRACION` | Duración de la sesión | `15m` |
+
+### Frontend (`frontend/.env`, opcional)
+
+| Variable | Descripción | Ejemplo |
+|---|---|---|
+| `VITE_API_URL` | URL base de la API | `http://localhost:3000/api` |
+
+Si no se define `VITE_API_URL`, el frontend usa por defecto `http://localhost:3000/api`.
+
+## Base de datos
+
+La base es PostgreSQL 16 y el acceso se hace con **Prisma 7**. El esquema, las tablas, las relaciones, las reglas y los datos de prueba están documentados en [docs/base-de-datos.md](docs/base-de-datos.md).
+
+Scripts reproducibles:
+
+- `backend/prisma/schema.prisma` y `backend/prisma/migrations/` (fuente de verdad, aplicadas por Docker al arrancar la API).
+- `backend/database/focalware.sql` (crea la base, las tablas y carga los datos; útil para montar a mano sin Docker).
+- `backend/database/datos_prueba.sql` (3 vecinos, 2 funcionarios, 3 cuadrillas y 7 reportes).
+
+Con Docker:
+
+```bash
+docker compose up -d db
+cd backend
+npm run db:deploy
+docker exec -i focalware-db psql -U postgres -d focalware < database/datos_prueba.sql
+```
+
+Sin Docker:
+
+```bash
+psql -U postgres -h localhost -f backend/database/focalware.sql
+```
+
+El cliente de Prisma se genera con `npm run build` o `npm run db:generate`.
 
 ## Ejecución
 
@@ -301,19 +367,94 @@ npm run dev
 La aplicación queda disponible en `http://localhost:5173`.
 
 **Acceso según rol de usuario:**
-* **Vecino:** Iniciar sesión con un correo general (ej. `@gmail.com`).
-* **Funcionario:** Iniciar sesión con correo institucional `@focalware.cl`.
+- **Vecino:** inicia sesión con un correo general (ej. `@gmail.com` o `@correo.cl`). También puede registrarse.
+- **Funcionario:** inicia sesión con correo institucional `@focalware.cl` (las cuentas las entrega la municipalidad).
+
+## Pruebas de la API (Postman)
+
+La API debe estar corriendo en `http://localhost:3000` (ver Instalación).
+
+1. Abrir Postman, importar la colección `backend/postman/FocalWare.postman_collection.json`.
+2. Para la prueba que sube una foto, configurar en Postman el directorio de trabajo en `backend/postman` (ahí está `foto-prueba.png`).
+3. Ejecutar la colección en orden: los logins guardan los tokens y los reportes creados se usan en las carpetas siguientes.
+4. (Opcional) Por consola, con Newman: `npx newman run FocalWare.postman_collection.json --working-dir .` desde `backend/postman`.
+
+Las pruebas cubren casos exitosos y de error (`401`, `403`, `400`, `404`, `409`). El detalle de cada endpoint, parámetros, respuestas y evidencia de la corrida está en [docs/EP2.7-endpoints-y-pruebas.md](docs/EP2.7-endpoints-y-pruebas.md).
+
+**Resumen de endpoints** (prefijo `http://localhost:3000/api`):
+
+| Método | Ruta | Acceso |
+|---|---|---|
+| `GET` | `/salud` | Público |
+| `POST` | `/auth/registro` | Público |
+| `POST` | `/auth/login` | Público |
+| `GET` | `/auth/perfil` | Con sesión |
+| `PUT` | `/auth/perfil` | Con sesión |
+| `PUT` | `/auth/password` | Con sesión |
+| `POST` | `/auth/recuperacion/solicitar` | Público |
+| `POST` | `/auth/recuperacion/verificar` | Público |
+| `POST` | `/auth/recuperacion/restablecer` | Público |
+| `GET` | `/reportes` | Público |
+| `GET` | `/reportes/:id` | Público |
+| `GET` | `/reportes/mios` | Vecino |
+| `POST` | `/reportes` | Vecino |
+| `PUT` | `/reportes/:id` | Vecino dueño |
+| `DELETE` | `/reportes/:id` | Vecino dueño |
+| `POST` | `/reportes/:id/votos` | Vecino |
+| `DELETE` | `/reportes/:id/votos` | Vecino |
+| `GET` | `/revisiones/cola` | Funcionario |
+| `POST` | `/reportes/:id/revision` | Funcionario |
+| `PUT` | `/revisiones/:id` | Funcionario de la cuadrilla |
+| `GET` | `/revisiones/:id/controles` | Funcionario de la cuadrilla |
+| `GET` | `/notificaciones` | Vecino |
+| `PUT` | `/notificaciones/:id/leida` | Vecino |
+| `GET` | `/estadisticas` | Funcionario |
+| `GET` | `/estadisticas/mi-actividad` | Vecino |
+| `GET` | `/clima` | Público |
+
+La recuperación de contraseña no envía correos reales: el código de 6 dígitos aparece en la consola del backend. Está pensado así para poder probar el flujo en el proyecto universitario.
+
+## Usuarios de prueba
+
+Todos los usuarios de prueba tienen la contraseña `Clave123`.
+
+| Rol | Nombre | Correo | Cuadrilla |
+|---|---|---|---|
+| Vecino | Valentina Rojas | `valentina.rojas@correo.cl` | — |
+| Vecino | Matías Fuentes | `matias.fuentes@correo.cl` | — |
+| Vecino | Camila Soto | `camila.soto@correo.cl` | — |
+| Funcionario | Javiera Muñoz | `javiera.munoz@focalware.cl` | Cerros y Quebradas |
+| Funcionario | Andrés Pérez | `andres.perez@focalware.cl` | Norte |
+
+Los datos vienen en `backend/database/datos_prueba.sql`. Si la base se creó con Docker, se cargan desde la raíz con:
+
+```bash
+docker exec -i focalware-db psql -U postgres -d focalware < backend/database/datos_prueba.sql
+```
 
 ## Estado del proyecto
 
 | Entrega | Contenido | Estado |
 |---|---|---|
 | **EP1** | Requerimientos, proto-personas, Figma, estructura Ionic con React | Completado |
-| **EP2** | Backend, base de datos, API REST, autenticación JWT | Pendiente |
+| **EP2** | Backend, base de datos, API REST, autenticación JWT | En revisión |
 | **EF** | Funcionalidades completas, seguridad, Docker | Pendiente |
 
+## Documentación
+
+| Documento | Descripción |
+|---|---|
+| [docs/EP1.1. Requerimientos del sistema.md](docs/EP1.1.%20Requerimientos%20del%20sistema.md) | Requerimientos funcionales y no funcionales |
+| [docs/EP1.2-usuarios-y-protopersonas.md](docs/EP1.2-usuarios-y-protopersonas.md) | Usuarios objetivo y proto-personas |
+| [docs/EP1.3-diseno-ui-ux.md](docs/EP1.3-diseno-ui-ux.md) | Diseño UI/UX |
+| [docs/EP1.4-arquitectura-navegacion.md](docs/EP1.4-arquitectura-navegacion.md) | Arquitectura de navegación |
+| [docs/EP1.6-Comparacion-Figma-y-implementacion.md](docs/EP1.6-Comparacion-Figma-y-implementacion.md) | Comparación Figma vs. implementación |
+| [docs/EP2.1-estructura-backend.md](docs/EP2.1-estructura-backend.md) | Estructura del backend |
+| [docs/EP2.7-endpoints-y-pruebas.md](docs/EP2.7-endpoints-y-pruebas.md) | Endpoints y pruebas de la API |
+| [docs/base-de-datos.md](docs/base-de-datos.md) | Base de datos: tablas, relaciones y datos de prueba |
 
 ---
+
 ## Declaración de uso de Inteligencia Artificial
 
 Durante el desarrollo de este proyecto se utilizaron herramientas de Inteligencia Artificial Generativa como apoyo complementario para la revisión de código, redacción de documentación y optimización de flujos de trabajo. Todo el análisis conceptual, diseño de arquitectura, lógica de negocio e implementación final fueron realizados y validados de forma autónoma por el equipo.
