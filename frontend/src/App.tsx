@@ -57,9 +57,9 @@ setupIonicReact();
 // Funcionario) y exclusivas de Funcionario bajo /municipal.
 const App: React.FC = () => (
   <IonApp>
-    <SesionProvider>
-      <MenuProvider>
-        <IonReactRouter>
+    <IonReactRouter>
+      <SesionProvider>
+        <MenuProvider>
           <MenuCuenta contentId="contenido-principal" />
           <IonRouterOutlet id="contenido-principal">
             {/* Públicas: el mapa y el detalle se ven sin sesión; votar y reportar piden login */}
@@ -189,9 +189,9 @@ const App: React.FC = () => (
             <Route path={RUTAS.inicio} element={<Navigate to={RUTAS.mapa} replace />} />
             <Route path="*" element={<Navigate to={RUTAS.mapa} replace />} />
           </IonRouterOutlet>
-        </IonReactRouter>
-      </MenuProvider>
-    </SesionProvider>
+        </MenuProvider>
+      </SesionProvider>
+    </IonReactRouter>
   </IonApp>
 );
 
