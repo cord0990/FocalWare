@@ -1,10 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
 import { IonIcon } from '@ionic/react';
 import { caretUp, flameOutline, imageOutline, layersOutline } from 'ionicons/icons';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { obtenerHistorial } from '../../services/historialService';
 import type { Reporte } from '../../services/reportesService';
 import AjustarTamanoMapa from './AjustarTamanoMapa';
 import CapaCalor from './CapaCalor';
@@ -16,7 +15,6 @@ import { urlDeImagen } from '../../services/api';
 
 const CLAVE_ESTILO_MAPA = 'focalware-estilo-mapa';
 const CLAVE_MAPA_CALOR = 'focalware-mapa-calor';
-const HISTORIAL = obtenerHistorial();
 
 type EstiloMapa = keyof typeof ESTILOS_MAPA;
 
@@ -74,6 +72,7 @@ const EnfocarReporte: React.FC<{ reporte?: Reporte; marcadores: Map<string, L.Ma
 
 interface MapaReportesProps {
   reportes: Reporte[];
+  reportesCalor: Reporte[];
   seleccionado?: Reporte;
   onSeleccionar: (id: string) => void;
   onVerDetalles: (id: string) => void;
@@ -81,6 +80,7 @@ interface MapaReportesProps {
 
 const MapaReportes: React.FC<MapaReportesProps> = ({
   reportes,
+  reportesCalor,
   seleccionado,
   onSeleccionar,
   onVerDetalles,
@@ -101,6 +101,13 @@ const MapaReportes: React.FC<MapaReportesProps> = ({
     guardarCalor(!calor);
   };
 
+  // La lista de puntos se mantiene estable entre renders para no recrear la capa
+  // de calor cada vez que se selecciona un reporte o cambia un filtro.
+  const puntosCalor = useMemo(
+    () => reportesCalor.map((reporte) => ({ latitud: reporte.latitud, longitud: reporte.longitud })),
+    [reportesCalor],
+  );
+
   return (
     <div className="mapa-reportes">
       <MapContainer center={CENTRO_VALPARAISO} zoom={13} className="mapa-contenedor">
@@ -111,7 +118,7 @@ const MapaReportes: React.FC<MapaReportesProps> = ({
           url={capa.url}
         />
         <AjustarTamanoMapa />
-        {calor && <CapaCalor puntos={HISTORIAL} />}
+        {calor && <CapaCalor puntos={puntosCalor} />}
         <EnfocarReporte reporte={seleccionado} marcadores={marcadores.current} />
 
         {reportes.map((reporte) => {
