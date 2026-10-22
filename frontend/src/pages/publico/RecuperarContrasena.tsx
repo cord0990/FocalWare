@@ -15,8 +15,8 @@ import CampoFormulario from '../../components/CampoFormulario';
 import RequisitosContrasena from '../../components/RequisitosContrasena';
 import { useCamposTocados } from '../../hooks/useCamposTocados';
 import {
-  cambiarContrasena,
   enviarCodigoRecuperacion,
+  restablecerContrasena,
   verificarCodigoRecuperacion,
 } from '../../services/authService';
 import { RUTAS } from '../../routes/rutas';
@@ -64,7 +64,7 @@ const RecuperarContrasena: React.FC<{ paso: 1 | 2 | 3 }> = ({ paso: pasoDeLaRuta
   const [confirmacion, setConfirmacion] = useState('');
   const [intentoCodigo, setIntentoCodigo] = useState(false);
   const [enviando, setEnviando] = useState(false);
-  const [mensaje, setMensaje] = useState('');
+  const [mensaje, setMensaje] = useState<{ texto: string; color: 'success' | 'danger' } | null>(null);
   const { tocar, claseCampo, reiniciar } = useCamposTocados();
 
   const errores = {
@@ -86,6 +86,7 @@ const RecuperarContrasena: React.FC<{ paso: 1 | 2 | 3 }> = ({ paso: pasoDeLaRuta
     setContrasena('');
     setConfirmacion('');
     setIntentoCodigo(false);
+    setMensaje(null);
     reiniciar();
   });
 
@@ -95,15 +96,33 @@ const RecuperarContrasena: React.FC<{ paso: 1 | 2 | 3 }> = ({ paso: pasoDeLaRuta
     if (errores.correo) return;
 
     setEnviando(true);
-    await enviarCodigoRecuperacion(correo);
-    setEnviando(false);
-    guardarRecuperacion({ correo });
-    router.push(RUTAS.recuperarCodigo, 'forward');
+    try {
+      await enviarCodigoRecuperacion(correo);
+      guardarRecuperacion({ correo });
+      router.push(RUTAS.recuperarCodigo, 'forward');
+    } catch (error) {
+      setMensaje({
+        texto: error instanceof Error ? error.message : 'No se pudo enviar el código.',
+        color: 'danger',
+      });
+    } finally {
+      setEnviando(false);
+    }
   };
 
   const reenviarCodigo = async () => {
-    await enviarCodigoRecuperacion(correo);
-    setMensaje(`Enviamos un nuevo código a ${correo}.`);
+    setEnviando(true);
+    try {
+      await enviarCodigoRecuperacion(correo);
+      setMensaje({ texto: `Enviamos un nuevo código a ${correo}.`, color: 'success' });
+    } catch (error) {
+      setMensaje({
+        texto: error instanceof Error ? error.message : 'No se pudo enviar el código.',
+        color: 'danger',
+      });
+    } finally {
+      setEnviando(false);
+    }
   };
 
   const verificarCodigo = async (evento: React.FormEvent) => {
@@ -112,10 +131,18 @@ const RecuperarContrasena: React.FC<{ paso: 1 | 2 | 3 }> = ({ paso: pasoDeLaRuta
     if (errores.codigo) return;
 
     setEnviando(true);
-    await verificarCodigoRecuperacion(correo, codigo);
-    setEnviando(false);
-    guardarRecuperacion({ correo, codigo });
-    router.push(RUTAS.recuperarNueva, 'forward');
+    try {
+      await verificarCodigoRecuperacion(correo, codigo);
+      guardarRecuperacion({ correo, codigo });
+      router.push(RUTAS.recuperarNueva, 'forward');
+    } catch (error) {
+      setMensaje({
+        texto: error instanceof Error ? error.message : 'El código no es válido o expiró.',
+        color: 'danger',
+      });
+    } finally {
+      setEnviando(false);
+    }
   };
 
   const guardarContrasena = async (evento: React.FormEvent) => {
@@ -124,10 +151,18 @@ const RecuperarContrasena: React.FC<{ paso: 1 | 2 | 3 }> = ({ paso: pasoDeLaRuta
     if (errores.contrasena || errores.confirmacion) return;
 
     setEnviando(true);
-    await cambiarContrasena({ correo, codigo: guardada?.codigo ?? '', contrasena });
-    setEnviando(false);
-    guardarRecuperacion(null);
-    setCompletado(true);
+    try {
+      await restablecerContrasena({ correo, codigo: guardada?.codigo ?? '', contrasena });
+      guardarRecuperacion(null);
+      setCompletado(true);
+    } catch (error) {
+      setMensaje({
+        texto: error instanceof Error ? error.message : 'No se pudo cambiar la contraseña.',
+        color: 'danger',
+      });
+    } finally {
+      setEnviando(false);
+    }
   };
 
   // Sin haber pasado por los pasos anteriores (por ejemplo, abriendo el enlace directo),
@@ -285,11 +320,11 @@ const RecuperarContrasena: React.FC<{ paso: 1 | 2 | 3 }> = ({ paso: pasoDeLaRuta
 
       <IonToast
         isOpen={!!mensaje}
-        message={mensaje}
+        message={mensaje?.texto}
         duration={2500}
-        color="success"
+        color={mensaje?.color}
         position="top"
-        onDidDismiss={() => setMensaje('')}
+        onDidDismiss={() => setMensaje(null)}
       />
     </AuthLayout>
   );
