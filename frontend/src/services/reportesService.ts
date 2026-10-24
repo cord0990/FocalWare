@@ -135,7 +135,7 @@ const aFormularioDeEdicion = async (
   const formulario = new FormData();
 
   // Filtra los campos que no vienen o vienen vacíos, para no mandarlos.
-const soloTexto = (valor: string | undefined): valor is string => valor !== undefined && valor !== '';
+  const soloTexto = (valor: string | undefined): valor is string => valor !== undefined && valor !== '';
 
   if (soloTexto(cambios.nombre)) formulario.append('nombre', cambios.nombre);
   if (soloTexto(cambios.descripcion)) formulario.append('descripcion', cambios.descripcion);
@@ -401,33 +401,22 @@ export const corregirDesgloseSimulado = (
 ) => guardarGestion(id, datos);
 
 // El Funcionario corrige el desglose del reporte (EP 1.4, 4.2).
-// Pega a PUT /api/reportes/:id, que es la ruta de edición del dueño del reporte.
-// Solo manda los tres campos del desglose; el backend los valida con las mismas
-// categorías que usa al crear el reporte.
+// Usa PATCH /api/reportes/:id/desglose, la ruta exclusiva para funcionarios.
+// PUT /api/reportes/:id es la edición del vecino dueño y responde 403 a un funcionario.
+// El cuerpo va como JSON; `pedir` lo serializa y agrega el Content-Type por defecto.
 export const corregirDesglose = async (
   id: string,
   datos: Pick<Reporte, 'categoria' | 'volumen' | 'distanciaViviendas'>,
 ) => {
-  // IMPORTANTE: no se manda imagenesActuales.
-  //
-  // El backend usa ese campo como la señal de "esta petición toca las fotos".
-  // Si viene aunque sea como [], entra en el bloque que exige al menos una foto
-  // de portada y responde 400 (verificado: "El reporte necesita al menos una
-  // foto de portada"). Para una corrección de desglose no se tocan las imágenes,
-  // así que el campo se omite y el backend deja la lista como está.
-  const formulario = new FormData();
-  formulario.append('categoria', datos.categoria);
-  formulario.append('volumen', datos.volumen);
-  if (datos.distanciaViviendas) {
-    formulario.append('distanciaViviendas', datos.distanciaViviendas);
-  }
-
-  // Va en FormData porque la ruta PUT /api/reportes/:id es la misma que usa
-  // actualizarReporte, que sí sube fotos, y el backend la lee como multipart.
-  await pedir(`/reportes/${id}`, {
-    metodo: 'PUT',
-    cuerpo: formulario,
-    esFormulario: true,
+  await pedir(`/reportes/${id}/desglose`, {
+    metodo: 'PATCH',
+    cuerpo: {
+      categoria: datos.categoria,
+      volumen: datos.volumen,
+      // El backend valida la distancia contra una lista cerrada.
+      // Si no viene, se omite para no enviar una cadena vacía.
+      ...(datos.distanciaViviendas ? { distanciaViviendas: datos.distanciaViviendas } : {}),
+    },
   });
 
   avisarCambio();
