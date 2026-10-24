@@ -164,9 +164,9 @@ La especificaci처n completa, con tipo y dependencias de cada requerimiento, est�
 
 | Rama | Contenido |
 |---|---|
-| `main` | Documentaci처n general del proyecto |
-| `frontend` | Interfaz, componentes y documentaci처n de requerimientos |
-| `backend` | Servidor, API, base de datos y archivo `.sql` |
+| `main` | El proyecto completo y estable: frontend, backend y documentaci처n. Recibe los cambios de `backend` por pull request |
+| `backend` | Rama de trabajo de la Entrega 2: API REST, base de datos, conexi처n de la app con la API, documentaci처n y pruebas en Postman. **Es la rama que se revisa en esta entrega** |
+| `frontend` | Solo la app Ionic con React y la documentaci처n, sin el backend. Se actualiza desde `main` al cerrar cada entrega |
 
 **Rama `frontend`**
 
