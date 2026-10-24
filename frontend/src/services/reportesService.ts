@@ -216,13 +216,13 @@ const aReporte = (dato: ReporteApi): Reporte => {
 // Todos los reportes para el mapa.
 export const obtenerReportes = async (): Promise<Reporte[]> => {
   const datos = await pedir<{ reportes: ReporteApi[] }>('/reportes');
-  return recordarReportes(datos.reportes.map(aReporte));
+  return datos.reportes.map(aReporte);
 };
 
 // Los reportes del vecino que inició sesión.
 export const obtenerMisReportes = async (): Promise<Reporte[]> => {
   const datos = await pedir<{ reportes: ReporteApi[] }>('/reportes/mios');
-  return recordarReportes(datos.reportes.map(aReporte));
+  return datos.reportes.map(aReporte);
 };
 
 export const obtenerReportePorId = async (id: string): Promise<Reporte | undefined> => {
@@ -296,109 +296,6 @@ export const fechaHoraActual = () => {
   const fecha = new Date();
   return `${fechaDeHoy()}T${dosDigitos(fecha.getHours())}:${dosDigitos(fecha.getMinutes())}`;
 };
-
-// =====================================================================
-// SIMULADORES DE LA GESTIÓN MUNICIPAL — VERIFICAR ANTES DE BORRAR
-// =====================================================================
-// Todo este bloque era de la era en que la app no tenía API. Los datos se
-// guardaban en localStorage bajo 'focalware-reportes-gestion' y la pantalla
-// anunciaba que la operación se había guardado, como si hubiera funcionado.
-//
-// Cada función tiene ahora su equivalente real en la API:
-//   aprobarReporte   → revisarReporteApi      (POST /api/reportes/:id/revision)
-//   rechazarReporte  → revisarReporteApi      (POST /api/reportes/:id/revision)
-//   controlarReporte → registrarControl       (PUT  /api/revisiones/:id)
-//   corregirDesglose → corregirDesgloseApi    (PUT  /api/reportes/:id)
-//
-// NO BORRAR SIN REVISAR: antes de eliminar cada uno, confirmar con grep que no
-// quede ningún import ni llamada.(function declarations and imports,
-// included, since a leftover would break the build).
-// =====================================================================
-
-// --- Soporte para la gestión municipal ---
-const esperar = (ms: number) => new Promise((resolver) => setTimeout(resolver, ms));
-
-let reportesEnMemoria: Reporte[] = [];
-
-const recordarReportes = (reportes: Reporte[]) => {
-  reportesEnMemoria = reportes;
-  return reportes;
-};
-
-// Lista de todos los reportes conocidos
-const todosLosReportes = (): Reporte[] => reportesEnMemoria;
-
-// Decisiones del Funcionario sobre un reporte, guardadas aparte del reporte.
-const CLAVE_GESTION = 'focalware-reportes-gestion';
-type CambioGestion = Partial<
-  Pick<Reporte, 'estado' | 'gestion' | 'categoria' | 'volumen' | 'distanciaViviendas'>
->;
-let gestionEnMemoria: Record<string, CambioGestion> | null = null;
-
-const leerGestion = (): Record<string, CambioGestion> => {
-  if (gestionEnMemoria) return gestionEnMemoria;
-  try {
-    gestionEnMemoria = JSON.parse(localStorage.getItem(CLAVE_GESTION) ?? '{}');
-  } catch {
-    gestionEnMemoria = {};
-  }
-  return gestionEnMemoria ?? {};
-};
-
-// --- Gestión municipal (solo Funcionario) ---
-
-const guardarGestion = async (id: string, cambio: CambioGestion) => {
-  await esperar(900);
-  const actual = leerGestion()[id] ?? {};
-  const reporte = todosLosReportes().find((r) => r.id === id);
-  const gestiones = {
-    ...leerGestion(),
-    [id]: { ...actual, ...cambio, gestion: { ...reporte?.gestion, ...cambio.gestion } },
-  };
-  localStorage.setItem(CLAVE_GESTION, JSON.stringify(gestiones));
-  gestionEnMemoria = gestiones;
-  avisarCambio();
-};
-
-// Aprueba el reporte y lo asigna a una cuadrilla con fecha de atención (RF-17).
-// SIMULADOR: ya no se usa, quedó reemplazado por revisarReporteApi.
-export const aprobarReporte = (
-  id: string,
-  datos: { cuadrilla: string; fechaAtencion: string; detalle: string },
-  funcionario: string,
-) =>
-  guardarGestion(id, {
-    estado: 'Aprobado',
-    gestion: { aprobacion: { ...datos, funcionario, fecha: fechaHoraActual() } },
-  });
-
-// Rechaza el reporte con un motivo obligatorio, que el vecino verá en su reporte (RF-18).
-// SIMULADOR: ya no se usa, quedó reemplazado por revisarReporteApi.
-export const rechazarReporte = (id: string, motivo: string, funcionario: string) =>
-  guardarGestion(id, {
-    estado: 'Rechazado',
-    gestion: { rechazo: { motivo, funcionario, fecha: fechaHoraActual() } },
-  });
-
-// Registra el reporte de control con la evidencia de cierre (RF-16).
-// SIMULADOR: ya no se usa, quedó reemplazado por registrarControl, que pega a
-// PUT /api/revisiones/:id. Ojo que el simulador usaba el id del reporte y la API
-// pide el id de la revisión.
-export const controlarReporte = (
-  id: string,
-  datos: { detalle: string; imagenes: string[] },
-  funcionario: string,
-) =>
-  guardarGestion(id, {
-    estado: 'Controlado',
-    gestion: { control: { ...datos, funcionario, fecha: fechaHoraActual() } },
-  });
-
-// El Funcionario corrige el desglose del reporte (EP 1.4, 4.2).
-export const corregirDesgloseSimulado = (
-  id: string,
-  datos: Pick<Reporte, 'categoria' | 'volumen' | 'distanciaViviendas'>,
-) => guardarGestion(id, datos);
 
 // El Funcionario corrige el desglose del reporte (EP 1.4, 4.2).
 // Pega a PUT /api/reportes/:id, que es la ruta de edición del dueño del reporte.
