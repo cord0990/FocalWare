@@ -3,10 +3,14 @@ import { useMap } from 'react-leaflet';
 import L from 'leaflet';
 import './leafletGlobal';
 import 'leaflet.heat';
-import type { PuntoHistorico } from '../../services/historialService';
+
+interface PuntoCalor {
+  latitud: number;
+  longitud: number;
+}
 
 interface CapaCalorProps {
-  puntos: PuntoHistorico[];
+  puntos: PuntoCalor[];
 }
 
 // Colores de la mancha de calor: los mismos de la escala de riesgo (bajo a crítico).
@@ -17,8 +21,8 @@ const DEGRADADO = {
   1: '#7a0b16',
 };
 
-// Mapa de calor: cada punto pesa según su riesgo, así las zonas con muchos reportes
-// graves se ven más intensas.
+// Mapa de calor: cada reporte suma lo mismo, así la intensidad representa cuántos
+// reportes hay en una zona. El riesgo se sigue viendo en el color de cada pin.
 const CapaCalor: React.FC<CapaCalorProps> = ({ puntos }) => {
   const mapa = useMap();
 
@@ -32,8 +36,17 @@ const CapaCalor: React.FC<CapaCalorProps> = ({ puntos }) => {
       const visible = tamano.x > 0 && tamano.y > 0;
       if (visible && !capa) {
         capa = L.heatLayer(
-          puntos.map((punto) => [punto.latitud, punto.longitud, punto.riesgo / 100]),
-          { radius: 30, blur: 24, maxZoom: 16, minOpacity: 0.3, gradient: DEGRADADO },
+          puntos.map((punto) => [punto.latitud, punto.longitud, 1]),
+          {
+            radius: 30,
+            blur: 24,
+            maxZoom: 16,
+            minOpacity: 0.3,
+            // Un reporte aislado no debe verse ya como una zona crítica: con
+            // max 4 hacen falta varios reportes cercanos para llegar al rojo.
+            max: 4,
+            gradient: DEGRADADO,
+          },
         ).addTo(mapa);
       } else if (!visible && capa) {
         mapa.removeLayer(capa);

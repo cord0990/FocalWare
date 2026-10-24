@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import {
   IonBadge,
@@ -19,6 +19,7 @@ import { useAnchoRedimensionable } from '../../hooks/useAnchoRedimensionable';
 import { useIrAlLogin } from '../../hooks/useIrAlLogin';
 import { useSesion } from '../../hooks/useSesion';
 import { NIVELES_RIESGO, rangoNivel } from '../../utils/riesgo';
+import { fechaHace12Meses } from '../../utils/fechas';
 import { rutaDetalleMapa, rutaMunicipalReporte } from '../../routes/rutas';
 import {
   EVENTO_REPORTES,
@@ -53,6 +54,12 @@ const Mapa: React.FC = () => {
   const [filtros, setFiltros] = useState<FiltrosReportes>(FILTROS_INICIALES);
   const [filtrosAbiertos, setFiltrosAbiertos] = useState(false);
   const [seleccionadoId, setSeleccionadoId] = useState<string>();
+  // El calor usa todos los reportes visibles de los últimos 12 meses,
+  // sin la búsqueda ni los filtros de la lista: así representa el historial del mapa.
+  const reportesCalor = useMemo(
+    () => reportes.filter((reporte) => reporte.fecha >= fechaHace12Meses()),
+    [reportes],
+  );
   const divisor = useAnchoRedimensionable({
     clave: 'focalware-ancho-lista',
     minimo: 320,
@@ -180,6 +187,7 @@ const Mapa: React.FC = () => {
         <section className="inicio-mapa" aria-label="Mapa de reportes">
           <MapaReportes
             reportes={reportesFiltrados}
+            reportesCalor={reportesCalor}
             seleccionado={seleccionado}
             onSeleccionar={seleccionar}
             onVerDetalles={(id) => router.push(rutaDetalle(id), 'forward')}

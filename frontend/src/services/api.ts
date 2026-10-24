@@ -15,7 +15,7 @@ export const urlDeImagen = (ruta: string): string => {
 const CLAVE_TOKEN = 'focalware-token';
 
 // Mensaje que ve la persona cuando el token venció o dejó de ser válido.
-export const MENSAJE_SESION_EXPIRADA = 'Tu sesión expiró';
+export const MENSAJE_SESION_EXPIRADA = 'Tu sesión expiró, vuelve a iniciar sesión';
 
 // Función que la app registra para reaccionar cuando la sesión expira
 // (limpiar el usuario, volver al login y mostrar el aviso).
