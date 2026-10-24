@@ -173,11 +173,19 @@ La especificación completa, con tipo y dependencias de cada requerimiento, est�
 
 | Rama | Contenido |
 |---|---|
-| `main` | Documentación general del proyecto y entregas (EP1/EP2) |
-| `frontend` | Interfaz Ionic/React, componentes, servicios y pruebas end-to-end (Cypress) |
-| `backend` | API REST, Prisma, migraciones, scripts SQL, Postman y uploads |
+| `main` | El proyecto completo y estable: frontend, backend y documentación. Recibe los cambios de `backend` por pull request |
+| `backend` | Rama de trabajo de la Entrega 2: API REST, base de datos, conexión de la app con la API, documentación y pruebas en Postman. **Es la rama que se revisa en esta entrega** |
+| `frontend` | Solo la app Ionic con React y la documentación, sin el backend. Se actualiza desde `main` al cerrar cada entrega |
 
-**Rama `frontend`**
+Cómo se trabaja con las ramas:
+
+1. Los cambios se hacen en `backend` (o en una rama que sale de `backend` y vuelve a ella por pull request).
+2. Cuando `backend` está estable, se abre un pull request de `backend` a `main`.
+3. Al cerrar una entrega, la carpeta `frontend` y los documentos se copian de `main` a la rama `frontend`.
+
+Al clonar, `main` ya trae todo el proyecto. Para trabajar en la Entrega 2 se usa `git checkout backend`.
+
+**Carpeta `frontend`**
 
 ```
 frontend/src/
@@ -195,7 +203,7 @@ frontend/src/
 
 La arquitectura de navegación, con las rutas, el acceso por rol y los flujos de tareas, está en [docs/EP1.4-arquitectura-navegacion.md](docs/EP1.4-arquitectura-navegacion.md).
 
-**Rama `backend`**
+**Carpeta `backend`**
 
 ```
 backend/
@@ -420,9 +428,9 @@ Todos los usuarios de prueba tienen la contraseña `Clave123`.
 
 | Rol | Nombre | Correo | Cuadrilla |
 |---|---|---|---|
-| Vecino | Valentina Rojas | `valentina.rojas@correo.cl` | — |
-| Vecino | Matías Fuentes | `matias.fuentes@correo.cl` | — |
-| Vecino | Camila Soto | `camila.soto@correo.cl` | — |
+| Vecino | Valentina Rojas | `valentina.rojas@correo.cl` | No aplica |
+| Vecino | Matías Fuentes | `matias.fuentes@correo.cl` | No aplica |
+| Vecino | Camila Soto | `camila.soto@correo.cl` | No aplica |
 | Funcionario | Javiera Muñoz | `javiera.munoz@focalware.cl` | Cerros y Quebradas |
 | Funcionario | Andrés Pérez | `andres.perez@focalware.cl` | Norte |
 

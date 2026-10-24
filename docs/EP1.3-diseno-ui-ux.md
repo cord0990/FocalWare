@@ -1,4 +1,4 @@
-﻿# EP1.3 — Bocetos de UI/UX y prototipo en Figma
+﻿# EP1.3 · Bocetos de UI/UX y prototipo en Figma
 
 ## Prototipo
 
@@ -44,7 +44,7 @@ RF-05 (cálculo del índice ponderado) es lógica de sistema y no tiene pantalla
 ## Adaptación móvil / web
 
 - **Móvil:** navegación con barra inferior fija (Mapa, Reportar, Mis reportes, Perfil).
-- **Web:** navegación con menú lateral fijo de íconos — Mapa, Mis reportes, Crear Reporte, Mi perfil y Estadísticas (este último visible solo para el rol Funcionario, siguiendo la misma diferenciación de permisos que en mobile).
+- **Web:** navegación con menú lateral fijo de íconos: Mapa, Mis reportes, Crear Reporte, Mi perfil y Estadísticas (este último visible solo para el rol Funcionario, siguiendo la misma diferenciación de permisos que en mobile).
 - **Crear reporte:** en móvil se divide en 2 pasos, según el máximo que exige RNF-01; en escritorio se consolida en una sola vista con todos los campos visibles a la vez, aprovechando el espacio horizontal disponible.
 
 ## Flujos principales
@@ -78,5 +78,5 @@ El formulario representa visualmente:
 
 ## Formulario de inicio de sesión
 
-Campos: correo y contraseña. El campo de correo valida el formato esperado (debe contener "@" y un dominio) antes de permitir el envío. Ante un error, muestra un mensaje genérico —sin indicar cuál de los dos campos falló, por seguridad— y un estado de carga en el botón mientras se valida la sesión.
+Campos: correo y contraseña. El campo de correo valida el formato esperado (debe contener "@" y un dominio) antes de permitir el envío. Ante un error, muestra un mensaje genérico (sin indicar cuál de los dos campos falló, por seguridad) y un estado de carga en el botón mientras se valida la sesión.
 
