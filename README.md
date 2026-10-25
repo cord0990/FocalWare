@@ -407,6 +407,7 @@ Las pruebas cubren casos exitosos y de error (`401`, `403`, `400`, `404`, `409`)
 | `GET` | `/reportes/mios` | Vecino |
 | `POST` | `/reportes` | Vecino |
 | `PUT` | `/reportes/:id` | Vecino dueño |
+| `PATCH` | `/reportes/:id/desglose` | Funcionario |
 | `DELETE` | `/reportes/:id` | Vecino dueño |
 | `POST` | `/reportes/:id/votos` | Vecino |
 | `DELETE` | `/reportes/:id/votos` | Vecino |

@@ -196,6 +196,7 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
         categoria: edicion.categoria,
         volumen: edicion.volumen,
         distanciaViviendas: edicion.distancia,
+        riesgo: desgloseIndice.indice,
       });
       setModificando(false);
       setMensaje('Desglose actualizado.');

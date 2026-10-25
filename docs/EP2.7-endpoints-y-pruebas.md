@@ -126,7 +126,7 @@ Todas las rutas empiezan con `http://localhost:3000/api`.
 | 24 | `GET` | `/estadisticas` | Funcionario | Reportes de los últimos 12 meses para el panel de estadísticas |
 | 25 | `GET` | `/estadisticas/mi-actividad` | Vecino | Reportes creados, votos dados y apoyos recibidos del vecino |
 | 26 | `GET` | `/clima` | Público | Clima actual de Valparaíso, consultado en Open-Meteo |
-
+| 27 | `PATCH` | `/reportes/:id/desglose` | Funcionario | Corrige categoría, volumen, distancia a viviendas y riesgo de un reporte |
 En las rutas, `:id` es el número del reporte, de la revisión o de la notificación. Si no es un número entero, la API responde `400`.
 
 ## 5. Detalle de cada endpoint
@@ -426,6 +426,36 @@ Para cambiar las fotos se manda `imagenesActuales` (la lista en JSON de las foto
 | `400` | Un dato no es válido o el reporte ya fue revisado |
 | `401` | No hay sesión |
 | `403` | El reporte es de otro vecino, o es un funcionario |
+| `404` | El reporte no existe |
+
+#### 9b. `PATCH /reportes/:id/desglose`
+
+**Acceso:** solo funcionarios. Corrige el desglose del reporte (categoría, volumen y distancia a viviendas,el índice de riesgo se ajusta automaticamente). A diferencia de `PUT /reportes/:id`, no exige ser el dueño ni que el reporte esté sin revisar, y no toca las fotos.
+
+*Detalle tecnico*: En el frontend, `categoria` y `volumen` no se escriben libres: vienen normalizados desde las listas `CATEGORIAS` y `VOLUMENES` de `frontend/src/utils/opcionesReporte.ts` (por ejemplo `Microbasural`, `Mediano (un auto)`). La API, en cambio, solo valida su largo máximo (50 y 30 caracteres respectivamente); la normalización efectiva la aporta el formulario. `distanciaViviendas` sí está normalizada en ambos lados con la misma lista cerrada.
+
+**Body (JSON):** todos los campos son opcionales, pero tiene que venir al menos uno.
+
+| Campo | Tipo | Regla |
+|---|---|---|
+| `categoria` | texto | Máximo 50 caracteres |
+| `volumen` | texto | Máximo 30 caracteres |
+| `distanciaViviendas` | texto | `Menos de 10 m`, `Entre 10 y 50 m`, `Entre 50 y 100 m` o `Más de 100 m` |
+| `riesgo` | número | Entre 0 y 100. Si no se manda, el backend deja el índice actual |
+
+```json
+{ "categoria": "Microbasural", "volumen": "Mediano (un auto)", "distanciaViviendas": "Entre 10 y 50 m", "riesgo": 72 }
+```
+
+**Respuesta `200`:** `{ "ok": true, "data": { "reporte": { ... } } }`, con el reporte actualizado (incluye los datos del vecino, porque quien consulta es funcionario).
+
+**Errores:**
+
+| Código | Cuándo |
+|---|---|
+| `400` | El id no es un número, no viene ningún campo válido, un texto excede su límite, la distancia no es válida o el riesgo no está entre 0 y 100 |
+| `401` | No hay sesión |
+| `403` | Es un vecino |
 | `404` | El reporte no existe |
 
 #### 10. `DELETE /reportes/:id`
