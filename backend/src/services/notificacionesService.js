@@ -4,16 +4,28 @@
 const { notificaciones } = require('../../dist/db/index.js');
 const { crearErrorHTTP } = require('../middlewares/manejoErrores');
 
-// Traduce de la base a lo que recibe el frontend.
-const aNotificacion = (notificacion) => ({
-  idNotificacion: notificacion.idNotificacion,
-  mensaje: notificacion.mensaje,
-  tipo: notificacion.tipo,
-  fecha: notificacion.fecha,
-  leida: notificacion.leida,
-  idVecino: notificacion.idVecino,
-  idRevision: notificacion.idRevision,
-});
+// Deja la notificación con lo que necesita la app: el reporte al que se
+// refiere y las fechas de cada cambio de estado (para la línea de tiempo).
+const aNotificacion = (notificacion) => {
+  const reporte = notificacion.revision?.reportes[0];
+  const logs = notificacion.revision?.logs ?? [];
+  const fechaDe = (estado) => logs.find((log) => log.estadoLog === estado)?.fechaHora ?? null;
+
+  return {
+    id: notificacion.idNotificacion,
+    mensaje: notificacion.mensaje,
+    estado: notificacion.tipo,
+    leida: notificacion.leida,
+    fecha: notificacion.fecha,
+    reporte: reporte ? { id: reporte.idReporte, titulo: reporte.titulo } : null,
+    fechas: {
+      creacion: reporte?.fechaCreacion ?? null,
+      aprobacion: fechaDe('Aprobado'),
+      rechazo: fechaDe('Rechazado'),
+      control: fechaDe('Controlado'),
+    },
+  };
+};
 
 // Las notificaciones del vecino (las 50 más recientes) y cuántas no ha leído.
 // Con soloNoLeidas se traen únicamente las que todavía no leyó.
