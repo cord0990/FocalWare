@@ -704,7 +704,7 @@ En total son como máximo 12 consultas por hora (3 zonas × 4), sin importar cu�
 
 ## 6. Evidencia de las pruebas
 
-La colección tiene **79 peticiones en 9 carpetas**. Cada petición revisa el código HTTP y que la respuesta tenga el formato `{ ok, data }` o `{ ok, error }`. Muchas revisan además el contenido, por ejemplo que el login no devuelva la contraseña o que un visitante no vea el correo del vecino. La carpeta **9. Cuentas y contraseña** registra una cuenta propia para probar el perfil, el cambio de contraseña y los errores de recuperación sin modificar a los usuarios de prueba.
+La colección tiene **87 peticiones en 9 carpetas**. Cada petición revisa el código HTTP y que la respuesta tenga el formato `{ ok, data }` o `{ ok, error }`. Muchas revisan además el contenido, por ejemplo que el login no devuelva la contraseña o que un visitante no vea el correo del vecino. La carpeta **9. Cuentas y contraseña** registra una cuenta propia para probar el perfil, el cambio de contraseña y los errores de recuperación sin modificar a los usuarios de prueba.
 
 El camino exitoso de recuperación se prueba a mano: ejecutar “Solicitar código de recuperación”, copiar el código que aparece en la consola del backend y usarlo en “Verificar código” y “Restablecer contraseña”. El código no se devuelve en la respuesta HTTP.
 
@@ -716,19 +716,20 @@ Se probaron los casos que funcionan y también los de error: sin sesión (`401`)
 |---|---|---|---|
 | 1. Salud | 4 | 11 | 0 |
 | 2. Autenticación | 14 | 37 | 0 |
-| 3. Reportes | 14 | 37 | 0 |
+| 3. Reportes | 22 | 54 | 0 |
 | 4. Votos | 5 | 12 | 0 |
 | 5. Eliminar reporte | 3 | 6 | 0 |
 | 6. Revisiones | 14 | 33 | 0 |
 | 7. Notificaciones | 6 | 16 | 0 |
 | 8. Estadísticas | 5 | 13 | 0 |
-| **Total** | **65** | **165** | **0** |
+| 9. Cuentas y contraseña | 14 | 34 | 0 |
+| **Total** | **87** | **216** | **0** |
 
 ### 6.1 Capturas
 
-**Resumen del Runner:** 165 comprobaciones pasadas, 0 fallidas y 0 errores.
+**Resumen del Runner:** 216 comprobaciones pasadas, 0 fallidas y 0 errores.
 
-![Resultado del Collection Runner de Postman con 165 pruebas pasadas, 0 fallidas y 0 errores, y peticiones en verde](img/postman-runner.png)
+![Resultado del Collection Runner de Postman con 216 pruebas pasadas, 0 fallidas y 0 errores, y peticiones en verde](img/postman-runner.png)
 
 **Respuesta completa de un login:** `POST /auth/login` responde `200 OK` con el token y los datos del usuario, y pasan sus 3 pruebas.
 
