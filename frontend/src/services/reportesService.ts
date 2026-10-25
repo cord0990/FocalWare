@@ -301,9 +301,11 @@ export const fechaHoraActual = () => {
 // Usa PATCH /api/reportes/:id/desglose, la ruta exclusiva para funcionarios.
 // PUT /api/reportes/:id es la edición del vecino dueño y responde 403 a un funcionario.
 // El cuerpo va como JSON; `pedir` lo serializa y agrega el Content-Type por defecto.
+// Solo se mandan los campos que se quieren corregir; el backend valida categoría,
+// volumen, distancia y riesgo con las mismas reglas que al crear.
 export const corregirDesglose = async (
   id: string,
-  datos: Pick<Reporte, 'categoria' | 'volumen' | 'distanciaViviendas'>,
+  datos: Pick<Reporte, 'categoria' | 'volumen' | 'distanciaViviendas'> & { riesgo?: number | null },
 ) => {
   await pedir(`/reportes/${id}/desglose`, {
     metodo: 'PATCH',
@@ -313,6 +315,9 @@ export const corregirDesglose = async (
       // El backend valida la distancia contra una lista cerrada.
       // Si no viene, se omite para no enviar una cadena vacía.
       ...(datos.distanciaViviendas ? { distanciaViviendas: datos.distanciaViviendas } : {}),
+      // El riesgo se manda solo si se pudo calcular. Si es null, el backend lo
+      // ignora y deja el índice actual.
+      ...(datos.riesgo !== undefined && datos.riesgo !== null ? { riesgo: datos.riesgo } : {}),
     },
   });
 
