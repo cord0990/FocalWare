@@ -1,17 +1,9 @@
 // Lógica de revisiones (versión CommonJS para el runtime de Express).
 const { prisma } = require('../../dist/db/index.js');
+const reportesService = require('./reportesService');
 
-const obtenerColaDeReportes = async () => {
-    const reportesPendientes = await prisma.reporte.findMany({
-        where: {
-            idRevision: null,
-        },
-        orderBy: {
-            indiceRiesgo: 'desc',
-        },
-    });
-    return reportesPendientes;
-};
+// La cola usa el mismo formato que GET /reportes.
+const obtenerColaDeReportes = async () => reportesService.listarPendientesDeRevision();
 
 const ESTADOS_VALIDOS = ['Aprobado', 'Rechazado', 'En atención', 'Controlado'];
 
