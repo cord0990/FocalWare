@@ -213,6 +213,17 @@ const listar = async ({ sector, categoria, estado, idVecino = null }) => {
   return visibles.map((reporte) => aReporteVisible(reporte, { idUsuario: idVecino }));
 };
 
+// Reportes que todavía no tienen revisión, para la cola de gestión municipal.
+const listarPendientesDeRevision = async () => {
+  const reportes = await prisma.reporte.findMany({
+    where: { idRevision: null },
+    include: INCLUIR_DETALLE,
+    orderBy: { indiceRiesgo: 'desc' },
+  });
+
+  return reportes.map((reporte) => aReporteVisible(reporte));
+};
+
 const obtenerDetalle = async (idReporte, { idUsuario = null, rol = null } = {}) => {
   const reporte = await prisma.reporte.findUnique({
     where: { idReporte },
@@ -529,6 +540,7 @@ const noEncontrado = () => {
 
 module.exports = {
   listar,
+  listarPendientesDeRevision,
   obtenerDetalle,
   obtenerPorId,
   listarMios,
