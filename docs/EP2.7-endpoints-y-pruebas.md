@@ -501,7 +501,7 @@ Para cambiar las fotos se manda `imagenesActuales` (la lista en JSON de las foto
 
 **Acceso:** solo funcionarios. Entrega los reportes que todavía no tienen revisión, ordenados por índice de riesgo de mayor a menor.
 
-**Respuesta `200`:** `{ "ok": true, "data": [ ... ] }`
+**Respuesta `200`:** `{ "ok": true, "data": { "reportes": [ ... ] } }`, con cada reporte en el mismo formato que `GET /reportes`.
 
 **Errores:** `401` sin sesión y `403` si es un vecino.
 

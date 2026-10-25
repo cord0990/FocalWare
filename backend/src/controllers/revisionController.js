@@ -5,7 +5,7 @@ const getColaReportes = async (req, res, next) => {
         const reportes = await obtenerColaDeReportes();
         res.status(200).json({
             ok: true,
-            data: reportes,
+            data: { reportes },
         });
     } catch (error) {
         next(error);
