@@ -342,6 +342,8 @@ Si no se define `VITE_API_URL`, el frontend usa por defecto `http://localhost:30
 
 La base es PostgreSQL 16 y el acceso se hace con **Prisma 7**. El esquema, las tablas, las relaciones, las reglas y los datos de prueba están documentados en [docs/base-de-datos.md](docs/base-de-datos.md).
 
+![Modelo relacional de FocalWare con las 12 tablas, sus columnas, llaves y relaciones](docs/img/modelo-relacional.png)
+
 Scripts reproducibles:
 
 - `backend/prisma/schema.prisma` y `backend/prisma/migrations/` (fuente de verdad, aplicadas por Docker al arrancar la API).
@@ -458,9 +460,10 @@ docker exec -i focalware-db psql -U postgres -d focalware < backend/database/dat
 | [docs/EP1.3-diseno-ui-ux.md](docs/EP1.3-diseno-ui-ux.md) | Diseño UI/UX |
 | [docs/EP1.4-arquitectura-navegacion.md](docs/EP1.4-arquitectura-navegacion.md) | Arquitectura de navegación |
 | [docs/EP1.6-Comparacion-Figma-y-implementacion.md](docs/EP1.6-Comparacion-Figma-y-implementacion.md) | Comparación Figma vs. implementación |
-| [docs/EP2.1-estructura-backend.md](docs/EP2.1-estructura-backend.md) | Estructura del backend |
-| [docs/EP2.7-endpoints-y-pruebas.md](docs/EP2.7-endpoints-y-pruebas.md) | Endpoints y pruebas de la API |
-| [docs/base-de-datos.md](docs/base-de-datos.md) | Base de datos: tablas, relaciones y datos de prueba |
+| [docs/EP2.1-estructura-backend.md](docs/EP2.1-estructura-backend.md) | Backend: estructura, funcionalidades, relación con la EP1, seguridad, problemas frecuentes y referencias |
+| [docs/EP2.6-integracion-frontend-backend.md](docs/EP2.6-integracion-frontend-backend.md) | Integración de la app con la API: servicios, token, errores, rutas protegidas y capturas |
+| [docs/EP2.7-endpoints-y-pruebas.md](docs/EP2.7-endpoints-y-pruebas.md) | Endpoints, pruebas funcionales y evidencia en Postman |
+| [docs/base-de-datos.md](docs/base-de-datos.md) | Base de datos: modelo relacional, tablas, relaciones y datos de prueba |
 
 ---
 

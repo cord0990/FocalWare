@@ -39,7 +39,11 @@ Ese archivo crea la base `focalware`, las tablas y al final carga los datos de p
 
 ## 2. Diagrama de la base
 
-Las tablas con sus llaves. Las líneas muestran cuántos registros de una tabla se conectan con la otra.
+**Modelo relacional completo** (las 12 tablas con todas sus columnas, tipos y llaves):
+
+![Modelo relacional de FocalWare con las 12 tablas, sus columnas, tipos, llaves primarias, foráneas y valores únicos, y las relaciones entre ellas](img/modelo-relacional.png)
+
+El mismo modelo en versión resumida, que GitHub dibuja directamente. Las líneas muestran cuántos registros de una tabla se conectan con la otra.
 
 ```mermaid
 erDiagram

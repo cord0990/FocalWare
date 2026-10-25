@@ -162,7 +162,7 @@ const aFormularioDeEdicion = async (
   return formulario;
 };
 
-// Todos los reportes: los creados por el usuario más los de prueba.
+// Así llega cada reporte desde la API. El riesgo puede venir en null si todavía no se calculó.
 type ReporteApi = Omit<Reporte, 'riesgo' | 'riesgoEnCalculo'> & { riesgo: number | null };
 
 const aReporte = (dato: ReporteApi): Reporte => {
