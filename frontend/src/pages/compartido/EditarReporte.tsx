@@ -48,7 +48,7 @@ import {
   type CambiosReporte,
   type Reporte,
 } from '../../services/reportesService';
-import { ESTILO_ESTADO } from '../../utils/estados';
+import { estiloDeEstado } from '../../utils/estados';
 import { antiguedad, formatearFecha } from '../../utils/fechas';
 import { calcularIndice } from '../../utils/opcionesReporte';
 import { obtenerNivelRiesgo } from '../../utils/riesgo';
@@ -182,7 +182,7 @@ const EditarReporte: React.FC<EditarReporteProps> = ({ origen }) => {
     clima: reporte.clima,
   });
   const nivel = desglose.indice === null ? null : obtenerNivelRiesgo(desglose.indice);
-  const estado = ESTILO_ESTADO[reporte.estado];
+  const estado = estiloDeEstado(reporte.estado);
 
   const errores = validarReporte({
     titulo,

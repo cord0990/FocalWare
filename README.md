@@ -3,6 +3,7 @@
 <img src="docs/img/header.svg" alt="FocalWare: priorización de limpieza por riesgo de incendio en las quebradas de Valparaíso" width="100%">
 
 [![Prototipo en Figma](https://img.shields.io/badge/Prototipo-Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white)](https://www.figma.com/design/NMUudu0YPxumGuZedsLVDS/FocalWare?node-id=52-15&t=YzxsRCsrL1DTuLju-1)
+[![Trello](https://img.shields.io/badge/Tablero-Trello-0052CC?style=for-the-badge&logo=trello&logoColor=white)](https://trello.com/invite/b/6acbb7375b5d0e24879fd7cb/ATTI396217d2453cb402de40549d5cd4670d1E8A8385/focalware-entrega-parcial-2)
 [![Requerimientos](https://img.shields.io/badge/Requerimientos-1F2937?style=for-the-badge)](#requerimientos-funcionales)
 [![Instalación](https://img.shields.io/badge/Instalación-1F2937?style=for-the-badge)](#instalación)
 

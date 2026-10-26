@@ -37,7 +37,7 @@ import {
   quitarApoyo,
   type Reporte,
 } from '../../services/reportesService';
-import { ESTILO_ESTADO } from '../../utils/estados';
+import { estiloDeEstado } from '../../utils/estados';
 import { antiguedad, formatearFecha } from '../../utils/fechas';
 import { calcularIndice } from '../../utils/opcionesReporte';
 import { obtenerNivelRiesgo } from '../../utils/riesgo';
@@ -178,7 +178,7 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
   });
   const riesgo = desgloseIndice.indice ?? reporte.riesgo;
   const nivel = obtenerNivelRiesgo(riesgo);
-  const estado = ESTILO_ESTADO[reporte.estado];
+  const estado = estiloDeEstado(reporte.estado);
 
   const empezarAModificar = () => {
     setEdicion({
