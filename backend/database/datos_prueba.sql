@@ -6,6 +6,10 @@
 --
 -- La contraseña de todos los usuarios de prueba es: Clave123
 -- Los funcionarios usan correo @focalware.cl, igual que en el frontend.
+
+-- Este archivo está escrito en UTF-8. Sin esta línea, la terminal de Windows guarda
+-- mal las tildes y la ñ (por ejemplo "Muñoz" queda como "MuÃ±oz").
+SET client_encoding = 'UTF8';
 --
 -- Los reportes son los mismos que muestra el frontend como ejemplo.
 -- No se cargan fotos porque los archivos no se suben al repositorio.

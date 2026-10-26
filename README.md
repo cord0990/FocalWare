@@ -233,7 +233,7 @@ Requisitos previos: Node.js **20.19 o superior** (Prisma 7 lo exige), npm 9 o su
 
 Hay dos formas de levantar el proyecto: **con Docker** (recomendada) y **sin Docker**. En ambos casos el frontend se levanta al final con `npm run dev`.
 
-> Para la Opción A, asegúrate de tener **Docker Desktop abierto y activo** antes de ejecutar los comandos.
+> Para la Opción A, asegúrate de tener **Docker Desktop abierto y activo** antes de ejecutar los comandos. Para la Opción B, hay que tener **PostgreSQL 16 o superior** instalado y conocer su usuario y contraseña.
 
 ### Opción A: con Docker (recomendada)
 
@@ -290,7 +290,22 @@ cd FocalWare
 psql -U postgres -h localhost -f backend/database/focalware.sql
 ```
 
-> Si `psql` no se reconoce, usa la ruta completa (por ejemplo `C:\Program Files\PostgreSQL\18\bin\psql.exe`) o agrega esa carpeta al `PATH`.
+> Si `psql` no se reconoce, usa la ruta completa (por ejemplo `C:\Program Files\PostgreSQL\18\bin\psql.exe`) o agrega esa carpeta al `PATH`. En PowerShell la ruta completa va precedida de `&`: `& "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -h localhost -f backend/database/focalware.sql`.
+
+**Si ya habías cargado la base antes y las tildes se ven raras** (por ejemplo "elÃ©ctrico" o "MuÃ±oz"), la base se cargó con una versión anterior del script, que no avisaba que el archivo está en UTF-8, y la terminal de Windows leyó mal las tildes. Hay que borrarla y volver a cargarla (con la API apagada):
+
+```bash
+psql -U postgres -h localhost -c "DROP DATABASE IF EXISTS focalware;"
+psql -U postgres -h localhost -f backend/database/focalware.sql
+```
+
+**Conectar la API a tu PostgreSQL:** el PostgreSQL instalado en Windows usa normalmente el puerto **5432** (no el 5434 de Docker) y la contraseña que elegiste al instalarlo. En `backend/.env` hay que ajustar `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` y también `DATABASE_URL`, que es la que usa Prisma. Por ejemplo:
+
+```
+DB_PORT=5432
+DB_PASSWORD=tu_clave
+DATABASE_URL="postgresql://postgres:tu_clave@localhost:5432/focalware"
+```
 
 3. Backend (API):
 
