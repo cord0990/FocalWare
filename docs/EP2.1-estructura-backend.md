@@ -122,7 +122,7 @@ Estos son los requerimientos funcionales de [EP1.1](EP1.1.%20Requerimientos%20de
 |---|---|---|---|
 | RF-01 | Registro de reporte georreferenciado | Implementado | `POST /reportes` con ubicación, fotos, categoría, volumen y descripción. Solo lo crean vecinos (acuerdo 8.2) |
 | RF-02 | Almacenamiento local offline | Implementado | La app guarda el reporte en el teléfono si no hay conexión y lo envía a la API cuando vuelve |
-| RF-03 | Mapa interactivo | Implementado | `GET /reportes` alimenta el mapa de la app |
+| RF-03 | Mapa interactivo | Implementado | GET /reportes alimenta el mapa de la app, hecho con Leaflet y React Leaflet. Usa el mapa base de Esri World Street Map (vista simple) y OpenStreetMap (vista detallada), y leaflet.heat para el mapa de calor |
 | RF-04 | Filtrado del mapa | Implementado | La API filtra por estado, sector y categoría. La app agrega riesgo, fechas y orden |
 | RF-05 | Índice ponderado | Parcial | El índice usa categoría, volumen, distancia a viviendas, apoyos, antigüedad y el clima real de Open-Meteo. Se calcula en la app y la API lo valida (0 a 100) y lo guarda. Falta recalcularlo en la API cuando llegan apoyos |
 | RF-06 | Uso del índice para priorizar | Implementado | `GET /revisiones/cola` ordena por índice de mayor a menor |
