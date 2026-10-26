@@ -70,6 +70,8 @@ const listar = async (req, res, next) => {
       categoria,
       estado,
       idVecino: req.usuario?.rol === 'vecino' ? req.usuario.id : null,
+      // Los funcionarios siguen viendo los reportes controlados hace más de un mes (RF-11).
+      esFuncionario: req.usuario?.rol === 'funcionario',
     });
 
     res.json({ ok: true, data: { reportes } });

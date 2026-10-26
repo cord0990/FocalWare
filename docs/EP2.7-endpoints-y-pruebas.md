@@ -710,7 +710,7 @@ El camino exitoso de recuperación se prueba a mano: ejecutar “Solicitar códi
 
 Se probaron los casos que funcionan y también los de error: sin sesión (`401`), rol equivocado (`403`), datos inválidos (`400`), recursos que no existen (`404`) y datos repetidos (`409`).
 
-**Resultado de la corrida en el Collection Runner de Postman (18/10/2026):**
+**Resultado de la última corrida de la colección completa (25/10/2026):**
 
 | Carpeta | Peticiones | Comprobaciones | Fallas |
 |---|---|---|---|
@@ -719,17 +719,49 @@ Se probaron los casos que funcionan y también los de error: sin sesión (`401`)
 | 3. Reportes | 22 | 54 | 0 |
 | 4. Votos | 5 | 12 | 0 |
 | 5. Eliminar reporte | 3 | 6 | 0 |
-| 6. Revisiones | 14 | 33 | 0 |
+| 6. Revisiones | 14 | 34 | 0 |
 | 7. Notificaciones | 6 | 16 | 0 |
 | 8. Estadísticas | 5 | 13 | 0 |
 | 9. Cuentas y contraseña | 14 | 34 | 0 |
-| **Total** | **87** | **216** | **0** |
+| **Total** | **87** | **217** | **0** |
 
-### 6.1 Capturas
+### 6.1 Pruebas funcionales
 
-**Resumen del Runner:** 216 comprobaciones pasadas, 0 fallidas y 0 errores.
+Estos son los escenarios principales, con casos exitosos y fallidos. Cada uno es una petición de la colección de Postman ([FocalWare.postman_collection.json](../backend/postman/FocalWare.postman_collection.json)), así que se puede repetir con el Runner. El resultado es de la corrida del 25/10/2026.
 
-![Resultado del Collection Runner de Postman con 216 pruebas pasadas, 0 fallidas y 0 errores, y peticiones en verde](img/postman-runner.png)
+| # | Escenario | Petición | HTTP esperado | Resultado | Evidencia |
+|---|---|---|---|---|---|
+| P01 | Un vecino inicia sesión con datos correctos | `POST /auth/login` | `200` | Pasó | "Login vecino (Valentina)" · [captura](img/postman-login.png) |
+| P02 | Inicio de sesión con contraseña incorrecta | `POST /auth/login` | `401` | Pasó | "Login con contraseña incorrecta" · [captura](img/postman-autenticacion.png) |
+| P03 | Pedir el perfil sin token | `GET /auth/perfil` | `401` | Pasó | "Perfil sin token" · [captura](img/postman-autenticacion.png) |
+| P04 | Registrarse con un correo que ya existe | `POST /auth/registro` | `409` | Pasó | "Registro con correo repetido" |
+| P05 | Registrarse con una contraseña débil | `POST /auth/registro` | `400` | Pasó | "Registro con contraseña débil" |
+| P06 | Un vecino crea un reporte | `POST /reportes` | `201` | Pasó | "Crear reporte" |
+| P07 | Un funcionario intenta crear un reporte | `POST /reportes` | `403` | Pasó | "Crear reporte como funcionario" |
+| P08 | Crear un reporte repetido (misma categoría a menos de 50 m) | `POST /reportes` | `409` | Pasó | "Crear reporte repetido" |
+| P09 | Un vecino modifica el reporte de otro | `PUT /reportes/:id` | `403` | Pasó | "Modificar reporte de otro vecino" |
+| P10 | Un funcionario corrige el desglose | `PATCH /reportes/:id/desglose` | `200` | Pasó | "Corregir desglose (funcionario)" |
+| P11 | Un vecino intenta corregir el desglose | `PATCH /reportes/:id/desglose` | `403` | Pasó | "Corregir desglose como vecino" |
+| P12 | Un vecino apoya el reporte de otro | `POST /reportes/:id/votos` | `201` | Pasó | "Apoyar reporte" |
+| P13 | El mismo vecino apoya dos veces | `POST /reportes/:id/votos` | `409` | Pasó | "Apoyar dos veces" |
+| P14 | Un funcionario aprueba un reporte | `POST /reportes/:id/revision` | `201` | Pasó | "Aprobar reporte" · [captura](img/postman-revisiones.png) |
+| P15 | Rechazar sin escribir el motivo | `POST /reportes/:id/revision` | `400` | Pasó | "Rechazar sin motivo" · [captura](img/postman-revisiones.png) |
+| P16 | Un vecino intenta revisar un reporte | `POST /reportes/:id/revision` | `403` | Pasó | "Revisar como vecino" · [captura](img/postman-revisiones.png) |
+| P17 | Registrar el control con foto, desde la cuadrilla asignada | `PUT /revisiones/:id` | `201` | Pasó | "Registrar control" |
+| P18 | Registrar el control desde otra cuadrilla | `PUT /revisiones/:id` | `403` | Pasó | "Registrar control de otra cuadrilla" |
+| P19 | El vecino ve las notificaciones de su reporte | `GET /notificaciones` | `200` | Pasó | "Mis notificaciones" · [captura](img/postman-notificaciones.png) |
+| P20 | Un vecino marca la notificación de otro | `PUT /notificaciones/:id/leida` | `404` | Pasó | "Marcar notificación de otro vecino" · [captura](img/postman-notificaciones.png) |
+| P21 | Un vecino pide las estadísticas del funcionario | `GET /estadisticas` | `403` | Pasó | "Reportes del año como vecino" |
+| P22 | Cambiar la contraseña con la actual incorrecta | `PUT /auth/password` | `400` | Pasó | "Cambiar contraseña con actual incorrecta" |
+| P23 | Consultar el clima actual | `GET /clima` | `200` | Pasó | "Clima actual" |
+
+Las 87 peticiones y sus 217 comprobaciones están en la tabla de arriba, por carpeta.
+
+### 6.2 Capturas
+
+**Resumen del Runner:** 217 comprobaciones pasadas, 0 fallidas y 0 errores.
+
+![Resultado del Collection Runner de Postman con 217 pruebas pasadas, 0 fallidas y 0 errores, y peticiones en verde](img/postman-runner.png)
 
 **Respuesta completa de un login:** `POST /auth/login` responde `200 OK` con el token y los datos del usuario, y pasan sus 3 pruebas.
 

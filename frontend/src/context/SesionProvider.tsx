@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useIonRouter, useIonToast } from '@ionic/react';
 import { borrarSesion, guardarSesion, leerSesion, type Usuario } from '../services/sesionService';
 import { alExpirarSesion, MENSAJE_SESION_EXPIRADA } from '../services/api';
+import { revisarSesion } from '../services/authService';
 import { RUTAS } from '../routes/rutas';
 import { SesionContext } from './SesionContext';
 
@@ -37,6 +38,25 @@ const SesionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =
     });
     return () => alExpirarSesion(null);
   }, [cerrarSesion, mostrarAviso, router]);
+
+  // Al abrir la app con una sesión guardada, se revisa el token con la API. Si venció,
+  // api.ts avisa con el 401 y se cierra la sesión como arriba. Si sigue válido, se
+  // actualizan los datos del usuario (por ejemplo, sus cuadrillas). Si no hay conexión,
+  // se deja la sesión como está.
+  useEffect(() => {
+    if (!leerSesion()) return;
+    revisarSesion()
+      .then((actualizado) => {
+        const guardado = leerSesion();
+        // Solo si sigue siendo la misma sesión (pudo cerrarla mientras esperaba).
+        if (actualizado && guardado?.id === actualizado.id && guardado.rol === actualizado.rol) {
+          iniciarSesion(actualizado);
+        }
+      })
+      .catch(() => {
+        // Sin conexión: la sesión se revisa en la próxima petición.
+      });
+  }, [iniciarSesion]);
 
   return (
     <SesionContext.Provider value={{ usuario, iniciarSesion, cerrarSesion }}>

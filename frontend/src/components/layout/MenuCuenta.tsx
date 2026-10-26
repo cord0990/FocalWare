@@ -129,29 +129,33 @@ const MenuCuenta: React.FC<{ contentId: string }> = ({ contentId }) => {
               </>
             )}
 
-            <h2 className="cuenta-seccion">Mi actividad</h2>
-            <div className="cuenta-grupo">
-              <OpcionMenu
-                icono={notificationsOutline}
-                texto="Notificaciones"
-                contador={notificacionesNoLeidas}
-                onClick={() => irA(RUTAS.perfil)}
-              />
-              {esVecino && (
-                <OpcionMenu
-                  icono={cloudUploadOutline}
-                  texto="Pendientes de envío"
-                  detalle={
-                    pendientes.length === 0
-                      ? 'Todo enviado'
-                      : `${enLinea ? 'Listos para enviar' : 'Sin conexión'} · ${pendientes.length} esperando`
-                  }
-                  contador={pendientes.length}
-                  tipoContador="cafe"
-                  onClick={() => irA(RUTAS.misReportes)}
-                />
-              )}
-            </div>
+            {/* Las notificaciones y los envíos pendientes son del vecino (RF-08 y RF-02).
+                Las notificaciones del funcionario quedan para la Entrega Final. */}
+            {esVecino && (
+              <>
+                <h2 className="cuenta-seccion">Mi actividad</h2>
+                <div className="cuenta-grupo">
+                  <OpcionMenu
+                    icono={notificationsOutline}
+                    texto="Notificaciones"
+                    contador={notificacionesNoLeidas}
+                    onClick={() => irA(RUTAS.perfil)}
+                  />
+                  <OpcionMenu
+                    icono={cloudUploadOutline}
+                    texto="Pendientes de envío"
+                    detalle={
+                      pendientes.length === 0
+                        ? 'Todo enviado'
+                        : `${enLinea ? 'Listos para enviar' : 'Sin conexión'} · ${pendientes.length} esperando`
+                    }
+                    contador={pendientes.length}
+                    tipoContador="cafe"
+                    onClick={() => irA(RUTAS.misReportes)}
+                  />
+                </div>
+              </>
+            )}
 
             <h2 className="cuenta-seccion">Ayuda y soporte</h2>
             <div className="cuenta-grupo">

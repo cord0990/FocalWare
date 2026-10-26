@@ -162,7 +162,7 @@ const aFormularioDeEdicion = async (
   return formulario;
 };
 
-// Todos los reportes: los creados por el usuario más los de prueba.
+// Así llega cada reporte desde la API. El riesgo puede venir en null si todavía no se calculó.
 type ReporteApi = Omit<Reporte, 'riesgo' | 'riesgoEnCalculo'> & { riesgo: number | null };
 
 const aReporte = (dato: ReporteApi): Reporte => {
@@ -277,7 +277,7 @@ export const quitarApoyo = async (id: string): Promise<number> => {
 // Un reporte ya enviado a la plataforma no se edita desde el front: solo los
 // borradores guardados sin conexión (locales) son modificables. Por eso acá
 // siempre es false para los reportes que llegan de la API.
-export const puedeModificar = (_reporte: Reporte) => false;
+export const puedeModificar: (reporte: Reporte) => boolean = () => false;
 
 // Solo se puede eliminar un reporte enviado mientras nadie lo ha revisado
 // (estado Pendiente, sin revisión). 
