@@ -225,6 +225,11 @@
   gap: 16px;
 }
 
+/* El funcionario solo ve la tarjeta de contacto, que ocupa todo el ancho. */
+.ayuda-contacto.una-tarjeta {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .ayuda-tarjeta {
   display: flex;
   flex-direction: column;
