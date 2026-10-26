@@ -33,7 +33,7 @@ La base queda en `localhost:5434` (dentro de Docker usa el puerto 5432). El puer
 psql -U postgres -h localhost -f backend/database/focalware.sql
 ```
 
-Ese archivo crea la base `focalware`, las tablas y al final carga los datos de prueba de `datos_prueba.sql`.
+Ese archivo crea la base `focalware` en UTF-8, las tablas y al final carga los datos de prueba de `datos_prueba.sql`. Los dos archivos parten con `SET client_encoding = 'UTF8'`, para que las tildes y la ñ se guarden bien aunque se carguen desde la terminal de Windows. En Windows, el PostgreSQL instalado usa normalmente el puerto 5432, así que hay que ajustarlo en `backend/.env` (ver la Opción B del README).
 
 > **Importante:** la fuente de verdad es `backend/prisma/schema.prisma`. El archivo `focalware.sql` es una copia del mismo esquema para montar la base a mano. Si se cambia uno, hay que cambiar el otro.
 

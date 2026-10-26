@@ -11,10 +11,15 @@
 --
 -- Al final carga los datos de prueba de datos_prueba.sql (misma carpeta).
 
-CREATE DATABASE focalware;
+-- La base se crea en UTF-8 para guardar bien las tildes y la ñ.
+CREATE DATABASE focalware ENCODING 'UTF8' TEMPLATE template0;
 
 -- Se cambia a la base nueva para que las tablas se creen ahí y no en "postgres"
 \c focalware
+
+-- Este archivo está escrito en UTF-8. Se avisa aquí porque la terminal de Windows
+-- usa otra codificación y, sin esta línea, "eléctrico" se guarda como "elÃ©ctrico".
+SET client_encoding = 'UTF8';
 
 CREATE TABLE vecino (
     idvecino       SERIAL PRIMARY KEY,

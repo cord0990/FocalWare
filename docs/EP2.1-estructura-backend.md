@@ -241,6 +241,7 @@ Todo en español: `crearReporte`, `votosService.js`, `obtenerPerfil`.
 | Después de cambiar entre la API local y la de Docker, todo responde 401 | Cada una puede tener otro `JWT_SECRETO`, así que el token viejo no sirve | Cerrar sesión e iniciarla de nuevo |
 | En el Runner de Postman algunas peticiones salen "could not be sent" a la mitad | La API se reinició sola porque se levantó con `npm run dev` | Levantar la API con `npm start` para correr las pruebas |
 | La prueba "Registrar control" falla en Postman | Postman no encuentra `foto-prueba.png` | En Postman, App settings > General > Working directory: elegir la carpeta `backend/postman` |
+| Las tildes y la ñ se ven raras ("elÃ©ctrico", "MuÃ±oz") | La base se cargó desde la terminal de Windows con una versión anterior de `focalware.sql`, que no avisaba que el archivo está en UTF-8 | Borrar la base y cargarla de nuevo con el script actual, que ya lo avisa (ver la Opción B del README) |
 | No llega el código de recuperación de contraseña | No se envía por correo, se muestra en la consola | Mirarlo en la terminal de la API, o con `docker compose logs -f api` si corre en Docker |
 | Las pruebas del clima fallan | No hay internet y Open-Meteo no responde | Revisar la conexión. El resto de la API funciona igual |
 | `npx eslint` dice que falta `@eslint/js` | Faltan dependencias en `frontend/node_modules` | Dentro de `frontend`, correr `npm install` |
