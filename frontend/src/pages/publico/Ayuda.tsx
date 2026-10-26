@@ -24,6 +24,7 @@ import {
   timeOutline,
 } from 'ionicons/icons';
 import AppLayout from '../../components/layout/AppLayout';
+import { useSesion } from '../../hooks/useSesion';
 import { RUTAS } from '../../routes/rutas';
 import { normalizarTexto } from '../../utils/texto';
 import './Ayuda.css';
@@ -154,6 +155,9 @@ const irASeccion = (clave: SeccionAyuda) =>
 const Ayuda: React.FC = () => {
   const { search } = useLocation();
   const router = useIonRouter();
+  // "Mis reportes" es solo del vecino: al funcionario no se le muestra esa tarjeta.
+  const { usuario } = useSesion();
+  const esFuncionario = usuario?.rol === 'funcionario';
   const seccion = new URLSearchParams(search).get('seccion') as SeccionAyuda | null;
   const [busqueda, setBusqueda] = useState('');
 
@@ -235,7 +239,7 @@ const Ayuda: React.FC = () => {
           )}
 
           <h3 className="ayuda-subtitulo">¿No encontraste lo que buscabas?</h3>
-          <div className="ayuda-contacto">
+          <div className={esFuncionario ? 'ayuda-contacto una-tarjeta' : 'ayuda-contacto'}>
             <article className="ayuda-tarjeta">
               <span className="ayuda-tarjeta-icono">
                 <IonIcon icon={mailOutline} aria-hidden="true" />
@@ -250,23 +254,25 @@ const Ayuda: React.FC = () => {
               </a>
             </article>
 
-            <article className="ayuda-tarjeta">
-              <span className="ayuda-tarjeta-icono">
-                <IonIcon icon={folderOpenOutline} aria-hidden="true" />
-              </span>
-              <h4>Seguimiento de reportes</h4>
-              <p>Revisa el estado y el historial de cada reporte que has enviado.</p>
-              <p className="ayuda-tarjeta-dato">
-                <IonIcon icon={chatbubblesOutline} aria-hidden="true" /> Notificaciones en cada cambio
-              </p>
-              <button
-                type="button"
-                className="ayuda-boton"
-                onClick={() => router.push(RUTAS.misReportes, 'root')}
-              >
-                Ir a Mis reportes
-              </button>
-            </article>
+            {!esFuncionario && (
+              <article className="ayuda-tarjeta">
+                <span className="ayuda-tarjeta-icono">
+                  <IonIcon icon={folderOpenOutline} aria-hidden="true" />
+                </span>
+                <h4>Seguimiento de reportes</h4>
+                <p>Revisa el estado y el historial de cada reporte que has enviado.</p>
+                <p className="ayuda-tarjeta-dato">
+                  <IonIcon icon={chatbubblesOutline} aria-hidden="true" /> Notificaciones en cada cambio
+                </p>
+                <button
+                  type="button"
+                  className="ayuda-boton"
+                  onClick={() => router.push(RUTAS.misReportes, 'root')}
+                >
+                  Ir a Mis reportes
+                </button>
+              </article>
+            )}
           </div>
 
           <aside className="ayuda-emergencia">

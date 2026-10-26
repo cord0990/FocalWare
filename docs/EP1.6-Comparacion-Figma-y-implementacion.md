@@ -57,12 +57,12 @@ Se realizaron cambios generales en los colores de la página, en algunos element
     3. **Reporte Controlado:** Permite adjuntar imágenes de la resolución y escribir los detalles del control. *Regla del sistema:* Si el funcionario no pertenece a la planilla de la cuadrilla asignada, salta una alerta indicando "No tiene permisos de editar porque no pertenece a la planilla seleccionada para este control, Intente mas tarde." con un botón para Aceptar.
     4. **Modificar Reporte:** Permite la edición de los campos del reporte original.
 *   **Mi Perfil - Configuraciones:** Comparte el mismo componente de configuraciones del perfil Vecino, pero reflejando el rol de "Funcionario" bajo el nombre de usuario.
-*   **Mi Perfil - Notificaciones:** El funcionario cuenta con el mismo panel de avisos y acceso a la línea de tiempo de los reportes.
+*   **Mi Perfil - Notificaciones:** En Figma el funcionario tiene el mismo panel de avisos que el vecino, pero en esta entrega no se implementó. Las notificaciones son solo para el vecino (RF-08: avisar al autor cuando cambia el estado de su reporte) y la tabla `notificacion` solo guarda al vecino destinatario. Por eso "Mi perfil" lleva al funcionario directo a Configuraciones y su menú de cuenta no muestra la opción. *Nota técnica:* las notificaciones del funcionario (por ejemplo, cuando llega un reporte de riesgo alto o se asigna uno a su cuadrilla) quedan para la Entrega Final.
 *   **Términos y Condiciones:** Comparte el mismo rediseño completo del perfil Vecino (accesible desde el menú superior del usuario).
 *   **Estadísticas:** Se respeta casi por completo el diseño base que venía de Figma, consolidando cifras mensuales de reportes totales, reportes resueltos, gráficos de barras de evolución mensual y el gráfico circular de seguimiento.
 
 #### Vistas Descartadas (Exclusivas para Vecinos):
 Por decisiones de diseño y funcionamiento, ahora solo un **Vecino** puede crear reportes. Por lo tanto, las siguientes pantallas fueron eliminadas para el perfil de Funcionario:
-*   ~~Mis reportes~~ *(Se eliminó también el botón del menú lateral izquierdo).*
+*   ~~Mis reportes~~ *(Se eliminó también el botón del menú lateral izquierdo y la tarjeta "Ir a Mis reportes" de la página de Ayuda).*
 *   ~~Crear Reporte~~.
 *   ~~Reporte creado con éxito~~.
