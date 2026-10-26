@@ -27,7 +27,10 @@ const RUTA_SECCION: Record<SeccionPerfil, string> = {
 };
 
 const Perfil: React.FC<{ seccion: SeccionPerfil }> = ({ seccion }) => {
-  const [tabActiva, setTabActiva] = useState<TabPerfil>(seccion);
+  const { usuario, cerrarSesion } = useSesion();
+  // Las notificaciones son del vecino (RF-08): el funcionario entra directo a la configuración.
+  const seccionInicial: SeccionPerfil = usuario?.rol === 'funcionario' ? 'configuracion' : seccion;
+  const [tabActiva, setTabActiva] = useState<TabPerfil>(seccionInicial);
   const [notificacionSeleccionada, setNotificacionSeleccionada] = useState<Notificacion | null>(null);
 
   const handleVerDetalle = (notif: Notificacion) => {
@@ -36,7 +39,6 @@ const Perfil: React.FC<{ seccion: SeccionPerfil }> = ({ seccion }) => {
   };
 
   const router = useIonRouter();
-  const { cerrarSesion } = useSesion();
 
   const handleCerrarSesion = () => {
     cerrarSesion();

@@ -187,7 +187,7 @@ const INCLUIR_DETALLE = {
 
 const MAXIMO_POR_PAGINA = 300;
 
-const listar = async ({ sector, categoria, estado, idVecino = null }) => {
+const listar = async ({ sector, categoria, estado, idVecino = null, esFuncionario = false }) => {
   const reportes = await prisma.reporte.findMany({
     where: {
       ...(sector ? { sector } : {}),
@@ -203,8 +203,11 @@ const listar = async ({ sector, categoria, estado, idVecino = null }) => {
   const visibles = conEstado.filter((reporte) => {
     if (estado && reporte.estado !== estado) return false;
     if (reporte.estado === 'Rechazado') return false;
-    if (reporte.estado === 'Controlado') {
-      const antiguedad = Date.now() - new Date(reporte.fechaCreacion ?? 0).getTime();
+    // RF-11: el mes se cuenta desde el control (si no hay control guardado, desde
+    // la creación). Los funcionarios los siguen viendo como historial.
+    if (reporte.estado === 'Controlado' && !esFuncionario) {
+      const fechaControl = reporte.revision?.controles?.[0]?.fechaControl ?? reporte.fechaCreacion;
+      const antiguedad = Date.now() - new Date(fechaControl ?? 0).getTime();
       return antiguedad < UN_MES;
     }
     return true;

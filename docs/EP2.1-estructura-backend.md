@@ -98,7 +98,7 @@ Todas las rutas empiezan con `http://localhost:3000/api`.
 | F07 | Recuperación de contraseña | Genera un código de 6 dígitos (vence en 10 minutos, máximo 5 intentos), lo verifica y permite poner una contraseña nueva. El código se muestra en la consola del backend | `POST /auth/recuperacion/...` | [authService.js](../backend/src/services/authService.js) | Probada · Postman carpeta 9 (solicitud y errores). El camino completo se prueba en la app con el código de la consola |
 | F08 | Protección con token | Corta con 401 las peticiones sin token, con token inválido o vencido | Todas las privadas | [autenticacion.js](../backend/src/middlewares/autenticacion.js) | Probada · "Perfil sin token" y "Perfil con token inválido" |
 | F09 | Permisos por rol | Corta con 403 cuando el rol no corresponde (por ejemplo, un vecino que intenta revisar) | Todas las de rol | [roles.js](../backend/src/middlewares/roles.js) | Probada · todos los casos "como vecino" y "como funcionario" |
-| F10 | Mapa de reportes | Lista los reportes con filtros, sin mostrar quién los creó, sin rechazados y sin controlados de hace más de un mes | `GET /reportes` | [reportesService.js](../backend/src/services/reportesService.js) | Probada · Postman carpeta 3 |
+| F10 | Mapa de reportes | Lista los reportes con filtros, sin mostrar quién los creó y sin rechazados. Los controlados se ocultan un mes después del control, salvo para los funcionarios | `GET /reportes` | [reportesService.js](../backend/src/services/reportesService.js) | Probada · Postman carpeta 3 |
 | F11 | Detalle de un reporte | Fotos, clima y avance de la gestión. Los datos del vecino solo los ven el dueño y los funcionarios | `GET /reportes/:id` | [reportesService.js](../backend/src/services/reportesService.js) | Probada · Postman carpeta 3 |
 | F12 | Crear reporte | Guarda el reporte con hasta 5 fotos y el clima real. Rechaza los repetidos (misma categoría a menos de 50 m) | `POST /reportes` | [reportesController.js](../backend/src/controllers/reportesController.js) | Probada · Postman carpeta 3 |
 | F13 | Mis reportes | Los reportes del vecino que inició sesión | `GET /reportes/mios` | [reportesService.js](../backend/src/services/reportesService.js) | Probada · Postman carpeta 3 |
@@ -130,7 +130,7 @@ Estos son los requerimientos funcionales de [EP1.1](EP1.1.%20Requerimientos%20de
 | RF-08 | Notificación y trazabilidad | Implementado | Cada cambio de estado guarda una fila en `log` y una notificación para el autor. La app muestra la línea de tiempo |
 | RF-09 | Estadísticas mensuales | Implementado | `GET /estadisticas`: totales, resueltos, promedio por sector, evolución mensual y CSV |
 | RF-10 | Identificador único | Implementado | `idreporte` es `SERIAL` en la base |
-| RF-11 | Ocultar reportes controlados | Parcial | Se ocultan del mapa después de un mes. Falta que los funcionarios los sigan viendo y que el mes se cuente desde el control, no desde la creación |
+| RF-11 | Ocultar reportes controlados | Implementado | Se ocultan del mapa un mes después del control. Los funcionarios los siguen viendo como historial |
 | RF-12 | Opciones del funcionario | Implementado | Aprobar, rechazar, modificar el desglose y registrar el control |
 | RF-13 | Modificación offline | Implementado | Los reportes guardados sin conexión se pueden editar antes de enviarlos |
 | RF-14 | Votos a favor | Implementado | `POST` y `DELETE /reportes/:id/votos`. Solo vecinos (acuerdo 8.1) |
@@ -198,7 +198,7 @@ Todo en español: `crearReporte`, `votosService.js`, `obtenerPerfil`.
 |---|---|---|
 | Contraseñas (RNF-04) | Cumple | bcrypt con 10 rondas. La API nunca devuelve el hash |
 | Token JWT (RNF-05) | Parcial | Dura 15 minutos y guarda solo el id y el rol. Se firma con una clave secreta del `.env` (algoritmo simétrico HS256) y no tiene rotación |
-| Token vencido en la app | Cumple | Si la API responde 401, la app cierra la sesión, avisa y lleva al login |
+| Token vencido en la app | Cumple | Al abrir la app se revisa el token con la API. Si la API responde 401, la app cierra la sesión, avisa y lleva al login |
 | Rutas protegidas | Cumple | `verificarToken`, `permitirRoles` y `perteneceACuadrilla` en las rutas. La app también protege sus pantallas por rol |
 | CORS (RNF-06) | Cumple | Solo acepta pedidos de la URL del frontend (`FRONTEND_URL`) |
 | Anonimato (RNF-07) | Cumple | El mapa y el detalle público no muestran el nombre ni el correo del vecino |
@@ -224,7 +224,7 @@ Todo en español: `crearReporte`, `votosService.js`, `obtenerPerfil`.
 3. **Un voto por vecino y por reporte.** Lo asegura `UNIQUE (idreporte, idvecino)` en la tabla `votos`.
 4. **Los funcionarios no se registran desde la app.** Los entrega la municipalidad (vienen en los datos de prueba) y la API rechaza registros con correo `@focalware.cl`.
 5. **Los reportes enviados no se editan desde la app.** Solo se editan los borradores guardados sin conexión. La corrección del desglose la hace el funcionario con su propia ruta (`PATCH /reportes/:id/desglose`).
-6. **Las notificaciones son solo para el vecino (RF-08).** La tabla `notificacion` solo guarda `idvecino`. Las notificaciones para funcionarios quedan para la Entrega Final.
+6. **Las notificaciones son solo para el vecino (RF-08).** La tabla `notificacion` solo guarda `idvecino`, por eso el menú del funcionario no muestra la opción. Las notificaciones para funcionarios quedan para la Entrega Final.
 7. **Notificación y log van ligados a la revisión, no al reporte.** Funciona bien: para mostrar el título del reporte, la consulta va de la notificación a la revisión y de ahí al reporte.
 8. **Una notificación ajena responde 404 y no 403**, para no revelar que existe.
 9. **El clima lo consulta el backend, por zonas.** Valparaíso se divide en 3 zonas y el clima de cada una se guarda hasta que Open-Meteo publica el siguiente dato (cada 15 minutos). Si llegan varios reportes a la vez, comparten una sola consulta.

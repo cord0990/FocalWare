@@ -86,7 +86,7 @@ Las reglas están en [App.tsx](../frontend/src/App.tsx#L116). La protección en 
 
 - **Manual:** el botón "Cerrar sesión" del menú de cuenta ([MenuCuenta.tsx](../frontend/src/components/layout/MenuCuenta.tsx#L78)) llama a `cerrarSesion`, que borra el usuario y el token del teléfono ([sesionService.ts](../frontend/src/services/sesionService.ts#L43)) y lleva al login.
 - **Automático:** cuando la API responde 401 a una petición con token, la app hace lo mismo y avisa que la sesión expiró (sección 4).
-- **Al abrir la app con un token vencido**, la primera petición privada recibe 401 y la sesión se cierra de la misma forma.
+- **Al abrir la app**, se revisa el token guardado con `GET /auth/perfil` ([SesionProvider.tsx](../frontend/src/context/SesionProvider.tsx)). Si venció, la sesión se cierra igual que arriba. Si sigue válido, se actualizan los datos del usuario (por ejemplo, las cuadrillas del funcionario). Si no hay conexión, la sesión se mantiene y se revisa en la próxima petición.
 
 ## 7. Flujos conectados a datos reales
 
