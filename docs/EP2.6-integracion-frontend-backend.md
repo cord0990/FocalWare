@@ -123,3 +123,19 @@ Las reglas están en [App.tsx](../frontend/src/App.tsx#L116). La protección en 
 **Estadísticas del funcionario** calculadas con los reportes de `GET /estadisticas`.
 
 ![Panel de estadísticas con las cifras del mes, el tiempo promedio por sector y la evolución mensual](img/Vistas%20Implementacion/Funcionario%20-%20Estadisticas.png)
+
+**Notificaciones del vecino.** Después de que el funcionario aprueba y controla el reporte, el menú de la cuenta muestra cuántas notificaciones sin leer hay (`GET /notificaciones`).
+
+![Menú de la cuenta con la sección Mi actividad y el contador de 2 notificaciones nuevas](img/Vistas%20Implementacion/Vecino%20-%20Notificaciones%20-%20Menu.png)
+
+La lista muestra cada cambio de estado con el ID del reporte. Al abrir una, se marca como leída con `PUT /notificaciones/:id/leida`.
+
+![Lista de notificaciones con el reporte aprobado y el reporte controlado, ambas marcadas como nuevas](img/Vistas%20Implementacion/Vecino%20-%20Notificaciones.png)
+
+El detalle muestra la línea de tiempo del reporte con las fechas que entrega la API.
+
+![Línea de tiempo del reporte con la fecha de creación, de aprobación y de control](img/Vistas%20Implementacion/Vecino%20-%20Notificaciones%20-%20Detalle.png)
+
+**Sesión expirada.** Si la API responde 401 a una petición con token (por ejemplo, porque pasaron los 15 minutos), la app cierra la sesión, avisa arriba de la pantalla y lleva al login.
+
+![Pantalla de inicio de sesión con el aviso Tu sesión expiró, vuelve a iniciar sesión](img/Vistas%20Implementacion/Publico%20-%20Sesion%20expirada.png)
