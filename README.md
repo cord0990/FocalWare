@@ -94,12 +94,12 @@ Desafíos CTD Litoral abordados: **#11** (capacidad para manejo de residuos) y *
 
 ## Equipo
 
-| Integrante | Responsabilidades |
-|---|---|
-| Diego Cordova | Desarrollo web y Diseño UI/UX en Figma |
-| Macarena Catalan | Diseño UI/UX en Figma y Documentación |
-| Agustín Guzmán | Desarrollo web y Diseño UI/UX en Figma |
-| Daniel Castro | Diseño UI/UX en Figma y Documentación |
+| Integrante | Entrega 1 | Entrega 2 |
+|---|---|---|
+| Diego Cordova | Desarrollo web y Diseño UI/UX en Figma | Estructura del backend, contraseñas encriptadas, token y middlewares, subida de fotos, clima con Open-Meteo, estadísticas y notificaciones conectadas, datos de prueba, pruebas en Postman y documentación de la entrega |
+| Macarena Catalan | Diseño UI/UX en Figma y Documentación | Gestión municipal conectada a la API (aprobar, rechazar, control y cuadrillas), corrección del desglose, modelo de la base en ERDPlus, EP1.6 y README |
+| Agustín Guzmán | Desarrollo web y Diseño UI/UX en Figma | Base de datos y Prisma, inicio de sesión, reportes, votos, mapa de calor, cambio y recuperación de contraseña, datos personales y sesión expirada |
+| Daniel Castro | Diseño UI/UX en Figma y Documentación | Cierre de sesión y aviso de token vencido, notificaciones en el backend, manejo de datos inválidos (error 400) y prueba completa de la app |
 
 ## Roles del sistema
 
