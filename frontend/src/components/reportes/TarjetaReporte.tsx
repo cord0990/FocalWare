@@ -1,7 +1,7 @@
 import { IonButton, IonIcon } from '@ionic/react';
 import { caretUp, imageOutline, locationOutline } from 'ionicons/icons';
 import type { Reporte } from '../../services/reportesService';
-import { ESTILO_ESTADO } from '../../utils/estados';
+import { estiloDeEstado } from '../../utils/estados';
 import { formatearFecha } from '../../utils/fechas';
 import { obtenerNivelRiesgo } from '../../utils/riesgo';
 import './TarjetaReporte.css';
@@ -28,7 +28,7 @@ const TarjetaReporte: React.FC<TarjetaReporteProps> = ({
   onVotar,
 }) => {
   const nivel = obtenerNivelRiesgo(reporte.riesgo);
-  const estado = ESTILO_ESTADO[reporte.estado];
+  const estado = estiloDeEstado(reporte.estado);
   const votos = reporte.votos;
 
   return (
