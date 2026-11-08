@@ -59,7 +59,7 @@ Lo importante es que cada uno hace solo lo suyo. El mesero no cocina y el cocine
 backend/
 ├── src/
 │   ├── routes/         La carta: qué direcciones existen
-│   ├── middlewares/    El guardia: token, rol, cuadrilla, validaciones, fotos y errores
+│   ├── middlewares/    El guardia: token, rol, cuadrilla, validaciones, límites de intentos, fotos y errores
 │   ├── controllers/    El mesero: recibe y responde
 │   ├── services/       El cocinero: lógica, cálculos y consultas
 │   ├── db/             Prisma: cliente, tipos y repositorios
@@ -111,6 +111,7 @@ Todas las rutas empiezan con `http://localhost:3000/api`.
 | F20 | Notificaciones | Listar los avisos del vecino y marcarlos como leídos | `GET /notificaciones` | [notificacionesService.js](../backend/src/services/notificacionesService.js) | Probada · Postman carpeta 7 y [captura](img/postman-notificaciones.png) |
 | F21 | Estadísticas | Reportes del año para el panel del funcionario y el aporte del vecino | `GET /estadisticas` | [estadisticasService.js](../backend/src/services/estadisticasService.js) | Probada · Postman carpeta 8 |
 | F22 | Clima real | Clima de Open-Meteo por zona de Valparaíso, guardado hasta que sale el siguiente dato | `GET /clima` | [climaService.js](../backend/src/services/climaService.js) | Probada · Postman carpeta 1 |
+| F23 | Límite de intentos de autenticación | Corta con 429 la fuerza bruta: 10 fallos por correo y 30 por IP cada 15 minutos en el login; 3 solicitudes de código por correo y 10 por IP; 10 fallos de código por correo | `/auth/login` y `/auth/recuperacion/...` | [limiteIntentos.js](../backend/src/middlewares/limiteIntentos.js) | Probada · fuerza bruta por correo y por IP, y reinicio al iniciar sesión bien |
 
 La lista completa de endpoints (27), con sus datos y errores, está en [EP2.7](EP2.7-endpoints-y-pruebas.md#4-lista-de-endpoints).
 
@@ -207,6 +208,7 @@ Todo en español: `crearReporte`, `votosService.js`, `obtenerPerfil`.
 | Errores | Cumple | Los errores internos responden "Error interno del servidor", sin mostrar detalles |
 | Fotos | Cumple | Solo JPG, PNG o WEBP, máximo 5 fotos de 5 MB cada una |
 | Recuperación de contraseña | Solo para desarrollo | El código se guarda hasheado, vence en 10 minutos y permite 5 intentos, pero se muestra en la consola en vez de enviarse por correo |
+| Límite de intentos | Cumple | Login: 10 fallos por correo y 30 por IP cada 15 minutos; un login exitoso libera el correo. Recuperación: 3 solicitudes de código por correo y 10 por IP, y 10 intentos de código por correo. Responde `429` con `Retry-After`. El conteo vive en memoria y se reinicia con la API; detrás de un proxy hay que definir `TRUST_PROXY=1` |
 | Secretos | Cumple | El `.env` no se sube al repositorio. Solo se sube `.env.example` |
 
 ### 7.2 Correcciones necesarias (Entrega Final)
@@ -214,8 +216,7 @@ Todo en español: `crearReporte`, `votosService.js`, `obtenerPerfil`.
 1. **Rotación del token (RNF-05):** agregar un token de renovación y firmar con un par de claves (algoritmo asimétrico), como pide el requerimiento.
 2. **Clave por defecto en Docker:** `docker-compose.yml` usa `cambia_esta_clave` si no se define `JWT_SECRETO`. En un despliegue real hay que obligar a definirla.
 3. **Envío real del código de recuperación:** mandarlo por correo en vez de mostrarlo en la consola.
-4. **Límite de intentos de inicio de sesión:** hoy no hay un tope de intentos por correo o por IP.
-5. **Dónde se guarda el token en la app:** hoy va en `localStorage`. Si algún día la app tuviera un problema de XSS, se podría leer. Una cookie `httpOnly` lo evitaría.
+4. **Dónde se guarda el token en la app:** hoy va en `localStorage`. Si algún día la app tuviera un problema de XSS, se podría leer. Una cookie `httpOnly` lo evitaría.
 
 ## 8. Decisiones y acuerdos implementados
 

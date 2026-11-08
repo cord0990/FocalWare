@@ -7,6 +7,14 @@ const { rutaNoEncontrada, manejarErrores } = require('./middlewares/manejoErrore
 
 const app = express();
 
+// Detrás de un proxy inverso (nginx, balanceador) la IP real del cliente llega
+// en X-Forwarded-For. Solo se confía en esa cabecera si TRUST_PROXY=1: si la API
+// está expuesta directamente, cualquiera podría inventarla y saltarse el límite
+// de intentos por IP.
+if (process.env.TRUST_PROXY === '1') {
+  app.set('trust proxy', 1);
+}
+
 // Solo el frontend configurado en .env puede usar la API (RNF-06)
 app.use(cors({ origin: process.env.FRONTEND_URL }));
 app.use(express.json());

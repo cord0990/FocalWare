@@ -150,6 +150,8 @@ Si se pide una ruta que no existe, la API responde `404` con `"Ruta no encontrad
 
 ### 5.2 Autenticación
 
+Las rutas de login y recuperación limitan los intentos para frenar la fuerza bruta. Si se supera el tope, responden `429 Too Many Requests` con la cabecera `Retry-After` (segundos que faltan para poder reintentar). El detalle de cada límite está en las secciones de login y recuperación.
+
 #### 2. `POST /auth/registro`
 
 Crea una cuenta de **vecino**. Las cuentas de funcionario (`@focalware.cl`) las entrega la municipalidad.
@@ -209,6 +211,7 @@ Revisa el correo y la contraseña. Busca primero en vecinos y después en funcio
 |---|---|
 | `400` | Falta el correo o la contraseña |
 | `401` | `"Correo o contraseña incorrectos"`. Es el mismo mensaje si el correo no existe, para no revelar qué correos están registrados |
+| `429` | Se superaron los intentos permitidos: 10 fallos para ese correo o 30 fallos desde esa IP en 15 minutos. Un login exitoso libera el contador del correo |
 
 #### 4. `GET /auth/perfil`
 
@@ -291,6 +294,8 @@ Como el proyecto no envía correos reales, el código aparece en la consola del 
 
 El código dura 10 minutos, permite 5 intentos y se guarda en memoria. Si la API se reinicia, hay que solicitar uno nuevo.
 
+**Límite de intentos:** se puede pedir un código hasta 3 veces por correo y 10 veces por IP cada 15 minutos. Al superarlo responde `429` con `Retry-After`.
+
 #### 8. `POST /auth/recuperacion/verificar`
 
 **Acceso:** público. Revisa el código sin cambiar la contraseña.
@@ -306,6 +311,7 @@ El código dura 10 minutos, permite 5 intentos y se guarda en memoria. Si la API
 | Código | Cuándo |
 |---|---|
 | `400` | Faltan campos, el correo no es válido, el código no tiene 6 dígitos, expiró o ya se agotaron los intentos |
+| `429` | Se superaron los 10 intentos de código para ese correo o los 30 desde esa IP en 15 minutos |
 
 #### 9. `POST /auth/recuperacion/restablecer`
 
@@ -323,6 +329,7 @@ El código dura 10 minutos, permite 5 intentos y se guarda en memoria. Si la API
 |---|---|
 | `400` | Faltan campos, el correo no es válido, el código no sirve o la contraseña nueva es débil |
 | `404` | El usuario del código ya no existe |
+| `429` | Se superaron los 10 intentos de código para ese correo o los 30 desde esa IP en 15 minutos. Comparte el contador con `verificar` |
 
 ### 5.3 Reportes
 

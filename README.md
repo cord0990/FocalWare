@@ -345,6 +345,7 @@ Los archivos `.env` no se versionan (están en `.gitignore`).
 | `FRONTEND_URL` | Origen permitido por CORS | `http://localhost:5173` |
 | `JWT_SECRETO` | Clave para firmar los tokens | valor propio (largo y privado) |
 | `JWT_EXPIRACION` | Duración de la sesión | `15m` |
+| `TRUST_PROXY` | `1` si la API está detrás de un proxy inverso, para limitar por la IP real de `X-Forwarded-For` | `0` |
 
 ### Frontend (`frontend/.env`, opcional)
 
@@ -405,7 +406,7 @@ La API debe estar corriendo en `http://localhost:3000` (ver Instalación).
 3. Ejecutar la colección en orden: los logins guardan los tokens y los reportes creados se usan en las carpetas siguientes.
 4. (Opcional) Por consola, con Newman: `npx newman run FocalWare.postman_collection.json --working-dir .` desde `backend/postman`.
 
-Las pruebas cubren casos exitosos y de error (`401`, `403`, `400`, `404`, `409`). El detalle de cada endpoint, parámetros, respuestas y evidencia de la corrida está en [docs/EP2.7-endpoints-y-pruebas.md](docs/EP2.7-endpoints-y-pruebas.md).
+Las pruebas cubren casos exitosos y de error (`400`, `401`, `403`, `404`, `409` y `429`). El detalle de cada endpoint, parámetros, respuestas y evidencia de la corrida está en [docs/EP2.7-endpoints-y-pruebas.md](docs/EP2.7-endpoints-y-pruebas.md).
 
 **Resumen de endpoints** (prefijo `http://localhost:3000/api`):
 
@@ -440,6 +441,8 @@ Las pruebas cubren casos exitosos y de error (`401`, `403`, `400`, `404`, `409`)
 | `GET` | `/clima` | Público |
 
 La recuperación de contraseña no envía correos reales: el código de 6 dígitos aparece en la consola del backend. Está pensado así para poder probar el flujo en el proyecto universitario.
+
+Las rutas de login y recuperación limitan los intentos para frenar la fuerza bruta: al superar el tope responden `429 Too Many Requests` con la cabecera `Retry-After`. En el login son 10 fallos por correo y 30 por IP cada 15 minutos; un inicio de sesión correcto libera el contador del correo.
 
 ## Usuarios de prueba
 
