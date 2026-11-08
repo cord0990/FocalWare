@@ -588,3 +588,47 @@
     flex: 1;
   }
 }
+
+/* Sugerencias de dirección */
+.formulario-sugerencias-contenedor {
+  position: relative;
+  z-index: 2000;
+}
+
+.formulario-sugerencias {
+  position: absolute;
+  z-index: 2001;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--ion-background-color, #fff);
+  border: 1px solid var(--ion-color-light, #ddd);
+  border-radius: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.formulario-sugerencias li button {
+  width: 100%;
+  text-align: left;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #1f1f1f;
+}
+
+.formulario-sugerencias li button:hover {
+  background: var(--ion-color-light, #f4f4f4);
+}
+
+.formulario-sugerencias-cargando {
+  font-size: 12px;
+  color: var(--ion-color-medium, #888);
+  margin: 4px 0 0;
+}

@@ -11,6 +11,7 @@ import { CENTRO_VALPARAISO, ESTILOS_MAPA } from './capasMapa';
 import { ICONOS_RIESGO } from './iconosMapa';
 import { NIVELES_RIESGO, obtenerNivelRiesgo } from '../../utils/riesgo';
 import './MapaReportes.css';
+import './TarjetaReporte.css';
 import { urlDeImagen } from '../../services/api';
 
 const CLAVE_ESTILO_MAPA = 'focalware-estilo-mapa';
@@ -76,6 +77,8 @@ interface MapaReportesProps {
   seleccionado?: Reporte;
   onSeleccionar: (id: string) => void;
   onVerDetalles: (id: string) => void;
+  onVotar?: (id: string) => void;
+  puedeVotar?: (reporte: Reporte) => boolean;
 }
 
 const MapaReportes: React.FC<MapaReportesProps> = ({
@@ -84,6 +87,8 @@ const MapaReportes: React.FC<MapaReportesProps> = ({
   seleccionado,
   onSeleccionar,
   onVerDetalles,
+  onVotar,
+  puedeVotar,
 }) => {
   const marcadores = useRef(new Map<string, L.Marker>());
   const [estilo, setEstilo] = useState<EstiloMapa>(leerEstiloGuardado);
@@ -155,9 +160,22 @@ const MapaReportes: React.FC<MapaReportesProps> = ({
                     <span className="popup-riesgo" style={{ background: nivel.color, color: nivel.texto }}>
                       Riesgo {nivel.etiqueta.toLowerCase()} {reporte.riesgo}%
                     </span>
-                    <span className="popup-votos">
-                      <IonIcon icon={caretUp} aria-hidden="true" /> {reporte.votos}
-                    </span>
+                    {onVotar ? (
+                      <button
+                        type="button"
+                        className={reporte.miVoto ? 'btn-voto votado' : 'btn-voto'}
+                        onClick={() => onVotar(reporte.id)}
+                        disabled={puedeVotar ? !puedeVotar(reporte) : false}
+                        aria-pressed={reporte.miVoto}
+                        aria-label={`Votar a favor, ${reporte.votos} votos`}
+                      >
+                        <IonIcon icon={caretUp} aria-hidden="true" /> {reporte.votos}
+                      </button>
+                    ) : (
+                      <span className="popup-votos">
+                        <IonIcon icon={caretUp} aria-hidden="true" /> {reporte.votos}
+                      </span>
+                    )}
                   </div>
                   <button
                     type="button"

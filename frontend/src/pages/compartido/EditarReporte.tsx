@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   IonButton,
@@ -30,6 +30,7 @@ import GaleriaEditable from '../../components/reportes/GaleriaEditable';
 import SelectorUbicacion, { type Ubicacion } from '../../components/reportes/SelectorUbicacion';
 import { useConexion } from '../../hooks/useConexion';
 import { useUbicacionActual } from '../../hooks/useUbicacionActual';
+import { useGeocodificacion } from '../../hooks/useGeocodificacion';
 import { RUTAS, rutaMiReporte } from '../../routes/rutas';
 import { esClimaDeRiesgo } from '../../services/climaService';
 import {
@@ -39,6 +40,11 @@ import {
   type ReportePendiente,
 } from '../../services/pendientesService';
 import { ErrorApi } from '../../services/api';
+import {
+  buscarDirecciones,
+  obtenerDireccionDesdePunto,
+  type SugerenciaDireccion,
+} from '../../services/geocodificacionService';
 import {
   actualizarReporte,
   eliminarReporte,
@@ -91,13 +97,12 @@ const EditarReporte: React.FC<EditarReporteProps> = ({ origen }) => {
 
   const [reporte, setReporte] = useState<Reporte | null>();
   const [titulo, setTitulo] = useState('');
-  const [sector, setSector] = useState('');
   const [categoria, setCategoria] = useState('');
   const [volumen, setVolumen] = useState('');
   const [distancia, setDistancia] = useState('');
   const [descripcion, setDescripcion] = useState('');
-  const [ubicacion, setUbicacion] = useState<Ubicacion | null>(null);
-  const [enfoque, setEnfoque] = useState<Ubicacion | null>(null);
+  const geo = useGeocodificacion();
+  const { sector, ubicacion, enfocar, sugerencias, buscandoSugerencias, cambiarUbicacion, onSectorChange, seleccionarSugerencia, setSector, setUbicacion, setEnfocar, limpiar: limpiarGeo } = geo;
   const [imagenes, setImagenes] = useState<string[]>([]);
   const [intentoGuardar, setIntentoGuardar] = useState(false);
   const [guardando, setGuardando] = useState(false);
@@ -119,7 +124,7 @@ const EditarReporte: React.FC<EditarReporteProps> = ({ origen }) => {
     setDescripcion(encontrado.descripcion);
     const punto = { latitud: encontrado.latitud, longitud: encontrado.longitud };
     setUbicacion(punto);
-    setEnfoque(punto);
+    setEnfocar(punto);
     setImagenes(encontrado.imagenes);
     setIntentoGuardar(false);
   };
@@ -267,9 +272,10 @@ const EditarReporte: React.FC<EditarReporteProps> = ({ origen }) => {
 
   const usarMiUbicacion = () =>
     gps.obtener((punto) => {
-      setUbicacion(punto);
-      setEnfoque(punto);
+      cambiarUbicacion(punto);
     }, setMensaje);
+
+  // (lógica de geocodificación centralizada en useGeocodificacion)
 
   const eliminar = () =>
     mostrarAlerta({
@@ -501,15 +507,32 @@ const EditarReporte: React.FC<EditarReporteProps> = ({ origen }) => {
           <div className="formulario-fila-inferior">
             <div className="formulario-textos">
               <div className="formulario-fila-sector">
-                <IonInput
-                  label="Sector o dirección"
-                  labelPlacement="stacked"
-                  fill="outline"
-                  value={sector}
-                  className={error('sector') ? 'campo-invalido ion-invalid ion-touched' : ''}
-                  errorText={error('sector')}
-                  onIonInput={(e) => setSector(e.detail.value ?? '')}
-                />
+                <div className="formulario-sugerencias-contenedor">
+                  <IonInput
+                    label="Sector o dirección"
+                    labelPlacement="stacked"
+                    fill="outline"
+                    value={sector}
+                    className={error('sector') ? 'campo-invalido ion-invalid ion-touched' : ''}
+                    errorText={error('sector')}
+                    onIonInput={(e) => {
+                      onSectorChange(e.detail.value ?? '');
+                    }}
+                    onIonBlur={() => { /* sugerencias se limpian en el hook */ }}
+                  />
+                  {sugerencias.length > 0 && (
+                    <ul className="formulario-sugerencias" role="listbox" aria-label="Sugerencias de dirección">
+                      {sugerencias.map((sugerencia) => (
+                        <li key={sugerencia.id} role="option">
+                          <button type="button" onClick={() => seleccionarSugerencia(sugerencia)}>
+                            {sugerencia.texto}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {buscandoSugerencias && <p className="formulario-sugerencias-cargando">Buscando direcciones…</p>}
+                </div>
                 <IonButton className="formulario-gps" onClick={usarMiUbicacion} disabled={gps.buscando}>
                   {gps.buscando ? (
                     <IonSpinner name="crescent" />
@@ -540,7 +563,7 @@ const EditarReporte: React.FC<EditarReporteProps> = ({ origen }) => {
               />
             </div>
             <div className="formulario-mapa">
-              <SelectorUbicacion ubicacion={ubicacion} enfocar={enfoque} onCambiar={setUbicacion} />
+              <SelectorUbicacion ubicacion={ubicacion} enfocar={enfocar} onCambiar={cambiarUbicacion} />
               <p className="formulario-mapa-ayuda">Toca el mapa o arrastra el pin para corregir la ubicación.</p>
             </div>
           </div>

@@ -275,9 +275,10 @@ export const quitarApoyo = async (id: string): Promise<number> => {
 };
 
 // Un reporte ya enviado a la plataforma no se edita desde el front: solo los
-// borradores guardados sin conexión (locales) son modificables. Por eso acá
-// siempre es false para los reportes que llegan de la API.
-export const puedeModificar: (reporte: Reporte) => boolean = () => false;
+// Un reporte enviado se puede modificar mientras no haya sido revisado
+// (idRevision === null). Los borradores locales se manejan aparte con
+// esBorrador en las pantallas.
+export const puedeModificar = (reporte: Reporte) => reporte.idRevision === null;
 
 // Solo se puede eliminar un reporte enviado mientras nadie lo ha revisado
 // (estado Pendiente, sin revisión). 
