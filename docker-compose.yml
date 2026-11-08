@@ -23,6 +23,7 @@ services:
   api:
     build:
       context: ./backend
+    image: focalware-api:latest
     container_name: focalware-api
     restart: unless-stopped
     depends_on:
@@ -42,11 +43,30 @@ services:
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
       JWT_SECRETO: ${JWT_SECRETO:-cambia_esta_clave}
       JWT_EXPIRACION: ${JWT_EXPIRACION:-15m}
+      # El frontend llega a través de nginx, que pone la IP real del cliente en X-Forwarded-For.
+      # Sin esto, todos los usuarios compartirían el límite de intentos de la IP del proxy.
+      TRUST_PROXY: "1"
     ports:
-      - "3000:3000"
+      # Solo el computador local puede llamar a la API directamente (Postman).
+      # El navegador entra por el frontend (5173) y nginx reenvía /api.
+      - "127.0.0.1:3000:3000"
     volumes:
       # Para que las fotos subidas en desarrollo no se pierdan al recrear.
       - ./backend/uploads:/app/uploads
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: /api
+    image: focalware-frontend:latest
+    container_name: focalware-frontend
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "5173:80"
 
 volumes:
   pgdata:
