@@ -39,6 +39,13 @@ Ese archivo crea la base `focalware` en UTF-8, las tablas y al final carga los d
 
 ## 2. Diagrama de la base
 
+**Archivos originales de ERDPlus.** El diagrama entidad-relación y el esquema relacional con los que se diseñó la base están en [docs/diagramas](diagramas). Para verlos o editarlos, se abren en [ERDPlus](https://erdplus.com) con la opción de abrir o importar un diagrama.
+
+| Archivo | Qué tiene |
+|---|---|
+| [focalware-v3-entidad-relacion.erdplus](diagramas/focalware-v3-entidad-relacion.erdplus) | Diagrama entidad-relación (modelo conceptual) con las entidades, sus atributos y las relaciones con su cardinalidad |
+| [focalware-v3-esquema-relacional.erdplus](diagramas/focalware-v3-esquema-relacional.erdplus) | Esquema relacional que ERDPlus genera desde el diagrama, con las tablas, llaves primarias y foráneas |
+
 **Modelo relacional completo** (las 12 tablas con todas sus columnas, tipos y llaves):
 
 ![Modelo relacional de FocalWare con las 12 tablas, sus columnas, tipos, llaves primarias, foráneas y valores únicos, y las relaciones entre ellas](img/modelo-relacional.png)
@@ -381,10 +388,10 @@ También trae tres cuadrillas (Cerros, Quebradas y Norte), reportes en distintos
 
 ## 8. Diferencias entre el diagrama ER y la base actual
 
-Al pasar el modelo de ERDPlus al código quedaron dos diferencias. No rompen nada, pero hay que tenerlas en cuenta:
+Las tablas, columnas y llaves de la base siguen el esquema relacional de ERDPlus (versión V3, en [docs/diagramas](diagramas)). Hay dos reglas que el diagrama permite de forma más amplia y que el backend limita. No rompen nada, pero hay que tenerlas en cuenta:
 
-1. **Dónde se guarda la conexión entre Reporte y Revision.** En el modelo conceptual la idea es "un reporte tiene una revisión" (1 a 1). En la base actual es el **reporte** el que guarda `idrevision`, y queda vacío hasta que se revisa (se acordó así en la [EP 2.1, sección 7.1](EP2.1-estructura-backend.md#71-ya-acordado)). Por eso, técnicamente una revisión podría tener varios reportes, pero el backend no lo permite. Si más adelante se pasa la llave a `revision.idreporte`, hay que cambiar el `schema.prisma`, el `focalware.sql`, el `revisionService.js` y la consulta de notificaciones (`repositorios/notificaciones.ts`).
-2. **Reporte_Control no tiene `idrevision` único.** En el modelo es "una revisión tiene como máximo un control". En la base no hay `UNIQUE`, pero el backend solo deja controlar revisiones `Aprobado` o `En atención`. Después del control queda `Controlado`, así que no se puede registrar un segundo control.
+1. **Un reporte por revisión.** En el diagrama, el **reporte** guarda `idrevision` (varios reportes podrían apuntar a la misma revisión), y así quedó en la base. Ese campo queda vacío hasta que se revisa (se acordó así en la [EP 2.1, sección 7.1](EP2.1-estructura-backend.md#71-ya-acordado)). En la práctica el backend crea una revisión nueva para cada reporte, así que cada revisión tiene un solo reporte. Si más adelante se pasa la llave a `revision.idreporte`, hay que cambiar el `schema.prisma`, el `focalware.sql`, el `revisionService.js` y la consulta de notificaciones (`repositorios/notificaciones.ts`).
+2. **Un control por revisión.** En el diagrama una revisión puede tener varios reportes de control, y en la base `idrevision` no es `UNIQUE`. El backend solo deja controlar revisiones `Aprobado` o `En atención`. Después del control queda `Controlado`, así que no se puede registrar un segundo control.
 
 ## 9. Archivos relacionados
 
@@ -394,5 +401,6 @@ Al pasar el modelo de ERDPlus al código quedaron dos diferencias. No rompen nad
 | `backend/prisma/migrations/` | Las migraciones que aplica Docker al arrancar la API |
 | `backend/database/focalware.sql` | El mismo esquema en SQL, para montar la base a mano |
 | `backend/database/datos_prueba.sql` | Los datos de prueba |
+| `docs/diagramas/` | Los archivos originales de ERDPlus (diagrama entidad-relación y esquema relacional) |
 | `backend/src/db/repositorios/` | Las consultas a la base hechas con Prisma |
 | `docker-compose.yml` | El contenedor de PostgreSQL (`focalware-db`, puerto 5434) |
