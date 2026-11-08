@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   IonButton,
   IonIcon,
@@ -30,11 +30,17 @@ import GaleriaEditable from '../../components/reportes/GaleriaEditable';
 import SelectorUbicacion, { type Ubicacion } from '../../components/reportes/SelectorUbicacion';
 import { useConexion } from '../../hooks/useConexion';
 import { useUbicacionActual } from '../../hooks/useUbicacionActual';
+import { useGeocodificacion } from '../../hooks/useGeocodificacion';
 import { RUTAS, rutaEditarReporte, rutaMapaConReporte } from '../../routes/rutas';
 import { ErrorApi, urlDeImagen } from '../../services/api';
 import { esClimaDeRiesgo, obtenerClimaActual, type Clima } from '../../services/climaService';
 import { guardarPendiente } from '../../services/pendientesService';
 import { crearReporte, type DatosNuevoReporte, type Reporte } from '../../services/reportesService';
+import {
+  buscarDirecciones,
+  obtenerDireccionDesdePunto,
+  type SugerenciaDireccion,
+} from '../../services/geocodificacionService';
 import { calcularIndice } from '../../utils/opcionesReporte';
 import { obtenerNivelRiesgo } from '../../utils/riesgo';
 import { MAXIMO_TITULO, validarReporte } from '../../utils/validacionReporte';
@@ -51,14 +57,13 @@ const CrearReporte: React.FC = () => {
   const [mostrarAlerta] = useIonAlert();
   const enLinea = useConexion();
 
-  const [titulo, setTitulo] = useState('');
-  const [sector, setSector] = useState('');
+const [titulo, setTitulo] = useState('');
   const [categoria, setCategoria] = useState('');
   const [volumen, setVolumen] = useState('');
   const [distancia, setDistancia] = useState('');
   const [descripcion, setDescripcion] = useState('');
-  const [ubicacion, setUbicacion] = useState<Ubicacion | null>(null);
-  const [enfocar, setEnfocar] = useState<Ubicacion | null>(null);
+  const geo = useGeocodificacion();
+  const { sector, ubicacion, enfocar, sugerencias, buscandoSugerencias, cambiarUbicacion, onSectorChange, seleccionarSugerencia, limpiar: limpiarGeo } = geo;
   const [imagenes, setImagenes] = useState<string[]>([]);
   const [clima, setClima] = useState<Clima>();
   const [sinClima, setSinClima] = useState(false);
@@ -113,13 +118,11 @@ const CrearReporte: React.FC = () => {
 
   const reiniciar = () => {
     setTitulo('');
-    setSector('');
     setCategoria('');
     setVolumen('');
     setDistancia('');
     setDescripcion('');
-    setUbicacion(null);
-    setEnfocar(null);
+    limpiarGeo();
     setImagenes([]);
     setIntentoEnviar(false);
     setAviso(null);
@@ -130,8 +133,7 @@ const CrearReporte: React.FC = () => {
 
   const usarMiUbicacion = () =>
     gps.obtener((punto) => {
-      setUbicacion(punto);
-      setEnfocar(punto);
+      cambiarUbicacion(punto);
     }, setMensaje);
 
   const enviar = async () => {
@@ -329,16 +331,33 @@ const CrearReporte: React.FC = () => {
           />
 
           <div className="formulario-fila-sector">
-            <IonInput
-              label="Sector o dirección"
-              labelPlacement="stacked"
-              fill="outline"
-              placeholder="Ej: Cerro Cordillera, escalera Fischer"
-              value={sector}
-              className={error('sector') ? 'campo-invalido ion-invalid ion-touched' : ''}
-              errorText={error('sector')}
-              onIonInput={(e) => setSector(e.detail.value ?? '')}
-            />
+            <div className="formulario-sugerencias-contenedor">
+              <IonInput
+                label="Sector o dirección"
+                labelPlacement="stacked"
+                fill="outline"
+                placeholder="Ej: Cerro Cordillera, escalera Fischer"
+                value={sector}
+                className={error('sector') ? 'campo-invalido ion-invalid ion-touched' : ''}
+                errorText={error('sector')}
+                onIonInput={(e) => {
+                  onSectorChange(e.detail.value ?? '');
+                }}
+                onIonBlur={() => { /* sugerencias se limpian en el hook */ }}
+              />
+              {sugerencias.length > 0 && (
+                <ul className="formulario-sugerencias" role="listbox" aria-label="Sugerencias de dirección">
+                  {sugerencias.map((sugerencia) => (
+                    <li key={sugerencia.id} role="option">
+                      <button type="button" onClick={() => seleccionarSugerencia(sugerencia)}>
+                        {sugerencia.texto}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {buscandoSugerencias && <p className="formulario-sugerencias-cargando">Buscando direcciones…</p>}
+            </div>
             <IonButton className="formulario-gps" onClick={usarMiUbicacion} disabled={gps.buscando}>
               {gps.buscando ? (
                 <IonSpinner name="crescent" />
@@ -353,7 +372,7 @@ const CrearReporte: React.FC = () => {
 
           <div className="formulario-fila-mapa">
             <div className={error('ubicacion') ? 'formulario-mapa invalido' : 'formulario-mapa'}>
-              <SelectorUbicacion ubicacion={ubicacion} enfocar={enfocar} onCambiar={setUbicacion} />
+              <SelectorUbicacion ubicacion={ubicacion} enfocar={enfocar} onCambiar={cambiarUbicacion} />
               {error('ubicacion') && <p className="formulario-error">{error('ubicacion')}</p>}
             </div>
 

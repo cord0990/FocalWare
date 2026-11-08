@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { IonButton, IonIcon, IonSpinner, IonToast, useIonRouter } from '@ionic/react';
 import {
   arrowBackOutline,
+  caretUp,
   createOutline,
   folderOpenOutline,
   helpCircleOutline,
@@ -42,6 +43,7 @@ import { antiguedad, formatearFecha } from '../../utils/fechas';
 import { calcularIndice } from '../../utils/opcionesReporte';
 import { obtenerNivelRiesgo } from '../../utils/riesgo';
 import './DetalleReporte.css';
+import '../../components/reportes/TarjetaReporte.css';
 
 interface DetalleReporteProps {
   // Desde el mapa (público, /mapa/:id), desde Mis reportes (/mis-reportes/:id) o la vista de
@@ -136,6 +138,24 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
   };
 
   const puedeVotarOtro = (otro: Reporte) => usuario?.rol !== 'funcionario' && !otro.esMio;
+
+  const puedeVotarPrincipal = () => usuario?.rol !== 'funcionario' && !reporte?.esMio;
+
+  const alternarVotoPrincipal = async () => {
+    if (!usuario) {
+      irAlLogin();
+      return;
+    }
+    if (!reporte || !puedeVotarPrincipal()) return;
+    const yaVotado = Boolean(reporte.miVoto);
+    try {
+      const votos = yaVotado ? await quitarApoyo(reporte.id) : await apoyarReporte(reporte.id);
+      setReporte((actual) => (actual ? { ...actual, votos, miVoto: !yaVotado } : actual));
+    } catch {
+      const encontrado = await obtenerReportePorId(reporte.id);
+      if (encontrado) setReporte(encontrado);
+    }
+  };
 
   if (reporte === undefined) {
     return (
@@ -368,7 +388,7 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
               />
               {origen === 'mis-reportes' ? 'Volver a Mis reportes' : 'Volver al mapa'}
             </button>
-            {usuario?.rol === 'vecino' && puedeModificar(reporte) && (
+            {usuario?.rol === 'vecino' && origen === 'mis-reportes' && puedeModificar(reporte) && (
               <button
                 type="button"
                 className="detalle-modificar"
@@ -376,6 +396,18 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
               >
                 <IonIcon icon={createOutline} aria-hidden="true" />
                 Modificar reporte
+              </button>
+            )}
+            {puedeVotarPrincipal() && (
+              <button
+                type="button"
+                className={reporte.miVoto ? 'btn-voto votado' : 'btn-voto'}
+                onClick={alternarVotoPrincipal}
+                aria-pressed={reporte.miVoto}
+                aria-label={`Votar a favor, ${reporte.votos} votos`}
+              >
+                <IonIcon icon={caretUp} aria-hidden="true" />
+                {reporte.votos}
               </button>
             )}
           </div>

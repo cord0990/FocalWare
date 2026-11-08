@@ -206,6 +206,19 @@
   color: #8a6400;
   font-size: 0.95rem;
   font-weight: 700;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.popup-votos:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.popup-votos.votado {
+  color: #5a4000;
 }
 
 @media (max-width: 767px) {

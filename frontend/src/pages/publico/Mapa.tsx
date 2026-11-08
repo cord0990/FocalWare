@@ -191,6 +191,8 @@ const Mapa: React.FC = () => {
             seleccionado={seleccionado}
             onSeleccionar={seleccionar}
             onVerDetalles={(id) => router.push(rutaDetalle(id), 'forward')}
+            onVotar={alternarVoto}
+            puedeVotar={puedeVotar}
           />
         </section>
 
