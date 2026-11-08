@@ -202,6 +202,7 @@ Todo en español: `crearReporte`, `votosService.js`, `obtenerPerfil`.
 | Token vencido en la app | Cumple | Al abrir la app se revisa el token con la API. Si la API responde 401, la app cierra la sesión, avisa y lleva al login |
 | Rutas protegidas | Cumple | `verificarToken`, `permitirRoles` y `perteneceACuadrilla` en las rutas. La app también protege sus pantallas por rol |
 | CORS (RNF-06) | Cumple | Solo acepta pedidos de la URL del frontend (`FRONTEND_URL`) |
+| Cabeceras de seguridad | Cumple | nginx envía CSP, `nosniff`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy` y `Cross-Origin-Opener-Policy`; la API no envía `X-Powered-By`. HSTS queda para un despliegue con HTTPS |
 | Anonimato (RNF-07) | Cumple | El mapa y el detalle público no muestran el nombre ni el correo del vecino |
 | Inyección SQL | Cumple | Todas las consultas pasan por Prisma |
 | Validación de entradas | Cumple | Campos obligatorios, formato de correo, contraseña segura, largos máximos, números en rango. Responde 400 con un mensaje claro |
@@ -216,6 +217,7 @@ Todo en español: `crearReporte`, `votosService.js`, `obtenerPerfil`.
 1. **Rotación del token (RNF-05):** agregar un token de renovación y firmar con un par de claves (algoritmo asimétrico), como pide el requerimiento.
 2. **Envío real del código de recuperación:** mandarlo por correo en vez de mostrarlo en la consola.
 3. **Dónde se guarda el token en la app:** hoy va en `localStorage`. Si algún día la app tuviera un problema de XSS, se podría leer. Una cookie `httpOnly` lo evitaría.
+4. **CSP estricta:** la del frontend permite `'unsafe-inline'` y `data:` en `script-src` por el plugin legacy de Vite. Para bloquear scripts inline habría que quitar ese plugin o implementar nonces/hashes.
 
 ## 8. Decisiones y acuerdos implementados
 

@@ -15,8 +15,13 @@ const express = require('express');
 const cors = require('cors');
 const rutas = require('./routes');
 const { rutaNoEncontrada, manejarErrores } = require('./middlewares/manejoErrores');
+const { cabecerasSeguridad } = require('./middlewares/cabecerasSeguridad');
 
 const app = express();
+
+// No revelar que el servidor usa Express.
+app.disable('x-powered-by');
+app.use(cabecerasSeguridad);
 
 // Detrás de un proxy inverso (nginx, balanceador) la IP real del cliente llega
 // en X-Forwarded-For. Solo se confía en esa cabecera si TRUST_PROXY=1: si la API

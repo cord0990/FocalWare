@@ -257,6 +257,12 @@ se puede usar desde el mismo computador con `psql` o pgAdmin,
 pero no queda accesible desde otros equipos de la red.
 La API y el frontend se comunican con la base por la red interna de Docker.
 
+La app y la API también envían cabeceras de seguridad:
+`Content-Security-Policy`, `X-Content-Type-Options: nosniff`,
+`X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy` y `Cross-Origin-Opener-Policy`.
+nginx no revela su versión y Express no envía `X-Powered-By`.
+En local no se envía HSTS porque se accede por HTTP; en un despliegue con HTTPS hay que agregar `Strict-Transport-Security`.
+
 1. Clonar el repositorio:
 
 ```bash

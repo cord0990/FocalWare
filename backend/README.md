@@ -75,3 +75,11 @@ Todas las respuestas son JSON:
 
 - Correcta: `{ "ok": true, "data": ... }`
 - Con error: `{ "ok": false, "error": "mensaje" }`
+
+## Cabeceras de seguridad
+
+Todas las respuestas de la API incluyen
+`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy` y una CSP restrictiva.
+Express no envía `X-Powered-By`.
+El frontend servido por nginx agrega su propia CSP y el resto de cabeceras;
+HSTS se agrega solo en despliegues con HTTPS.
