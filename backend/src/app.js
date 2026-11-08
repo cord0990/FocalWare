@@ -1,4 +1,15 @@
 require('dotenv').config();
+
+// Sin un secreto largo, cualquiera podría firmar tokens propios.
+// En Docker el entrypoint lo genera y lo persiste; fuera de Docker hay que definirlo en .env.
+if (!process.env.JWT_SECRETO || process.env.JWT_SECRETO.length < 32) {
+  console.error(
+    'JWT_SECRETO debe existir y tener al menos 32 caracteres. ' +
+    'Genera uno con: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"'
+  );
+  process.exit(1);
+}
+
 const path = require('path');
 const express = require('express');
 const cors = require('cors');

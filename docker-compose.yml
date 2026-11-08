@@ -41,7 +41,9 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-postgres}
       DATABASE_URL: postgresql://postgres:${DB_PASSWORD:-postgres}@db:5432/focalware
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
-      JWT_SECRETO: ${JWT_SECRETO:-cambia_esta_clave}
+      # Si queda vacío, el entrypoint genera una clave aleatoria y la guarda
+      # en el volumen appdata. Definir JWT_SECRETO para fijarla manualmente.
+      JWT_SECRETO: ${JWT_SECRETO:-}
       JWT_EXPIRACION: ${JWT_EXPIRACION:-15m}
       # El frontend llega a través de nginx, que pone la IP real del cliente en X-Forwarded-For.
       # Sin esto, todos los usuarios compartirían el límite de intentos de la IP del proxy.
@@ -53,6 +55,8 @@ services:
     volumes:
       # Para que las fotos subidas en desarrollo no se pierdan al recrear.
       - ./backend/uploads:/app/uploads
+      # Guarda el JWT_SECRETO generado para reutilizarlo en cada arranque.
+      - appdata:/app/data
 
   frontend:
     build:
@@ -70,3 +74,4 @@ services:
 
 volumes:
   pgdata:
+  appdata:
