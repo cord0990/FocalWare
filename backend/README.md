@@ -65,6 +65,10 @@ Las fotos no se suben al repositorio, solo las carpetas.
 
 La API recibe las fotos en el campo `fotos` de un formulario (`multipart/form-data`): máximo 5 por envío, solo JPG, PNG o WEBP y de hasta 5 MB cada una.
 
+El tipo se detecta por el contenido real con `file-type`, no por el nombre ni por el MIME que envía el cliente. Por eso un `.html`, `.svg` o texto renombrado se rechaza con `400`, y la extensión guardada (`.jpg`, `.png` o `.webp`) corresponde al contenido. El nombre de cada archivo se genera con un UUID.
+
+Las imágenes se sirven en `/uploads` solo si tienen extensión `.jpg`, `.jpeg`, `.png` o `.webp`, con las cabeceras `X-Content-Type-Options: nosniff`, `Content-Security-Policy: default-src 'none'; sandbox` y `Cross-Origin-Resource-Policy: same-origin`.
+
 ## Formato de respuestas
 
 Todas las respuestas son JSON:

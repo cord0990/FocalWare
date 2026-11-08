@@ -368,7 +368,7 @@ Los pasos 3 y 4 se guardan en una **transacción**: o se guardan todas las filas
 | Si se borra un reporte, se borran sus fotos y sus votos | `ON DELETE CASCADE` |
 | Si se borra una revisión, se borran su historial y sus avisos | `ON DELETE CASCADE` en `log` y `notificacion` |
 | Si se borra un vecino, se borran sus votos y sus avisos | `ON DELETE CASCADE` |
-| Máximo 5 fotos por reporte o control, de hasta 5 MB cada una | En el backend (`middlewares/subirFotos.js`) |
+| Máximo 5 fotos por reporte o control, de hasta 5 MB cada una, y solo JPG, PNG o WEBP reales | En el backend (`middlewares/subirFotos.js`, con `file-type`) |
 | Un control necesita al menos 1 foto | En el backend (`services/revisionService.js`) |
 | Un reporte se revisa una sola vez | En el backend: si ya tiene `idrevision`, responde error 409 |
 

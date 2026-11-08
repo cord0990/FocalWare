@@ -31,7 +31,30 @@ app.use(cors({ origin: process.env.FRONTEND_URL }));
 app.use(express.json());
 
 // Fotos de los reportes y de los controles, por ejemplo /uploads/reportes/foto.jpg
-app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+// Solo se entregan extensiones de imagen.
+// Aunque un archivo ajeno llegara a la carpeta (por ejemplo un .html o .svg),
+// no se sirve como documento ejecutable.
+const EXTENSIONES_FOTO = new Set(['.jpg', '.jpeg', '.png', '.webp']);
+
+const servirFotos = (req, res, next) => {
+  let ruta;
+  try {
+    ruta = decodeURIComponent(req.path);
+  } catch {
+    return res.status(404).json({ ok: false, error: 'Ruta no encontrada' });
+  }
+
+  if (!EXTENSIONES_FOTO.has(path.extname(ruta).toLowerCase())) {
+    return res.status(404).json({ ok: false, error: 'Ruta no encontrada' });
+  }
+
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Content-Security-Policy', "default-src 'none'; sandbox");
+  res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
+  next();
+};
+
+app.use('/uploads', servirFotos, express.static(path.join(__dirname, '..', 'uploads')));
 
 app.use('/api', rutas);
 

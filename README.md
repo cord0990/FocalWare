@@ -164,7 +164,7 @@ La especificación completa, con tipo y dependencias de cada requerimiento, est�
 | Backend | Node.js (20.19+), Express |
 | Base de datos | PostgreSQL 16, Prisma 7 (ORM) |
 | Seguridad | JWT (`jsonwebtoken`), bcrypt (`bcryptjs`) |
-| Archivos | `multer` (fotos JPG/PNG/WEBP, hasta 5 por envío) |
+| Archivos | `multer` (hasta 5 fotos de 5 MB por envío) y `file-type` para validar el contenido real: solo se guardan JPG, PNG o WEBP reales |
 | Contenerización | Docker y Docker Compose; nginx sirve el frontend compilado y hace de proxy hacia la API |
 | Pruebas de API | Postman (colección en `backend/postman/`) |
 | Servicio externo | [Open-Meteo](https://open-meteo.com/) (temperatura, humedad y viento) |

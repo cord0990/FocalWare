@@ -206,7 +206,7 @@ Todo en español: `crearReporte`, `votosService.js`, `obtenerPerfil`.
 | Inyección SQL | Cumple | Todas las consultas pasan por Prisma |
 | Validación de entradas | Cumple | Campos obligatorios, formato de correo, contraseña segura, largos máximos, números en rango. Responde 400 con un mensaje claro |
 | Errores | Cumple | Los errores internos responden "Error interno del servidor", sin mostrar detalles |
-| Fotos | Cumple | Solo JPG, PNG o WEBP, máximo 5 fotos de 5 MB cada una |
+| Fotos | Cumple | El tipo se detecta por el contenido real (`file-type`), no por el nombre ni el MIME. Solo JPG, PNG o WEBP reales, máximo 5 fotos de 5 MB. `/uploads` solo entrega esas extensiones y con cabeceras seguras |
 | Recuperación de contraseña | Solo para desarrollo | El código se guarda hasheado, vence en 10 minutos y permite 5 intentos, pero se muestra en la consola en vez de enviarse por correo |
 | Límite de intentos | Cumple | Login: 10 fallos por correo y 30 por IP cada 15 minutos; un login exitoso libera el correo. Recuperación: 3 solicitudes de código por correo y 10 por IP, y 10 intentos de código por correo. Responde `429` con `Retry-After`. El conteo vive en memoria y se reinicia con la API; detrás de un proxy hay que definir `TRUST_PROXY=1` |
 | Secretos | Cumple | El `.env` no se sube al repositorio. Solo se sube `.env.example`. En Docker, `JWT_SECRETO` se genera aleatoriamente y se guarda en el volumen `focalware_appdata` |
