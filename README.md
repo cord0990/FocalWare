@@ -165,7 +165,7 @@ La especificación completa, con tipo y dependencias de cada requerimiento, est�
 | Base de datos | PostgreSQL 16, Prisma 7 (ORM) |
 | Seguridad | JWT (`jsonwebtoken`), bcrypt (`bcryptjs`) |
 | Archivos | `multer` (fotos JPG/PNG/WEBP, hasta 5 por envío) |
-| Contenerización | Docker y Docker Compose |
+| Contenerización | Docker y Docker Compose; nginx sirve el frontend compilado y hace de proxy hacia la API |
 | Pruebas de API | Postman (colección en `backend/postman/`) |
 | Servicio externo | [Open-Meteo](https://open-meteo.com/) (temperatura, humedad y viento) |
 | Herramientas | Git, GitHub, Figma |
@@ -189,7 +189,10 @@ Al clonar, `main` ya trae todo el proyecto. Para trabajar en la Entrega 2 se usa
 **Carpeta `frontend`**
 
 ```
-frontend/src/
+frontend/
+├── Dockerfile          # Build de Vite + nginx
+├── nginx.conf          # SPA, proxy /api y /uploads, límite de subida
+├── src/
 ├── pages/
 │   ├── publico/        # Mapa, detalle, login, registro y ayuda (sin sesión)
 │   ├── compartido/     # Crear reporte, mis reportes y perfil (con sesión)
@@ -208,6 +211,7 @@ La arquitectura de navegación, con las rutas, el acceso por rol y los flujos de
 
 ```
 backend/
+├── Dockerfile          # Imagen de la API; aplica migraciones al arrancar
 ├── src/
 │   ├── routes/         # Definición de endpoints
 │   ├── controllers/    # Lógica de cada endpoint
@@ -232,13 +236,21 @@ El detalle de la estructura del backend está en [docs/EP2.1-estructura-backend.
 
 Requisitos previos: Node.js **20.19 o superior** (Prisma 7 lo exige), npm 9 o superior, Git y, para la opción con Docker, Docker y Docker Compose.
 
-Hay dos formas de levantar el proyecto: **con Docker** (recomendada) y **sin Docker**. En ambos casos el frontend se levanta al final con `npm run dev`.
+Hay dos formas de levantar el proyecto: **con Docker** (recomendada) y **sin Docker**. Con Docker, un solo comando construye las imágenes del backend y del frontend y levanta la base de datos, la API y la app. Sin Docker, el frontend se ejecuta con `npm run dev`.
 
-> Para la Opción A, asegúrate de tener **Docker Desktop abierto y activo** antes de ejecutar los comandos. Para la Opción B, hay que tener **PostgreSQL 16 o superior** instalado y conocer su usuario y contraseña.
+> Para la Opción A, asegúrate de tener **Docker activo** antes de ejecutar los comandos (Docker Desktop en Windows/macOS o el servicio `docker` en Linux). Para la Opción B, hay que tener **PostgreSQL 16 o superior** instalado y conocer su usuario y contraseña.
 
 ### Opción A: con Docker (recomendada)
 
-Levanta la base de datos y la API. El contenedor de la API aplica las migraciones de Prisma al arrancar.
+Un solo comando construye las dos imágenes de la aplicación y levanta los tres servicios:
+
+| Contenedor | Imagen | Qué es |
+|---|---|---|
+| `focalware-db` | `postgres:16-alpine` | Base de datos |
+| `focalware-api` | build de `backend/Dockerfile` | API Node/Express; aplica las migraciones de Prisma al arrancar |
+| `focalware-frontend` | build de `frontend/Dockerfile` | App compilada y servida por nginx |
+
+Solo hay **dos Dockerfiles** (backend y frontend); PostgreSQL usa una imagen oficial.
 
 1. Clonar el repositorio:
 
@@ -247,32 +259,33 @@ git clone https://github.com/cord0990/FocalWare.git
 cd FocalWare
 ```
 
-2. Crear el archivo de entorno del backend copiando el ejemplo. Los valores por defecto ya funcionan con Docker; solo hay que ajustarlos si se cambia la contraseña o el puerto:
-
-```bash
-cp backend/.env.example backend/.env
-```
-
-3. Levantar base de datos + API:
+2. Levantar todo:
 
 ```bash
 docker compose up -d --build
 ```
 
-4. Cargar los datos de prueba (opcional, recomendado):
+Ese comando construye el backend y el frontend, espera a que la base y la API estén sanas, y deja la app en `http://localhost:5173` y la API en `http://localhost:3000`.
+
+No hace falta crear ningún `.env`: los valores por defecto funcionan. Si quieres cambiar la contraseña de la base o el secreto JWT, crea un `.env` en la raíz del proyecto con `DB_PASSWORD`, `JWT_SECRETO`, etc. (el `backend/.env` es solo para la Opción B, sin Docker).
+
+3. Cargar los datos de prueba (opcional, recomendado):
 
 ```bash
 docker exec -i focalware-db psql -U postgres -d focalware < backend/database/datos_prueba.sql
 ```
 
-5. Frontend:
+4. Abrir `http://localhost:5173`.
+
+**Código de recuperación de contraseña:** el backend no envía correos; imprime el código en su consola. Con Docker se ve así:
 
 ```bash
-cd frontend
-npm install
-# opcional: crear frontend/.env con VITE_API_URL (ver sección de variables)
-npm run dev
+docker compose logs -f api
 ```
+
+Los códigos viven en memoria: si reinicias o recreas el contenedor de la API entre solicitar y usar el código, hay que pedir uno nuevo.
+
+No ejecutes `npm run dev` al mismo tiempo que el contenedor del frontend: los dos usan el puerto `5173`. Elige Docker **o** desarrollo local.
 
 ### Opción B: sin Docker
 
@@ -326,7 +339,8 @@ npm install
 npm run dev
 ```
 
-En ambos casos la aplicación queda disponible en `http://localhost:5173` y la API en `http://localhost:3000`.
+En ambos casos la aplicación queda disponible en `http://localhost:5173` y la API en `http://localhost:3000`. Con Docker, el frontend se sirve con nginx y la API solo acepta conexiones desde el propio computador (Postman sigue funcionando); el navegador entra por `5173` y nginx reenvía `/api` y `/uploads`.
+
 ## Variables de entorno
 
 Los archivos `.env` no se versionan (están en `.gitignore`).
@@ -345,7 +359,7 @@ Los archivos `.env` no se versionan (están en `.gitignore`).
 | `FRONTEND_URL` | Origen permitido por CORS | `http://localhost:5173` |
 | `JWT_SECRETO` | Clave para firmar los tokens | valor propio (largo y privado) |
 | `JWT_EXPIRACION` | Duración de la sesión | `15m` |
-| `TRUST_PROXY` | `1` si la API está detrás de un proxy inverso, para limitar por la IP real de `X-Forwarded-For` | `0` |
+| `TRUST_PROXY` | `1` si la API está detrás de un proxy inverso, para limitar por la IP real de `X-Forwarded-For` (Docker Compose lo deja en `1` porque nginx está delante) | `0` |
 
 ### Frontend (`frontend/.env`, opcional)
 
@@ -386,12 +400,49 @@ El cliente de Prisma se genera con `npm run build` o `npm run db:generate`.
 
 ## Ejecución
 
+### Con Docker
+
+Desde la raíz del proyecto:
+
+```bash
+docker compose up -d --build
+```
+
+La aplicación queda disponible en `http://localhost:5173`. Para ver los logs (incluido el código de recuperación):
+
+```bash
+docker compose logs -f api
+```
+
+### Detener, apagar y eliminar
+
+| Acción | Comando | Base de datos (`focalware_pgdata`) | Fotos (`backend/uploads`) |
+|---|---|---|---|
+| Pausar y retomar rápido | `docker compose stop` / `docker compose start` | Se conserva | Se conservan |
+| Apagar y eliminar los contenedores | `docker compose down` | Se conserva | Se conservan |
+| Volver a levantar | `docker compose up -d` | Se reutiliza la misma | Se reutilizan |
+| Empezar de cero | `docker compose down -v` | **Se borra completa** | Se conservan |
+
+`docker compose down` es la forma normal de apagar el proyecto: elimina los contenedores y la red, pero **no** borra el volumen `focalware_pgdata` (base de datos y datos de muestra) ni la carpeta `backend/uploads` (fotos). Al volver a ejecutar `docker compose up -d`, todo sigue ahí.
+
+`docker compose stop` solo detiene los contenedores sin eliminarlos, y `docker compose start` los retoma. Es útil para una pausa corta.
+
+`docker compose down -v` (o `docker compose down --volumes`) **sí borra el volumen de PostgreSQL**: se pierden todos los usuarios, reportes y datos de muestra de todas las ejecuciones anteriores, no solo los de la última. Las fotos no se borran porque `backend/uploads` es una carpeta del proyecto, no un volumen de Docker. Después de un `down -v` hay que volver a cargar `backend/database/datos_prueba.sql` para recuperar los datos de muestra.
+
+Si necesitas respaldar la base antes de eliminarla:
+
+```bash
+docker exec focalware-db pg_dump -U postgres -d focalware > respaldo.sql
+```
+
+### Sin Docker (desarrollo)
+
 ```bash
 cd frontend
 npm run dev
 ```
 
-La aplicación queda disponible en `http://localhost:5173`.
+La aplicación queda disponible en `http://localhost:5173` y consume la API en `http://localhost:3000`.
 
 **Acceso según rol de usuario:**
 - **Vecino:** inicia sesión con un correo general (ej. `@gmail.com` o `@correo.cl`). También puede registrarse.
@@ -440,7 +491,7 @@ Las pruebas cubren casos exitosos y de error (`400`, `401`, `403`, `404`, `409` 
 | `GET` | `/estadisticas/mi-actividad` | Vecino |
 | `GET` | `/clima` | Público |
 
-La recuperación de contraseña no envía correos reales: el código de 6 dígitos aparece en la consola del backend. Está pensado así para poder probar el flujo en el proyecto universitario.
+La recuperación de contraseña no envía correos reales: el código de 6 dígitos aparece en la consola del backend. Está pensado así para poder probar el flujo en el proyecto universitario. Con Docker, ese código se lee con `docker compose logs -f api` (los códigos viven en memoria, así que si reinicias el contenedor hay que solicitar uno nuevo).
 
 Las rutas de login y recuperación limitan los intentos para frenar la fuerza bruta: al superar el tope responden `429 Too Many Requests` con la cabecera `Retry-After`. En el login son 10 fallos por correo y 30 por IP cada 15 minutos; un inicio de sesión correcto libera el contador del correo.
 
