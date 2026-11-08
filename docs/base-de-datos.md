@@ -25,7 +25,7 @@ Este documento explica cómo está armada la base de datos de FocalWare: qué ta
 docker compose up -d db
 ```
 
-La base queda en `localhost:5434` (dentro de Docker usa el puerto 5432). El puerto 5434 es para no chocar con un PostgreSQL que ya tengas instalado.
+La base queda en `localhost:5434` (dentro de Docker usa el puerto 5432) y se publica solo en `127.0.0.1`, así que no es accesible desde otros equipos de la red. El puerto 5434 es para no chocar con un PostgreSQL que ya tengas instalado.
 
 **A mano, sin Docker:**
 

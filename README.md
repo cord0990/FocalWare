@@ -252,6 +252,11 @@ Un solo comando construye las dos imágenes de la aplicación y levanta los tres
 
 Solo hay **dos Dockerfiles** (backend y frontend); PostgreSQL usa una imagen oficial.
 
+Por seguridad, PostgreSQL se publica solo en `127.0.0.1:5434`:
+se puede usar desde el mismo computador con `psql` o pgAdmin,
+pero no queda accesible desde otros equipos de la red.
+La API y el frontend se comunican con la base por la red interna de Docker.
+
 1. Clonar el repositorio:
 
 ```bash
