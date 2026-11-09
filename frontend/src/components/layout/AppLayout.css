@@ -380,6 +380,16 @@
   .menu-lateral.colapsado .menu-texto {
     display: inline;
   }
+
+  /* Con el teclado abierto, la barra inferior queda encima de él y tapa el campo.
+     Se oculta junto con su espacio reservado y vuelve apenas se cierra el teclado. */
+  .app-cuerpo.teclado-abierto .menu-lateral {
+    display: none;
+  }
+
+  .app-cuerpo.teclado-abierto .app-principal {
+    padding-bottom: 12px;
+  }
 }
 
 /* Botón "Iniciar sesión" en la barra cuando no hay sesión */

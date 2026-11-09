@@ -1,5 +1,9 @@
 export const CENTRO_VALPARAISO: [number, number] = [-33.045, -71.615];
 
+// Lo más que se puede alejar un mapa: se ve el Gran Valparaíso completo.
+// Sin este límite se podía alejar hasta ver el mundo entero repetido con franjas grises.
+export const ZOOM_MINIMO = 11;
+
 // Estilos de mapa disponibles. "Simple" muestra menos detalles para que resalten los reportes.
 export const ESTILOS_MAPA = {
   simple: {

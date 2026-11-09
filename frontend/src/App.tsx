@@ -51,7 +51,14 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import './theme/variables.css';
 
-setupIonicReact();
+// En celular, Ionic agrega un relleno del alto del teclado y mueve la pantalla al tocar un campo.
+// En las páginas con menú el scroll no lo hace IonContent sino el contenido de la página
+// (ver AppLayout), así que ese relleno quedaba como un espacio en blanco al cerrar el teclado.
+// El navegador ya lleva el campo a la vista por su cuenta.
+setupIonicReact({
+  scrollAssist: false,
+  scrollPadding: false,
+});
 
 // Rutas según la arquitectura de navegación (EP 1.4): públicas, compartidas (Vecino y
 // Funcionario) y exclusivas de Funcionario bajo /municipal.

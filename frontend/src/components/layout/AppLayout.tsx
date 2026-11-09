@@ -16,6 +16,7 @@ import { useMenu } from '../../hooks/useMenu';
 import { RUTAS } from '../../routes/rutas';
 import { useIrAlLogin } from '../../hooks/useIrAlLogin';
 import { useSesion } from '../../hooks/useSesion';
+import { useTecladoAbierto } from '../../hooks/useTecladoAbierto';
 import { NOMBRE_ROL, obtenerIniciales } from '../../services/sesionService';
 import './AppLayout.css';
 
@@ -28,6 +29,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const menu = useMenu();
   const { usuario } = useSesion();
   const irAlLogin = useIrAlLogin();
+  const tecladoAbierto = useTecladoAbierto();
   const divisorMenu = useAnchoRedimensionable({
     clave: CLAVE_ANCHO_MENU,
     minimo: 180,
@@ -84,7 +86,13 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       <IonContent className="app-contenido" scrollY={false}>
         <div
           ref={divisorMenu.contenedor}
-          className={divisorMenu.arrastrando ? 'app-cuerpo arrastrando' : 'app-cuerpo'}
+          className={[
+            'app-cuerpo',
+            divisorMenu.arrastrando && 'arrastrando',
+            tecladoAbierto && 'teclado-abierto',
+          ]
+            .filter(Boolean)
+            .join(' ')}
           style={menu.ancho ? ({ '--ancho-menu': `${menu.ancho}px` } as React.CSSProperties) : undefined}
         >
           <MenuLateral />
