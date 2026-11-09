@@ -56,7 +56,12 @@ import {
 } from '../../services/reportesService';
 import { estiloDeEstado } from '../../utils/estados';
 import { antiguedad, formatearFecha } from '../../utils/fechas';
-import { calcularIndice } from '../../utils/opcionesReporte';
+import {
+  calcularIndice,
+  type CategoriaReporte,
+  type DistanciaReporte,
+  type VolumenReporte,
+} from '../../utils/opcionesReporte';
 import { obtenerNivelRiesgo } from '../../utils/riesgo';
 import { MAXIMO_TITULO, validarReporte } from '../../utils/validacionReporte';
 import './FormularioReporte.css';
@@ -97,9 +102,9 @@ const EditarReporte: React.FC<EditarReporteProps> = ({ origen }) => {
 
   const [reporte, setReporte] = useState<Reporte | null>();
   const [titulo, setTitulo] = useState('');
-  const [categoria, setCategoria] = useState('');
-  const [volumen, setVolumen] = useState('');
-  const [distancia, setDistancia] = useState('');
+  const [categoria, setCategoria] = useState<CategoriaReporte | ''>('');
+  const [volumen, setVolumen] = useState<VolumenReporte | ''>('');
+  const [distancia, setDistancia] = useState<DistanciaReporte | ''>('');
   const [descripcion, setDescripcion] = useState('');
   const geo = useGeocodificacion();
   const { sector, ubicacion, enfocar, sugerencias, buscandoSugerencias, cambiarUbicacion, onSectorChange, seleccionarSugerencia, setSector, setUbicacion, setEnfocar, limpiar: limpiarGeo } = geo;

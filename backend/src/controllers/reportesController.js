@@ -1,5 +1,10 @@
 const reportesService = require('../services/reportesService');
 const { primerErrorDeTextos } = require('../middlewares/validaciones');
+const {
+  esCategoriaReporte,
+  esVolumenReporte,
+  esDistanciaReporte,
+} = require('../dominio/opcionesReporte');
 
 const numero = (valor) => (valor === undefined || valor === null || valor === '' ? null : Number(valor));
 
@@ -8,13 +13,6 @@ const MAXIMO_TITULO = 150;
 const MAXIMO_SECTOR = 100;
 const MAXIMO_CATEGORIA = 50;
 const MAXIMO_VOLUMEN = 30;
-
-const DISTANCIAS_VALIDAS = [
-  'Menos de 10 m',
-  'Entre 10 y 50 m',
-  'Entre 50 y 100 m',
-  'Más de 100 m',
-];
 
 // Revisa que el reporte tenga sentido antes de guardarlo.
 const problemaDelReporte = (datos) => {
@@ -27,12 +25,12 @@ const problemaDelReporte = (datos) => {
     return `El título puede tener máximo ${MAXIMO_TITULO} caracteres.`;
   }
   if (!texto(categoria)) return 'Elige una categoría.';
-  if (texto(categoria).length > MAXIMO_CATEGORIA) {
-    return `La categoría puede tener máximo ${MAXIMO_CATEGORIA} caracteres.`;
+  if (!esCategoriaReporte(texto(categoria))) {
+    return 'La categoría no es válida.';
   }
   if (!texto(volumen)) return 'Elige el volumen estimado.';
-  if (texto(volumen).length > MAXIMO_VOLUMEN) {
-    return `El volumen puede tener máximo ${MAXIMO_VOLUMEN} caracteres.`;
+  if (!esVolumenReporte(texto(volumen))) {
+    return 'El volumen estimado no es válido.';
   }
   if (!texto(sector)) return 'Escribe el sector o la dirección aproximada.';
   if (texto(sector).length > MAXIMO_SECTOR) {
@@ -46,7 +44,7 @@ const problemaDelReporte = (datos) => {
     return 'La longitud no es válida.';
   }
 
-  if (distanciaViviendas && !DISTANCIAS_VALIDAS.includes(distanciaViviendas)) {
+  if (distanciaViviendas && !esDistanciaReporte(distanciaViviendas)) {
     return 'La distancia a las viviendas no es válida.';
   }
 
@@ -185,15 +183,21 @@ const modificar = async (req, res, next) => {
     }
 
     if (categoria !== undefined) {
-      if (!texto(categoria)) problemas.push('La categoría no puede quedar vacía.');
-      else if (texto(categoria).length > MAXIMO_CATEGORIA) {
+      const valor = texto(categoria);
+      if (!valor) problemas.push('La categoría no puede quedar vacía.');
+      else if (valor.length > MAXIMO_CATEGORIA) {
         problemas.push(`La categoría puede tener máximo ${MAXIMO_CATEGORIA} caracteres.`);
+      } else if (!esCategoriaReporte(valor)) {
+        problemas.push('La categoría no es válida.');
       }
     }
     if (volumen !== undefined) {
-      if (!texto(volumen)) problemas.push('El volumen no puede quedar vacío.');
-      else if (texto(volumen).length > MAXIMO_VOLUMEN) {
+      const valor = texto(volumen);
+      if (!valor) problemas.push('El volumen no puede quedar vacío.');
+      else if (valor.length > MAXIMO_VOLUMEN) {
         problemas.push(`El volumen puede tener máximo ${MAXIMO_VOLUMEN} caracteres.`);
+      } else if (!esVolumenReporte(valor)) {
+        problemas.push('El volumen estimado no es válido.');
       }
     }
     if (sector !== undefined) {
@@ -219,7 +223,7 @@ const modificar = async (req, res, next) => {
     if (
       distanciaViviendas !== undefined &&
       distanciaViviendas !== '' &&
-      !DISTANCIAS_VALIDAS.includes(distanciaViviendas)
+      !esDistanciaReporte(distanciaViviendas)
     ) {
       problemas.push('La distancia a las viviendas no es válida.');
     }
@@ -258,8 +262,8 @@ const modificar = async (req, res, next) => {
       cambios: {
         ...(nombre !== undefined && { nombre: String(nombre).trim() }),
         ...(req.body.descripcion !== undefined && { descripcion: req.body.descripcion }),
-        ...(categoria !== undefined && { categoria }),
-        ...(volumen !== undefined && { volumen }),
+        ...(categoria !== undefined && { categoria: String(categoria).trim() }),
+        ...(volumen !== undefined && { volumen: String(volumen).trim() }),
         ...(sector !== undefined && { sector: String(sector).trim() }),
         ...(latitud !== undefined && { latitud: Number(latitud) }),
         ...(longitud !== undefined && { longitud: Number(longitud) }),
@@ -299,7 +303,14 @@ const corregirDesglose = async (req, res, next) => {
       return res.status(400).json({ ok: false, error: problemaDeTextos });
     }
 
-    if (distanciaViviendas !== undefined && !DISTANCIAS_VALIDAS.includes(distanciaViviendas)) {
+    if (categoria !== undefined && !esCategoriaReporte(String(categoria).trim())) {
+      return res.status(400).json({ ok: false, error: 'La categoría no es válida.' });
+    }
+    if (volumen !== undefined && !esVolumenReporte(String(volumen).trim())) {
+      return res.status(400).json({ ok: false, error: 'El volumen estimado no es válido.' });
+    }
+
+    if (distanciaViviendas !== undefined && !esDistanciaReporte(distanciaViviendas)) {
       return res.status(400).json({ ok: false, error: 'La distancia a las viviendas no es válida.' });
     }
 

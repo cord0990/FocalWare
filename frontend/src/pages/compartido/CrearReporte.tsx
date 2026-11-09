@@ -41,7 +41,12 @@ import {
   obtenerDireccionDesdePunto,
   type SugerenciaDireccion,
 } from '../../services/geocodificacionService';
-import { calcularIndice } from '../../utils/opcionesReporte';
+import {
+  calcularIndice,
+  type CategoriaReporte,
+  type DistanciaReporte,
+  type VolumenReporte,
+} from '../../utils/opcionesReporte';
 import { obtenerNivelRiesgo } from '../../utils/riesgo';
 import { MAXIMO_TITULO, validarReporte } from '../../utils/validacionReporte';
 import './FormularioReporte.css';
@@ -57,10 +62,10 @@ const CrearReporte: React.FC = () => {
   const [mostrarAlerta] = useIonAlert();
   const enLinea = useConexion();
 
-const [titulo, setTitulo] = useState('');
-  const [categoria, setCategoria] = useState('');
-  const [volumen, setVolumen] = useState('');
-  const [distancia, setDistancia] = useState('');
+  const [titulo, setTitulo] = useState('');
+  const [categoria, setCategoria] = useState<CategoriaReporte | ''>('');
+  const [volumen, setVolumen] = useState<VolumenReporte | ''>('');
+  const [distancia, setDistancia] = useState<DistanciaReporte | ''>('');
   const [descripcion, setDescripcion] = useState('');
   const geo = useGeocodificacion();
   const { sector, ubicacion, enfocar, sugerencias, buscandoSugerencias, cambiarUbicacion, onSectorChange, seleccionarSugerencia, limpiar: limpiarGeo } = geo;

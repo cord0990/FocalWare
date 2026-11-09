@@ -205,6 +205,7 @@ Todo en español: `crearReporte`, `votosService.js`, `obtenerPerfil`.
 | Anonimato (RNF-07) | Cumple | El mapa y el detalle público no muestran el nombre ni el correo del vecino |
 | Inyección SQL | Cumple | Todas las consultas pasan por Prisma |
 | Validación de entradas | Cumple | Campos obligatorios, formato de correo, contraseña segura, largos máximos, números en rango. Responde 400 con un mensaje claro |
+| Estados y categorías | Cumple | Listas cerradas en `backend/src/dominio/opcionesReporte.js` para estados, categorías, volúmenes y distancias. El frontend deriva sus tipos de las mismas opciones y valida con guards. `Controlado` no se acepta al crear una revisión |
 | Errores | Cumple | Los errores internos responden "Error interno del servidor", sin mostrar detalles |
 | Fotos | Cumple | Solo JPG, PNG o WEBP, máximo 5 fotos de 5 MB cada una |
 | Recuperación de contraseña | Solo para desarrollo | El código se guarda hasheado, vence en 10 minutos y permite 5 intentos, pero se muestra en la consola en vez de enviarse por correo |

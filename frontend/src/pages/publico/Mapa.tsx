@@ -19,6 +19,7 @@ import { useAnchoRedimensionable } from '../../hooks/useAnchoRedimensionable';
 import { useIrAlLogin } from '../../hooks/useIrAlLogin';
 import { useSesion } from '../../hooks/useSesion';
 import { NIVELES_RIESGO, rangoNivel } from '../../utils/riesgo';
+import { esCategoriaReporte } from '../../utils/opcionesReporte';
 import { fechaHace12Meses } from '../../utils/fechas';
 import { rutaDetalleMapa, rutaMunicipalReporte } from '../../routes/rutas';
 import {
@@ -37,7 +38,7 @@ import {
 } from '../../utils/filtrosReportes';
 import './Mapa.css';
 
-const valoresUnicos = (valores: string[]) =>
+const valoresUnicos = <T extends string>(valores: T[]): T[] =>
   [...new Set(valores)].sort((a, b) => a.localeCompare(b));
 
 // Mapa de reportes (RF-03). Es público: sin sesión se puede mirar y filtrar, y para votar
@@ -265,7 +266,9 @@ const Mapa: React.FC = () => {
         abierto={filtrosAbiertos}
         filtros={filtros}
         sectores={valoresUnicos(reportes.map((reporte) => reporte.sector))}
-        categorias={valoresUnicos(reportes.map((reporte) => reporte.categoria))}
+        categorias={valoresUnicos(
+          reportes.map((reporte) => reporte.categoria).filter(esCategoriaReporte),
+        )}
         onCerrar={() => setFiltrosAbiertos(false)}
         onAplicar={aplicarNuevosFiltros}
       />

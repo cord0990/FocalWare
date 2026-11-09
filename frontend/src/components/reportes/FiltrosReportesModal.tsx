@@ -9,7 +9,11 @@ import {
 } from '@ionic/react';
 import { arrowDownOutline, arrowUpOutline, closeOutline } from 'ionicons/icons';
 import SelectorFecha from '../SelectorFecha';
-import { ESTADOS_REPORTE } from '../../services/reportesService';
+import { ESTADOS_REPORTE, esEstadoReporte } from '../../services/reportesService';
+import {
+  esCategoriaReporte,
+  type CategoriaReporte,
+} from '../../utils/opcionesReporte';
 import {
   FILTROS_INICIALES,
   type CriterioOrden,
@@ -21,7 +25,7 @@ interface FiltrosReportesModalProps {
   abierto: boolean;
   filtros: FiltrosReportes;
   sectores: string[];
-  categorias: string[];
+  categorias: CategoriaReporte[];
   // Estado sin filtros al que vuelve "Quitar filtros".
   base?: FiltrosReportes;
   onCerrar: () => void;
@@ -74,7 +78,12 @@ const FiltrosReportesModal: React.FC<FiltrosReportesModalProps> = ({
                 interface="popover"
                 placeholder="Todos"
                 value={borrador.estado}
-                onIonChange={(e) => actualizar({ estado: e.detail.value })}
+                onIonChange={(e) => {
+                  const estado = e.detail.value;
+                  if (estado === '' || esEstadoReporte(estado)) {
+                    actualizar({ estado });
+                  }
+                }}
               >
                 <IonSelectOption value="">Todos</IonSelectOption>
                 {ESTADOS_REPORTE.map((estado) => (
@@ -165,7 +174,12 @@ const FiltrosReportesModal: React.FC<FiltrosReportesModalProps> = ({
                 multiple
                 placeholder="Todas"
                 value={borrador.categorias}
-                onIonChange={(e) => actualizar({ categorias: e.detail.value })}
+                onIonChange={(e) => {
+                  const valor = e.detail.value;
+                  if (Array.isArray(valor)) {
+                    actualizar({ categorias: valor.filter(esCategoriaReporte) });
+                  }
+                }}
               >
                 {categorias.map((categoria) => (
                   <IonSelectOption key={categoria} value={categoria}>

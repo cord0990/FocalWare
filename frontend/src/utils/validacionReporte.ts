@@ -1,4 +1,10 @@
 // Reglas compartidas por las pantallas de crear y modificar un reporte.
+import type {
+  CategoriaReporte,
+  DistanciaReporte,
+  VolumenReporte,
+} from './opcionesReporte';
+
 export const MAXIMO_FOTOS = 5;
 export const MINIMO_DESCRIPCION = 10;
 export const MINIMO_TITULO = 5;
@@ -8,9 +14,9 @@ interface DatosFormulario {
   titulo: string;
   sector: string;
   ubicacion: unknown;
-  categoria: string;
-  volumen: string;
-  distancia: string;
+  categoria: CategoriaReporte | '';
+  volumen: VolumenReporte | '';
+  distancia: DistanciaReporte | '';
   imagenes: string[];
   descripcion: string;
 }
