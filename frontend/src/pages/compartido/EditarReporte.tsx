@@ -101,7 +101,8 @@ const EditarReporte: React.FC<EditarReporteProps> = ({ origen }) => {
   const [volumen, setVolumen] = useState('');
   const [distancia, setDistancia] = useState('');
   const [descripcion, setDescripcion] = useState('');
-  const geo = useGeocodificacion();
+  const [mensaje, setMensaje] = useState('');
+  const geo = useGeocodificacion('', null, setMensaje);
   const { sector, ubicacion, enfocar, sugerencias, buscandoSugerencias, cambiarUbicacion, onSectorChange, seleccionarSugerencia, setSector, setUbicacion, setEnfocar, limpiar: limpiarGeo } = geo;
   const [imagenes, setImagenes] = useState<string[]>([]);
   const [intentoGuardar, setIntentoGuardar] = useState(false);
@@ -109,7 +110,6 @@ const EditarReporte: React.FC<EditarReporteProps> = ({ origen }) => {
   const [eliminado, setEliminado] = useState(false);
   const gps = useUbicacionActual();
   const [aviso, setAviso] = useState<Aviso | null>(null);
-  const [mensaje, setMensaje] = useState('');
   const [explicacionAbierta, setExplicacionAbierta] = useState(false);
 
   // Carga el reporte y deja el formulario con sus datos actuales.
@@ -217,6 +217,11 @@ const EditarReporte: React.FC<EditarReporteProps> = ({ origen }) => {
   );
 
   const guardar = async () => {
+    if (enLinea && geo.validandoUbicacion) {
+      setMensaje('Estamos verificando la ubicación...');
+      return;
+    }
+
     setIntentoGuardar(true);
     if (Object.values(errores).some(Boolean)) {
       setMensaje('Revisa los campos marcados en rojo.');
@@ -565,6 +570,9 @@ const EditarReporte: React.FC<EditarReporteProps> = ({ origen }) => {
             <div className="formulario-mapa">
               <SelectorUbicacion ubicacion={ubicacion} enfocar={enfocar} onCambiar={cambiarUbicacion} />
               <p className="formulario-mapa-ayuda">Toca el mapa o arrastra el pin para corregir la ubicación.</p>
+              {geo.errorUbicacion && (
+                <p className="formulario-error" role="alert">{geo.errorUbicacion}</p>
+              )}
             </div>
           </div>
         </div>

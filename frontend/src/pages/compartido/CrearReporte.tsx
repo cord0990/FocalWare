@@ -62,7 +62,8 @@ const [titulo, setTitulo] = useState('');
   const [volumen, setVolumen] = useState('');
   const [distancia, setDistancia] = useState('');
   const [descripcion, setDescripcion] = useState('');
-  const geo = useGeocodificacion();
+  const [mensaje, setMensaje] = useState('');
+  const geo = useGeocodificacion('', null, setMensaje);
   const { sector, ubicacion, enfocar, sugerencias, buscandoSugerencias, cambiarUbicacion, onSectorChange, seleccionarSugerencia, limpiar: limpiarGeo } = geo;
   const [imagenes, setImagenes] = useState<string[]>([]);
   const [clima, setClima] = useState<Clima>();
@@ -71,7 +72,6 @@ const [titulo, setTitulo] = useState('');
   const [enviando, setEnviando] = useState(false);
   const gps = useUbicacionActual();
   const [aviso, setAviso] = useState<Aviso | null>(null);
-  const [mensaje, setMensaje] = useState('');
   const [creado, setCreado] = useState<Reporte>();
   const [explicacionAbierta, setExplicacionAbierta] = useState(false);
 
@@ -137,6 +137,11 @@ const [titulo, setTitulo] = useState('');
     }, setMensaje);
 
   const enviar = async () => {
+    if (enLinea && geo.validandoUbicacion) {
+      setMensaje('Estamos verificando la ubicación...');
+      return;
+    }
+
     setIntentoEnviar(true);
     if (Object.values(errores).some(Boolean) || !ubicacion) {
       setMensaje('Revisa los campos marcados en rojo.');
@@ -373,7 +378,10 @@ const [titulo, setTitulo] = useState('');
           <div className="formulario-fila-mapa">
             <div className={error('ubicacion') ? 'formulario-mapa invalido' : 'formulario-mapa'}>
               <SelectorUbicacion ubicacion={ubicacion} enfocar={enfocar} onCambiar={cambiarUbicacion} />
-              {error('ubicacion') && <p className="formulario-error">{error('ubicacion')}</p>}
+              {!geo.errorUbicacion && error('ubicacion') && <p className="formulario-error">{error('ubicacion')}</p>}
+              {geo.errorUbicacion && (
+                <p className="formulario-error" role="alert">{geo.errorUbicacion}</p>
+              )}
             </div>
 
             <GaleriaEditable
