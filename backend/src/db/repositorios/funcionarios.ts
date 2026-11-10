@@ -15,6 +15,14 @@ export async function obtenerFuncionarioPorId(idFuncionario: number): Promise<Fu
   return prisma.funcionario.findUnique({ where: { idFuncionario } });
 }
 
+export async function existeFuncionarioPorId(idFuncionario: number): Promise<boolean> {
+  const funcionario = await prisma.funcionario.findUnique({
+    where: { idFuncionario },
+    select: { idFuncionario: true },
+  });
+  return funcionario !== null;
+}
+
 export async function obtenerFuncionarioPorEmail(email: string): Promise<Funcionario | null> {
   return prisma.funcionario.findUnique({ where: { email } });
 }

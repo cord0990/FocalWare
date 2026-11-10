@@ -30,8 +30,8 @@ const quitarDatosDelVecino = (reporte) => {
   return resto;
 };
 
-const aReporteVisible = (reporte, { conVecino = false, idUsuario = null } = {}) => {
-  const completo = aReporte(reporte, { conVecino, idUsuario });
+const aReporteVisible = (reporte, { conVecino = false, idUsuario = null, esVecino = false } = {}) => {
+  const completo = aReporte(reporte, { conVecino, idUsuario, esVecino });
   return conVecino ? completo : quitarDatosDelVecino(completo);
 };
 
@@ -117,7 +117,7 @@ const gestionDe = (reporte) => {
 const MAXIMO_FOTOS = 5;
 
 // Traduce de la base a lo que entiende el frontend.
-const aReporte = (reporte, { conVecino = false, idUsuario = null } = {}) => ({
+const aReporte = (reporte, { conVecino = false, idUsuario = null, esVecino = false } = {}) => ({
   id: String(reporte.idReporte),
   nombre: reporte.titulo,
   sector: reporte.sector,
@@ -139,7 +139,7 @@ const aReporte = (reporte, { conVecino = false, idUsuario = null } = {}) => ({
   riesgo: reporte.indiceRiesgo !== null ? Number(reporte.indiceRiesgo) : null,
   votos: reporte._count?.votos ?? 0,
   miVoto: Boolean(reporte.votos?.length),
-  esMio: idUsuario !== null && reporte.idVecino === idUsuario,
+  esMio: esVecino && idUsuario !== null && reporte.idVecino === idUsuario,
   latitud: Number(reporte.latitud),
   longitud: Number(reporte.longitud),
   descripcion: reporte.descripcion ?? '',
@@ -213,7 +213,9 @@ const listar = async ({ sector, categoria, estado, idVecino = null, esFuncionari
     return true;
   });
 
-  return visibles.map((reporte) => aReporteVisible(reporte, { idUsuario: idVecino }));
+  return visibles.map((reporte) =>
+    aReporteVisible(reporte, { idUsuario: idVecino, esVecino: idVecino !== null }),
+  );
 };
 
 // Reportes que todavía no tienen revisión, para la cola de gestión municipal.
@@ -237,10 +239,11 @@ const obtenerDetalle = async (idReporte, { idUsuario = null, rol = null } = {}) 
 
   // Los datos del vecino solo se muestran a quien lo creó o a los funcionarios.
   // Para cualquiera más, el reporte es anónimo.
-  const esDueño = idUsuario !== null && reporte.idVecino === idUsuario;
+  const esVecino = rol === 'vecino';
+  const esDueño = esVecino && idUsuario !== null && reporte.idVecino === idUsuario;
   const conVecino = esDueño || rol === 'funcionario';
 
-  return aReporteVisible(reporte, { conVecino, idUsuario });
+  return aReporteVisible(reporte, { conVecino, idUsuario, esVecino });
 };
 
 const obtenerPorId = async (idReporte) => {
@@ -256,7 +259,9 @@ const listarMios = async (idVecino) => {
     orderBy: { fechaCreacion: 'desc' },
   });
 //Logica: Se agrego incluirVotosDe(idVecino) para reflejar desde el frontend los votos que a realizado el vecino a las publicaciones que tiene vision.
-  return reportes.map((reporte) => aReporte(reporte, { idUsuario: idVecino }));
+  return reportes.map((reporte) =>
+    aReporte(reporte, { idUsuario: idVecino, esVecino: true }),
+  );
 };
 
 // Antes de crear, se revisa si ya hay un reporte parecido muy cerca.
@@ -360,7 +365,7 @@ const crear = async ({ idVecino, datos, fotos }) => {
       { maxWait: 5000, timeout: 10000 },
     );
 
-    return aReporte(reporte);
+    return aReporte(reporte, { idUsuario: idVecino, esVecino: true });
   } catch (error) {
     borrarFotosDelDisco(fotos);
     throw error;
@@ -444,7 +449,7 @@ const modificar = async ({ idReporte, idVecino, cambios, fotosNuevas = [], rutas
       include: INCLUIR_DETALLE,
     });
 
-    return aReporte(conFotos);
+    return aReporte(conFotos, { idUsuario: idVecino, esVecino: true });
   } catch (error) {
     borrarFotosDelDisco(fotosNuevas); // si algo falla, se borran las fotos procesadas
     throw error;
