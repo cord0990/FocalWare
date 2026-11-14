@@ -46,7 +46,7 @@ backend/
 | `PORT` | Puerto donde corre la API |
 | `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` | Datos de conexión a PostgreSQL |
 | `FRONTEND_URL` | Dirección del frontend que puede usar la API (CORS) |
-| `JWT_SECRETO` | Clave para firmar los tokens de sesión |
+| `JWT_SECRETO` | Clave para firmar los tokens de sesión (mínimo 32 caracteres). En Docker se autogenera si queda vacía |
 | `JWT_EXPIRACION` | Tiempo que dura la sesión, por ejemplo `15m` |
 
 ## Ejecución
@@ -65,9 +65,21 @@ Las fotos no se suben al repositorio, solo las carpetas.
 
 La API recibe las fotos en el campo `fotos` de un formulario (`multipart/form-data`): máximo 5 por envío, solo JPG, PNG o WEBP y de hasta 5 MB cada una.
 
+El tipo se detecta por el contenido real con `file-type`, no por el nombre ni por el MIME que envía el cliente. Por eso un `.html`, `.svg` o texto renombrado se rechaza con `400`, y la extensión guardada (`.jpg`, `.png` o `.webp`) corresponde al contenido. El nombre de cada archivo se genera con un UUID.
+
+Las imágenes se sirven en `/uploads` solo si tienen extensión `.jpg`, `.jpeg`, `.png` o `.webp`, con las cabeceras `X-Content-Type-Options: nosniff`, `Content-Security-Policy: default-src 'none'; sandbox` y `Cross-Origin-Resource-Policy: same-origin`.
+
 ## Formato de respuestas
 
 Todas las respuestas son JSON:
 
 - Correcta: `{ "ok": true, "data": ... }`
 - Con error: `{ "ok": false, "error": "mensaje" }`
+
+## Cabeceras de seguridad
+
+Todas las respuestas de la API incluyen
+`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy` y una CSP restrictiva.
+Express no envía `X-Powered-By`.
+El frontend servido por nginx agrega su propia CSP y el resto de cabeceras;
+HSTS se agrega solo en despliegues con HTTPS.
