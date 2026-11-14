@@ -40,8 +40,13 @@ const GraficoEvolucion: React.FC<{ datos: DatoMes[] }> = ({ datos }) => {
         </div>
 
         <div className="grafico-columnas" onPointerLeave={() => setActivo(null)}>
+          {/* Las barras crecen sobre la franja de 22 px de los meses: las líneas guía usan la misma altura */}
           {guias.map((valor) => (
-            <span key={valor} className="grafico-guia" style={{ bottom: `${(valor / tope) * 100}%` }} />
+            <span
+              key={valor}
+              className="grafico-guia"
+              style={{ bottom: `calc(22px + (100% - 22px) * ${valor / tope})` }}
+            />
           ))}
 
           {datos.map((mes, indice) => (

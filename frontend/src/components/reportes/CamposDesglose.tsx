@@ -1,5 +1,15 @@
 import { IonSelect, IonSelectOption } from '@ionic/react';
-import { CATEGORIAS, DISTANCIAS, VOLUMENES } from '../../utils/opcionesReporte';
+import {
+  CATEGORIAS,
+  DISTANCIAS,
+  VOLUMENES,
+  esCategoriaReporte,
+  esDistanciaReporte,
+  esVolumenReporte,
+  type CategoriaReporte,
+  type DistanciaReporte,
+  type VolumenReporte,
+} from '../../utils/opcionesReporte';
 
 interface Opcion {
   valor: string;
@@ -14,13 +24,13 @@ interface CampoDesglose {
 }
 
 interface CamposDesgloseProps {
-  categoria: string;
-  volumen: string;
-  distancia: string;
+  categoria: CategoriaReporte | '';
+  volumen: VolumenReporte | '';
+  distancia: DistanciaReporte | '';
   errores: { categoria: string; volumen: string; distancia: string };
-  onCategoria: (valor: string) => void;
-  onVolumen: (valor: string) => void;
-  onDistancia: (valor: string) => void;
+  onCategoria: (valor: CategoriaReporte) => void;
+  onVolumen: (valor: VolumenReporte) => void;
+  onDistancia: (valor: DistanciaReporte) => void;
 }
 
 // Los tres datos del reporte que definen su riesgo: categoría, volumen y distancia a viviendas.
@@ -34,14 +44,32 @@ const CamposDesglose: React.FC<CamposDesgloseProps> = ({
   onDistancia,
 }) => {
   const campos: CampoDesglose[] = [
-    { etiqueta: 'Categoría', opciones: CATEGORIAS, valor: categoria, error: errores.categoria, onCambiar: onCategoria },
-    { etiqueta: 'Volumen estimado', opciones: VOLUMENES, valor: volumen, error: errores.volumen, onCambiar: onVolumen },
+    {
+      etiqueta: 'Categoría',
+      opciones: CATEGORIAS,
+      valor: categoria,
+      error: errores.categoria,
+      onCambiar: (valor) => {
+        if (esCategoriaReporte(valor)) onCategoria(valor);
+      },
+    },
+    {
+      etiqueta: 'Volumen estimado',
+      opciones: VOLUMENES,
+      valor: volumen,
+      error: errores.volumen,
+      onCambiar: (valor) => {
+        if (esVolumenReporte(valor)) onVolumen(valor);
+      },
+    },
     {
       etiqueta: 'Distancia a viviendas',
       opciones: DISTANCIAS,
       valor: distancia,
       error: errores.distancia,
-      onCambiar: onDistancia,
+      onCambiar: (valor) => {
+        if (esDistanciaReporte(valor)) onDistancia(valor);
+      },
     },
   ];
 

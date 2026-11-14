@@ -16,6 +16,10 @@ COPY src ./src
 
 RUN npm run build
 
+# Genera un JWT_SECRETO aleatorio si no se definió uno y lo persiste en /app/data.
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 # El servidor corre sobre el JS compilado.
 EXPOSE 3000
 
@@ -24,6 +28,7 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=5 \
   CMD node -e "fetch('http://127.0.0.1:3000/api/salud').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
 
-# Aplica las migraciones pendientes y recién después levanta la API.
+# El entrypoint asegura el JWT_SECRETO, aplica las migraciones pendientes y recién después levanta la API.
 # Si falla la migración, el contenedor no arranca.
-CMD ["sh", "-c", "npx prisma migrate deploy && node src/app.js"]
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD ["node", "src/app.js"]

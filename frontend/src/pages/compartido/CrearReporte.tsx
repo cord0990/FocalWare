@@ -41,7 +41,12 @@ import {
   obtenerDireccionDesdePunto,
   type SugerenciaDireccion,
 } from '../../services/geocodificacionService';
-import { calcularIndice } from '../../utils/opcionesReporte';
+import {
+  calcularIndice,
+  type CategoriaReporte,
+  type DistanciaReporte,
+  type VolumenReporte,
+} from '../../utils/opcionesReporte';
 import { obtenerNivelRiesgo } from '../../utils/riesgo';
 import { MAXIMO_TITULO, validarReporte } from '../../utils/validacionReporte';
 import './FormularioReporte.css';
@@ -57,12 +62,13 @@ const CrearReporte: React.FC = () => {
   const [mostrarAlerta] = useIonAlert();
   const enLinea = useConexion();
 
-const [titulo, setTitulo] = useState('');
-  const [categoria, setCategoria] = useState('');
-  const [volumen, setVolumen] = useState('');
-  const [distancia, setDistancia] = useState('');
+  const [titulo, setTitulo] = useState('');
+  const [categoria, setCategoria] = useState<CategoriaReporte | ''>('');
+  const [volumen, setVolumen] = useState<VolumenReporte | ''>('');
+  const [distancia, setDistancia] = useState<DistanciaReporte | ''>('');
   const [descripcion, setDescripcion] = useState('');
-  const geo = useGeocodificacion();
+  const [mensaje, setMensaje] = useState('');
+  const geo = useGeocodificacion('', null, setMensaje);
   const { sector, ubicacion, enfocar, sugerencias, buscandoSugerencias, cambiarUbicacion, onSectorChange, seleccionarSugerencia, limpiar: limpiarGeo } = geo;
   const [imagenes, setImagenes] = useState<string[]>([]);
   const [clima, setClima] = useState<Clima>();
@@ -71,7 +77,6 @@ const [titulo, setTitulo] = useState('');
   const [enviando, setEnviando] = useState(false);
   const gps = useUbicacionActual();
   const [aviso, setAviso] = useState<Aviso | null>(null);
-  const [mensaje, setMensaje] = useState('');
   const [creado, setCreado] = useState<Reporte>();
   const [explicacionAbierta, setExplicacionAbierta] = useState(false);
 
@@ -137,6 +142,11 @@ const [titulo, setTitulo] = useState('');
     }, setMensaje);
 
   const enviar = async () => {
+    if (enLinea && geo.validandoUbicacion) {
+      setMensaje('Estamos verificando la ubicación...');
+      return;
+    }
+
     setIntentoEnviar(true);
     if (Object.values(errores).some(Boolean) || !ubicacion) {
       setMensaje('Revisa los campos marcados en rojo.');
@@ -373,7 +383,10 @@ const [titulo, setTitulo] = useState('');
           <div className="formulario-fila-mapa">
             <div className={error('ubicacion') ? 'formulario-mapa invalido' : 'formulario-mapa'}>
               <SelectorUbicacion ubicacion={ubicacion} enfocar={enfocar} onCambiar={cambiarUbicacion} />
-              {error('ubicacion') && <p className="formulario-error">{error('ubicacion')}</p>}
+              {!geo.errorUbicacion && error('ubicacion') && <p className="formulario-error">{error('ubicacion')}</p>}
+              {geo.errorUbicacion && (
+                <p className="formulario-error" role="alert">{geo.errorUbicacion}</p>
+              )}
             </div>
 
             <GaleriaEditable

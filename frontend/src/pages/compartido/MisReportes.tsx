@@ -31,9 +31,11 @@ import {
   ESTADOS_REPORTE,
   EVENTO_REPORTES,
   obtenerMisReportes,
+  type EstadoReporte,
   type Reporte,
 } from '../../services/reportesService';
 import { ESTILO_ESTADO } from '../../utils/estados';
+import { esCategoriaReporte } from '../../utils/opcionesReporte';
 import {
   aplicarFiltros,
   buscarReportes,
@@ -43,8 +45,10 @@ import {
 } from '../../utils/filtrosReportes';
 import './MisReportes.css';
 
-const valoresUnicos = (valores: string[]) =>
+const valoresUnicos = <T extends string>(valores: T[]): T[] =>
   [...new Set(valores)].sort((a, b) => a.localeCompare(b));
+
+const ESTADOS_DE_FILTRO: (EstadoReporte | '')[] = ['', ...ESTADOS_REPORTE];
 
 const MisReportes: React.FC = () => {
   const router = useIonRouter();
@@ -122,7 +126,7 @@ const MisReportes: React.FC = () => {
   const listaFiltrosActivos = listarFiltrosActivos(filtros, FILTROS_MIS_REPORTES);
   const filtrosActivos = listaFiltrosActivos.length;
   const reportesFiltrados = buscarReportes(aplicarFiltros(reportes, filtros), busqueda);
-  const contarEstado = (estado: string) =>
+  const contarEstado = (estado: EstadoReporte) =>
     reportes.filter((reporte) => reporte.estado === estado).length;
 
   return (
@@ -194,9 +198,9 @@ const MisReportes: React.FC = () => {
 
         <section className="mis-reportes-panel" aria-label="Reportes enviados">
           <div className="mis-reportes-estados" role="tablist" aria-label="Filtrar por estado">
-            {['', ...ESTADOS_REPORTE].map((estado) => {
+            {ESTADOS_DE_FILTRO.map((estado) => {
               const activo = filtros.estado === estado;
-              const color = estado ? ESTILO_ESTADO[estado as keyof typeof ESTILO_ESTADO].color : '#1f1f1f';
+              const color = estado ? ESTILO_ESTADO[estado].color : '#1f1f1f';
               return (
                 <button
                   key={estado || 'todos'}
@@ -278,7 +282,9 @@ const MisReportes: React.FC = () => {
         abierto={filtrosAbiertos}
         filtros={filtros}
         sectores={valoresUnicos(reportes.map((reporte) => reporte.sector))}
-        categorias={valoresUnicos(reportes.map((reporte) => reporte.categoria))}
+        categorias={valoresUnicos(
+          reportes.map((reporte) => reporte.categoria).filter(esCategoriaReporte),
+        )}
         base={FILTROS_MIS_REPORTES}
         onCerrar={() => setFiltrosAbiertos(false)}
         onAplicar={(nuevos) => {

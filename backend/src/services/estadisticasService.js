@@ -1,6 +1,7 @@
 // Cifras para el panel de estadísticas del funcionario (RF-09) y para el
 // aporte del vecino que se muestra en su menú de cuenta.
 const { prisma } = require('../../dist/db/index.js');
+const { ESTADOS } = require('../dominio/opcionesReporte');
 
 const UN_DIA = 24 * 60 * 60 * 1000;
 
@@ -21,7 +22,7 @@ const reportesDelAnio = async () => {
       revision: {
         select: {
           logs: {
-            where: { estadoLog: 'Controlado' },
+            where: { estadoLog: ESTADOS.CONTROLADO },
             select: { fechaHora: true },
             orderBy: { fechaHora: 'asc' },
             take: 1,

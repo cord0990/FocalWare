@@ -6,7 +6,7 @@ import {
   syncOutline,
   timeOutline,
 } from 'ionicons/icons';
-import type { EstadoReporte } from '../services/reportesService';
+import { esEstadoReporte, type EstadoReporte } from '../services/reportesService';
 
 // Color e ícono de cada estado del reporte. Se usan colores distintos a los del riesgo
 // para que no se confundan.
@@ -21,4 +21,6 @@ export const ESTILO_ESTADO: Record<EstadoReporte, { color: string; icono: string
 // Si llega un estado que no está en la lista (por ejemplo, con las tildes dañadas al
 // cargar la base desde Windows), se usa un estilo neutro en vez de romper la pantalla.
 export const estiloDeEstado = (estado: string) =>
-  ESTILO_ESTADO[estado as EstadoReporte] ?? { color: '#6b5a5a', icono: helpCircleOutline };
+  esEstadoReporte(estado)
+    ? ESTILO_ESTADO[estado]
+    : { color: '#6b5a5a', icono: helpCircleOutline };

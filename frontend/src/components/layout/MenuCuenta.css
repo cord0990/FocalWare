@@ -1,7 +1,39 @@
 .menu-cuenta {
   --width: 380px;
-  --max-width: 100%;
+  /* Deja a la vista una franja del fondo oscuro: al tocarla, el menú se cierra */
+  --max-width: calc(100% - 56px);
   --backdrop-opacity: 0.55;
+}
+
+.cuenta-encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 2px 12px 6px;
+  color: #f4efdc;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.cuenta-cerrar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 2px solid #f4efdc;
+  border-radius: 50%;
+  background: transparent;
+  color: #f4efdc;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.cuenta-cerrar:hover {
+  background: rgba(244, 239, 220, 0.12);
 }
 
 .cuenta-contenido {

@@ -3,6 +3,7 @@
 // para que exista dist/.
 const { notificaciones } = require('../../dist/db/index.js');
 const { crearErrorHTTP } = require('../middlewares/manejoErrores');
+const { ESTADOS } = require('../dominio/opcionesReporte');
 
 // Deja la notificación con lo que necesita la app: el reporte al que se
 // refiere y las fechas de cada cambio de estado (para la línea de tiempo).
@@ -20,9 +21,9 @@ const aNotificacion = (notificacion) => {
     reporte: reporte ? { id: reporte.idReporte, titulo: reporte.titulo } : null,
     fechas: {
       creacion: reporte?.fechaCreacion ?? null,
-      aprobacion: fechaDe('Aprobado'),
-      rechazo: fechaDe('Rechazado'),
-      control: fechaDe('Controlado'),
+      aprobacion: fechaDe(ESTADOS.APROBADO),
+      rechazo: fechaDe(ESTADOS.RECHAZADO),
+      control: fechaDe(ESTADOS.CONTROLADO),
     },
   };
 };

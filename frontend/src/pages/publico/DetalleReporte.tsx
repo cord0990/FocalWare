@@ -40,7 +40,12 @@ import {
 } from '../../services/reportesService';
 import { estiloDeEstado } from '../../utils/estados';
 import { antiguedad, formatearFecha } from '../../utils/fechas';
-import { calcularIndice } from '../../utils/opcionesReporte';
+import {
+  calcularIndice,
+  type CategoriaReporte,
+  type DistanciaReporte,
+  type VolumenReporte,
+} from '../../utils/opcionesReporte';
 import { obtenerNivelRiesgo } from '../../utils/riesgo';
 import './DetalleReporte.css';
 import '../../components/reportes/TarjetaReporte.css';
@@ -63,7 +68,11 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
   // Acción recién guardada, para mostrar su aviso de confirmación.
   const [resultado, setResultado] = useState<AccionFuncionario | null>(null);
   const [modificando, setModificando] = useState(false);
-  const [edicion, setEdicion] = useState({ categoria: '', volumen: '', distancia: '' });
+  const [edicion, setEdicion] = useState<{
+    categoria: CategoriaReporte | '';
+    volumen: VolumenReporte | '';
+    distancia: DistanciaReporte | '';
+  }>({ categoria: '', volumen: '', distancia: '' });
   const [guardandoDesglose, setGuardandoDesglose] = useState(false);
   const [mensaje, setMensaje] = useState('');
   const [reporte, setReporte] = useState<Reporte | null>();

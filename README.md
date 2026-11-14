@@ -164,7 +164,7 @@ La especificación completa, con tipo y dependencias de cada requerimiento, est�
 | Backend | Node.js (20.19+), Express |
 | Base de datos | PostgreSQL 16, Prisma 7 (ORM) |
 | Seguridad | JWT con HS256 (`jsonwebtoken`), bcrypt (`bcryptjs`) |
-| Archivos | `multer` (fotos JPG/PNG/WEBP, hasta 5 por envío) |
+| Archivos | `multer` (hasta 5 fotos de 5 MB por envío) y `file-type` para validar el contenido real: solo se guardan JPG, PNG o WEBP reales |
 | Contenerización | Docker y Docker Compose; nginx sirve el frontend compilado y hace de proxy hacia la API |
 | Pruebas de API | Postman (colección en `backend/postman/`) |
 | Servicio externo | [Open-Meteo](https://open-meteo.com/) (temperatura, humedad y viento) |
@@ -252,6 +252,17 @@ Un solo comando construye las dos imágenes de la aplicación y levanta los tres
 
 Solo hay **dos Dockerfiles** (backend y frontend); PostgreSQL usa una imagen oficial.
 
+Por seguridad, PostgreSQL se publica solo en `127.0.0.1:5434`:
+se puede usar desde el mismo computador con `psql` o pgAdmin,
+pero no queda accesible desde otros equipos de la red.
+La API y el frontend se comunican con la base por la red interna de Docker.
+
+La app y la API también envían cabeceras de seguridad:
+`Content-Security-Policy`, `X-Content-Type-Options: nosniff`,
+`X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy` y `Cross-Origin-Opener-Policy`.
+nginx no revela su versión y Express no envía `X-Powered-By`.
+En local no se envía HSTS porque se accede por HTTP; en un despliegue con HTTPS hay que agregar `Strict-Transport-Security`.
+
 1. Clonar el repositorio:
 
 ```bash
@@ -267,7 +278,9 @@ docker compose up -d --build
 
 Ese comando construye el backend y el frontend, espera a que la base y la API estén sanas, y deja la app en `http://localhost:5173` y la API en `http://localhost:3000`.
 
-No hace falta crear ningún `.env`: los valores por defecto funcionan. Si quieres cambiar la contraseña de la base o el secreto JWT, crea un `.env` en la raíz del proyecto con `DB_PASSWORD`, `JWT_SECRETO`, etc. (el `backend/.env` es solo para la Opción B, sin Docker).
+No hace falta crear ningún `.env`: en el primer arranque la API genera un `JWT_SECRETO` aleatorio y lo guarda en el volumen `focalware_appdata`, así que las sesiones sobreviven a reinicios. Si quieres fijar el secreto (mínimo 32 caracteres), cambiar la contraseña de la base o el puerto publicado en el equipo, copia `.env.example` a `.env` en la raíz del proyecto y ajusta esas variables. El `backend/.env` es solo para la Opción B, sin Docker.
+
+Las variables que lee Docker Compose están detalladas en [Variables de entorno](#variables-de-entorno). `VITE_API_URL` no se configura ahí: el build del frontend usa `/api` y nginx reenvía `/api` y `/uploads` a la API.
 
 3. Cargar los datos de prueba (opcional, recomendado):
 
@@ -327,6 +340,10 @@ DATABASE_URL="postgresql://postgres:tu_clave@localhost:5432/focalware"
 cd backend
 npm install
 cp .env.example .env   # los valores por defecto apuntan a localhost:5434; ajustar si tu PostgreSQL usa otro puerto/contraseña
+
+# Genera una clave JWT y pégala en JWT_SECRETO dentro de backend/.env
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+
 npm start              # compila (prestart) y levanta la API en http://localhost:3000
 ```
 
@@ -345,7 +362,23 @@ En ambos casos la aplicación queda disponible en `http://localhost:5173` y la A
 
 Los archivos `.env` no se versionan (están en `.gitignore`).
 
+### Docker Compose (`.env` en la raíz, opcional)
+
+Estas son las variables que lee `docker-compose.yml`. Se pueden dejar en los valores por defecto o definir en un `.env` en la raíz, a partir de `.env.example`.
+
+| Variable | Valor por defecto | Uso |
+|---|---|---|
+| `DB_PASSWORD` | `postgres` | Contraseña de PostgreSQL y de `DATABASE_URL` |
+| `DB_PORT` | `5434` | Puerto publicado en el equipo; dentro de Docker la API usa `db:5432` |
+| `FRONTEND_URL` | `http://localhost:5173` | Origen permitido por CORS |
+| `JWT_SECRETO` | vacío | Clave para firmar los tokens, mínimo 32 caracteres. Si queda vacía, la API genera una y la guarda en el volumen `focalware_appdata` |
+| `JWT_EXPIRACION` | `15m` | Duración del token |
+
+`VITE_API_URL` y `TRUST_PROXY` no se configuran desde ese `.env`: el frontend se compila con `/api` y Compose fija `TRUST_PROXY=1` porque nginx está delante de la API.
+
 ### Backend (`backend/.env`, copiado de `backend/.env.example`)
+
+Esta configuración es para ejecutar la API **sin Docker**.
 
 | Variable | Descripción | Ejemplo |
 |---|---|---|
@@ -357,17 +390,17 @@ Los archivos `.env` no se versionan (están en `.gitignore`).
 | `DB_PASSWORD` | Contraseña de PostgreSQL | `postgres` |
 | `DATABASE_URL` | URL que usa Prisma | `postgresql://postgres:postgres@localhost:5434/focalware` |
 | `FRONTEND_URL` | Origen permitido por CORS | `http://localhost:5173` |
-| `JWT_SECRETO` | Clave para firmar los tokens | valor propio (largo y privado) |
+| `JWT_SECRETO` | Clave para firmar los tokens (mínimo 32 caracteres). En Docker se autogenera si está vacía; fuera de Docker es obligatoria | `openssl rand -hex 32` |
 | `JWT_EXPIRACION` | Duración de la sesión | `15m` |
 | `TRUST_PROXY` | `1` si la API está detrás de un proxy inverso, para limitar por la IP real de `X-Forwarded-For` (Docker Compose lo deja en `1` porque nginx está delante) | `0` |
 
-### Frontend (`frontend/.env`, opcional)
+### Frontend (`frontend/.env`, opcional para desarrollo local)
 
 | Variable | Descripción | Ejemplo |
 |---|---|---|
 | `VITE_API_URL` | URL base de la API | `http://localhost:3000/api` |
 
-Si no se define `VITE_API_URL`, el frontend usa por defecto `http://localhost:3000/api`.
+Si no se define `VITE_API_URL`, el frontend usa por defecto `http://localhost:3000/api`. En Docker no se usa este archivo: el build recibe `VITE_API_URL=/api` y nginx hace de proxy hacia la API.
 
 ## Base de datos
 
@@ -416,18 +449,18 @@ docker compose logs -f api
 
 ### Detener, apagar y eliminar
 
-| Acción | Comando | Base de datos (`focalware_pgdata`) | Fotos (`backend/uploads`) |
-|---|---|---|---|
-| Pausar y retomar rápido | `docker compose stop` / `docker compose start` | Se conserva | Se conservan |
-| Apagar y eliminar los contenedores | `docker compose down` | Se conserva | Se conservan |
-| Volver a levantar | `docker compose up -d` | Se reutiliza la misma | Se reutilizan |
-| Empezar de cero | `docker compose down -v` | **Se borra completa** | Se conservan |
+| Acción | Comando | Base de datos (`focalware_pgdata`) | Fotos (`backend/uploads`) | Secreto JWT (`focalware_appdata`) |
+|---|---|---|---|---|
+| Pausar y retomar rápido | `docker compose stop` / `docker compose start` | Se conserva | Se conservan | Se conserva |
+| Apagar y eliminar los contenedores | `docker compose down` | Se conserva | Se conservan | Se conserva |
+| Volver a levantar | `docker compose up -d` | Se reutiliza la misma | Se reutilizan | Se reutiliza |
+| Empezar de cero | `docker compose down -v` | **Se borra completa** | Se conservan | **Se borra** |
 
-`docker compose down` es la forma normal de apagar el proyecto: elimina los contenedores y la red, pero **no** borra el volumen `focalware_pgdata` (base de datos y datos de muestra) ni la carpeta `backend/uploads` (fotos). Al volver a ejecutar `docker compose up -d`, todo sigue ahí.
+`docker compose down` es la forma normal de apagar el proyecto: elimina los contenedores y la red, pero **no** borra el volumen `focalware_pgdata` (base de datos y datos de muestra), la carpeta `backend/uploads` (fotos) ni el volumen `focalware_appdata` (secreto JWT). Al volver a ejecutar `docker compose up -d`, todo sigue ahí.
 
 `docker compose stop` solo detiene los contenedores sin eliminarlos, y `docker compose start` los retoma. Es útil para una pausa corta.
 
-`docker compose down -v` (o `docker compose down --volumes`) **sí borra el volumen de PostgreSQL**: se pierden todos los usuarios, reportes y datos de muestra de todas las ejecuciones anteriores, no solo los de la última. Las fotos no se borran porque `backend/uploads` es una carpeta del proyecto, no un volumen de Docker. Después de un `down -v` hay que volver a cargar `backend/database/datos_prueba.sql` para recuperar los datos de muestra.
+`docker compose down -v` (o `docker compose down --volumes`) **sí borra el volumen de PostgreSQL y el del secreto JWT**: se pierden todos los usuarios, reportes y datos de muestra, y al volver a levantar se genera un secreto nuevo, por lo que las sesiones anteriores dejan de valer. Las fotos no se borran porque `backend/uploads` es una carpeta del proyecto, no un volumen de Docker. Después de un `down -v` hay que volver a cargar `backend/database/datos_prueba.sql` para recuperar los datos de muestra.
 
 Si necesitas respaldar la base antes de eliminarla:
 
