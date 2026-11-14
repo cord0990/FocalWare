@@ -163,7 +163,7 @@ La especificación completa, con tipo y dependencias de cada requerimiento, est�
 | Mapas | [Leaflet](https://leafletjs.com/) con React Leaflet. Mapa base de [Esri World Street Map](https://www.arcgis.com/home/item.html?id=3b93337983e9436f8db950e38a8629af) (vista simple) y [OpenStreetMap](https://www.openstreetmap.org/) (vista detallada), con mapa de calor mediante `leaflet.heat` |
 | Backend | Node.js (20.19+), Express |
 | Base de datos | PostgreSQL 16, Prisma 7 (ORM) |
-| Seguridad | JWT (`jsonwebtoken`), bcrypt (`bcryptjs`) |
+| Seguridad | JWT con HS256 (`jsonwebtoken`), bcrypt (`bcryptjs`) |
 | Archivos | `multer` (hasta 5 fotos de 5 MB por envío) y `file-type` para validar el contenido real: solo se guardan JPG, PNG o WEBP reales |
 | Contenerización | Docker y Docker Compose; nginx sirve el frontend compilado y hace de proxy hacia la API |
 | Pruebas de API | Postman (colección en `backend/postman/`) |

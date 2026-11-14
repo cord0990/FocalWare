@@ -15,6 +15,14 @@ export async function obtenerVecinoPorId(idVecino: number): Promise<Vecino | nul
   return prisma.vecino.findUnique({ where: { idVecino } });
 }
 
+export async function existeVecinoPorId(idVecino: number): Promise<boolean> {
+  const vecino = await prisma.vecino.findUnique({
+    where: { idVecino },
+    select: { idVecino: true },
+  });
+  return vecino !== null;
+}
+
 export async function obtenerVecinoDetalle(idVecino: number): Promise<VecinoDetalle | null> {
   return prisma.vecino.findUnique({
     where: { idVecino },
