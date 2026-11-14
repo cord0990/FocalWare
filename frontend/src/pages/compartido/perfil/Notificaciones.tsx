@@ -72,7 +72,7 @@ const Notificaciones: React.FC<Props> = ({ onVerDetalles }) => {
 
     if (!coincideTexto) return false;
 
-    if (filtros.estado && normalizarTexto(n.estado) !== normalizarTexto(filtros.estado)) {
+    if (filtros.estado && normalizarTexto(n.estado ?? '') !== normalizarTexto(filtros.estado)) {
       return false;
     }
 

@@ -2,10 +2,30 @@
 import { pedir, ErrorApi, urlDeImagen } from './api';
 import type { Clima } from './climaService';
 import { MAXIMO_FOTOS } from '../utils/validacionReporte';
+import {
+  esCategoriaReporte,
+  esDistanciaReporte,
+  esVolumenReporte,
+  type CategoriaReporte,
+  type DistanciaReporte,
+  type VolumenReporte,
+} from '../utils/opcionesReporte';
 
-export const ESTADOS_REPORTE = ['Pendiente', 'Aprobado', 'En atención', 'Controlado', 'Rechazado'] as const;
+// Estados que existen en una revisión guardada.
+export const ESTADOS_REVISION = ['Aprobado', 'En atención', 'Controlado', 'Rechazado'] as const;
+
+export type EstadoRevision = (typeof ESTADOS_REVISION)[number];
+
+// Una revisión nueva no puede nacer en Controlado: ese estado lo pone el control.
+export type EstadoRevisionInicial = Exclude<EstadoRevision, 'Controlado'>;
+
+// El reporte agrega Pendiente, que se deriva cuando todavía no tiene revisión.
+export const ESTADOS_REPORTE = ['Pendiente', ...ESTADOS_REVISION] as const;
 
 export type EstadoReporte = (typeof ESTADOS_REPORTE)[number];
+
+export const esEstadoReporte = (valor: unknown): valor is EstadoReporte =>
+  typeof valor === 'string' && (ESTADOS_REPORTE as readonly string[]).includes(valor);
 
 // Decisiones del Funcionario sobre un reporte (RF-12, RF-16, RF-17, RF-18).
 export interface GestionReporte {
@@ -25,7 +45,7 @@ export interface Reporte {
   id: string;
   nombre: string;
   sector: string;
-  categoria: string;
+  categoria: CategoriaReporte | '';
   estado: EstadoReporte;
   // Id de la revisión que lleva este reporte. Solo llega si el reporte es del
   // vecino que lo creó o si quien lo pide es un funcionario; en las respuestas
@@ -40,8 +60,8 @@ export interface Reporte {
   latitud: number;
   longitud: number;
   descripcion: string;
-  volumen: string;
-  distanciaViviendas: string;
+  volumen: VolumenReporte | '';
+  distanciaViviendas: DistanciaReporte | '';
   // Rutas de las fotos en el servidor, no data URL.
   imagenes: string[];
   clima?: Clima;
@@ -78,9 +98,9 @@ export type CambiosReporte = Pick<
 export interface DatosNuevoReporte {
   nombre: string;
   sector: string;
-  categoria: string;
-  volumen: string;
-  distanciaViviendas: string;
+  categoria: CategoriaReporte | '';
+  volumen: VolumenReporte | '';
+  distanciaViviendas: DistanciaReporte | '';
   descripcion: string;
   latitud: number;
   longitud: number;
@@ -201,6 +221,10 @@ const aReporte = (dato: ReporteApi): Reporte => {
 
   return {
     ...resto,
+    estado: esEstadoReporte(resto.estado) ? resto.estado : 'Pendiente',
+    categoria: esCategoriaReporte(resto.categoria) ? resto.categoria : '',
+    volumen: esVolumenReporte(resto.volumen) ? resto.volumen : '',
+    distanciaViviendas: esDistanciaReporte(resto.distanciaViviendas) ? resto.distanciaViviendas : '',
     riesgo: riesgo ?? 0,
     riesgoEnCalculo: riesgo === null,
     imagenes: imagenes ?? [],
@@ -331,7 +355,7 @@ export const corregirDesglose = async (
 export const revisarReporteApi = async (
   id: string,
   datos: {
-    estado: 'Aprobado' | 'Rechazado' | 'En atención' | 'Controlado';
+    estado: EstadoRevisionInicial;
     motivo?: string;
     idCuadrilla?: number | null;
     cuadrilla?: string;
@@ -339,7 +363,7 @@ export const revisarReporteApi = async (
     detalle?: string;
   },
 ) => {
-  const respuesta = await pedir<{ idRevision: number; estado: string; fechaAtencion: string }>(
+  const respuesta = await pedir<{ idRevision: number; estado: EstadoRevision; fechaAtencion: string }>(
     `/reportes/${id}/revision`,
     {
       metodo: 'POST',
@@ -386,7 +410,7 @@ export const registrarControl = async (
     formulario.append('fotos', blob, `control-${indice + 1}.jpg`);
   }
 
-  const respuesta = await pedir<{ control: ControlApi; revision: { idRevision: number; estado: string } }>(
+  const respuesta = await pedir<{ control: ControlApi; revision: { idRevision: number; estado: EstadoRevision } }>(
     `/revisiones/${idRevision}`,
     {
       metodo: 'PUT',

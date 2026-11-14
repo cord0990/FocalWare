@@ -1,13 +1,14 @@
-import type { Reporte } from '../services/reportesService';
+import type { Reporte, EstadoReporte } from '../services/reportesService';
+import { esCategoriaReporte, type CategoriaReporte } from './opcionesReporte';
 import { formatearFecha } from './fechas';
 import { normalizarTexto } from './texto';
 
 export type CriterioOrden = 'riesgo' | 'votos' | 'fecha';
 
 export interface FiltrosReportes {
-  estado: string;
+  estado: EstadoReporte | '';
   sector: string;
-  categorias: string[];
+  categorias: CategoriaReporte[];
   desde: string;
   hasta: string;
   orden: CriterioOrden;
@@ -98,7 +99,8 @@ export const aplicarFiltros = (reportes: Reporte[], filtros: FiltrosReportes): R
       (reporte) =>
         (!filtros.estado || reporte.estado === filtros.estado) &&
         (!filtros.sector || reporte.sector === filtros.sector) &&
-        (filtros.categorias.length === 0 || filtros.categorias.includes(reporte.categoria)) &&
+        (filtros.categorias.length === 0 ||
+          (esCategoriaReporte(reporte.categoria) && filtros.categorias.includes(reporte.categoria))) &&
         // Las fechas vienen en formato AAAA-MM-DD, así que se pueden comparar como texto.
         (!filtros.desde || reporte.fecha >= filtros.desde) &&
         (!filtros.hasta || reporte.fecha <= filtros.hasta),

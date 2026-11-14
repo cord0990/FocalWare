@@ -1,5 +1,6 @@
 // Lógica de los votos de apoyo de los vecinos.
 const { prisma } = require('../../dist/db/index.js');
+const { ESTADOS } = require('../dominio/opcionesReporte');
 
 // Un vecino apoya un reporte.
 //
@@ -17,7 +18,7 @@ const registrar = async ({ idReporte, idVecino }) => {
   }
 
   const estado = reporte.revision?.estado;
-  if (estado === 'Rechazado') {
+  if (estado === ESTADOS.RECHAZADO) {
     const error = new Error('Este reporte fue rechazado y no admite apoyos');
     error.estado = 400;
     throw error;

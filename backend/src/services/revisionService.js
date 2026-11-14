@@ -1,11 +1,14 @@
 // Lógica de revisiones (versión CommonJS para el runtime de Express).
 const { prisma } = require('../../dist/db/index.js');
 const reportesService = require('./reportesService');
+const {
+  ESTADOS,
+  esEstadoInicial,
+  esEstadoControlable,
+} = require('../dominio/opcionesReporte');
 
 // La cola usa el mismo formato que GET /reportes.
 const obtenerColaDeReportes = async () => reportesService.listarPendientesDeRevision();
-
-const ESTADOS_VALIDOS = ['Aprobado', 'Rechazado', 'En atención', 'Controlado'];
 
 const procesarRevision = async (datos) => {
     // El estado llega del cuerpo y puede venir con espacios o en otro tipo de dato.
@@ -18,7 +21,7 @@ const procesarRevision = async (datos) => {
         error.estado = 400;
         throw error;
     }
-    if (!ESTADOS_VALIDOS.includes(estado)) {
+    if (!esEstadoInicial(estado)) {
         const error = new Error('El estado de la revisión no es válido');
         error.estado = 400;
         throw error;
@@ -40,7 +43,7 @@ const procesarRevision = async (datos) => {
         throw error;
     }
 
-    if (estado === 'Rechazado' && (!datos.motivo || String(datos.motivo).trim() === '')) {
+    if (estado === ESTADOS.RECHAZADO && (!datos.motivo || String(datos.motivo).trim() === '')) {
         const error = new Error('Si se rechaza el reporte, es obligatorio especificar un motivo.');
         error.estado = 400;
         throw error;
@@ -85,7 +88,7 @@ const procesarRevision = async (datos) => {
     // vecino en la notificación y en el seguimiento del reporte.
     const detalle = datos.detalle ?? datos.descripcion ?? null;
     const descripcion =
-        estado === 'Rechazado'
+        estado === ESTADOS.RECHAZADO
             ? String(datos.motivo).trim()
             : (detalle !== null && detalle !== undefined ? String(detalle).trim() : null);
 
@@ -139,8 +142,6 @@ const procesarRevision = async (datos) => {
 };
 
 // Estados desde los que se puede cerrar el trabajo con un reporte de control.
-const ESTADOS_CONTROLABLES = ['Aprobado', 'En atención'];
-
 const MINIMO_IMAGENES_CONTROL = 1;
 
 // Registra el control de una revisión (RF-16): la pasa a "Controlado" y guarda
@@ -159,7 +160,7 @@ const registrarControl = async (datos) => {
         throw error;
     }
 
-    if (!ESTADOS_CONTROLABLES.includes(revision.estado)) {
+    if (!esEstadoControlable(revision.estado)) {
         const error = new Error('Solo se puede controlar una revisión aprobada o en atención');
         error.estado = 409;
         throw error;
@@ -207,12 +208,12 @@ const registrarControl = async (datos) => {
 
         const revisionActualizada = await tx.revision.update({
             where: { idRevision: revision.idRevision },
-            data: { estado: 'Controlado' },
+            data: { estado: ESTADOS.CONTROLADO },
         });
 
         await tx.log.create({
             data: {
-                estadoLog: 'Controlado',
+                estadoLog: ESTADOS.CONTROLADO,
                 comentario: descripcion,
                 idFuncionario: datos.idFuncionario,
                 idRevision: revision.idRevision,
@@ -224,7 +225,7 @@ const registrarControl = async (datos) => {
             await tx.notificacion.create({
                 data: {
                     mensaje: 'Tu reporte fue controlado: la cuadrilla terminó el trabajo.',
-                    tipo: 'Controlado',
+                    tipo: ESTADOS.CONTROLADO,
                     idVecino: reporte.idVecino,
                     idRevision: revision.idRevision,
                 },
