@@ -56,7 +56,12 @@ import {
 } from '../../services/reportesService';
 import { estiloDeEstado } from '../../utils/estados';
 import { antiguedad, formatearFecha } from '../../utils/fechas';
-import { calcularIndice } from '../../utils/opcionesReporte';
+import {
+  calcularIndice,
+  type CategoriaReporte,
+  type DistanciaReporte,
+  type VolumenReporte,
+} from '../../utils/opcionesReporte';
 import { obtenerNivelRiesgo } from '../../utils/riesgo';
 import { MAXIMO_TITULO, validarReporte } from '../../utils/validacionReporte';
 import './FormularioReporte.css';
@@ -97,11 +102,12 @@ const EditarReporte: React.FC<EditarReporteProps> = ({ origen }) => {
 
   const [reporte, setReporte] = useState<Reporte | null>();
   const [titulo, setTitulo] = useState('');
-  const [categoria, setCategoria] = useState('');
-  const [volumen, setVolumen] = useState('');
-  const [distancia, setDistancia] = useState('');
+  const [categoria, setCategoria] = useState<CategoriaReporte | ''>('');
+  const [volumen, setVolumen] = useState<VolumenReporte | ''>('');
+  const [distancia, setDistancia] = useState<DistanciaReporte | ''>('');
   const [descripcion, setDescripcion] = useState('');
-  const geo = useGeocodificacion();
+  const [mensaje, setMensaje] = useState('');
+  const geo = useGeocodificacion('', null, setMensaje);
   const { sector, ubicacion, enfocar, sugerencias, buscandoSugerencias, cambiarUbicacion, onSectorChange, seleccionarSugerencia, setSector, setUbicacion, setEnfocar, limpiar: limpiarGeo } = geo;
   const [imagenes, setImagenes] = useState<string[]>([]);
   const [intentoGuardar, setIntentoGuardar] = useState(false);
@@ -109,7 +115,6 @@ const EditarReporte: React.FC<EditarReporteProps> = ({ origen }) => {
   const [eliminado, setEliminado] = useState(false);
   const gps = useUbicacionActual();
   const [aviso, setAviso] = useState<Aviso | null>(null);
-  const [mensaje, setMensaje] = useState('');
   const [explicacionAbierta, setExplicacionAbierta] = useState(false);
 
   // Carga el reporte y deja el formulario con sus datos actuales.
@@ -217,6 +222,11 @@ const EditarReporte: React.FC<EditarReporteProps> = ({ origen }) => {
   );
 
   const guardar = async () => {
+    if (enLinea && geo.validandoUbicacion) {
+      setMensaje('Estamos verificando la ubicación...');
+      return;
+    }
+
     setIntentoGuardar(true);
     if (Object.values(errores).some(Boolean)) {
       setMensaje('Revisa los campos marcados en rojo.');
@@ -565,6 +575,9 @@ const EditarReporte: React.FC<EditarReporteProps> = ({ origen }) => {
             <div className="formulario-mapa">
               <SelectorUbicacion ubicacion={ubicacion} enfocar={enfocar} onCambiar={cambiarUbicacion} />
               <p className="formulario-mapa-ayuda">Toca el mapa o arrastra el pin para corregir la ubicación.</p>
+              {geo.errorUbicacion && (
+                <p className="formulario-error" role="alert">{geo.errorUbicacion}</p>
+              )}
             </div>
           </div>
         </div>

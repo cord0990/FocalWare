@@ -135,7 +135,6 @@
   right: 0;
   left: 0;
   height: 1px;
-  margin-bottom: 22px;
   background: var(--guia);
   pointer-events: none;
 }
@@ -183,6 +182,20 @@
   color: var(--tinta-suave);
   font-size: 0.72rem;
   text-align: center;
+  white-space: nowrap;
+}
+
+/* Celular: los nombres de sector pasan a dos líneas en vez de cortarse,
+   y los meses se achican para que las 12 columnas quepan sin partirse */
+@media (max-width: 767px) {
+  .grafico-fila-etiqueta {
+    line-height: 1.2;
+    white-space: normal;
+  }
+
+  .grafico-mes {
+    font-size: 0.6rem;
+  }
 }
 
 /* --- Tooltip: el valor primero, en negrita --- */

@@ -255,7 +255,8 @@
   --icon-color: #1f1f1f;
   flex: 0 1 560px;
   min-height: 52px;
-  padding: 0;
+  /* Espacio para el borde rojo: en iPhone el buscador recorta lo que sale de su caja */
+  padding: 2px;
 }
 
 .mis-reportes-cargando {

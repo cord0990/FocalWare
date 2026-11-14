@@ -20,6 +20,8 @@ export const CATEGORIAS = [
   { valor: 'Escombros', puntos: 6 },
 ] as const;
 
+export type CategoriaReporte = (typeof CATEGORIAS)[number]['valor'];
+
 export const VOLUMENES = [
   { valor: 'Pequeño (una bolsa)', puntos: 3 },
   { valor: 'Mediano (un auto)', puntos: 8 },
@@ -27,12 +29,26 @@ export const VOLUMENES = [
   { valor: 'Muy grande (un camión)', puntos: 20 },
 ] as const;
 
+export type VolumenReporte = (typeof VOLUMENES)[number]['valor'];
+
 export const DISTANCIAS = [
   { valor: 'Menos de 10 m', puntos: 20 },
   { valor: 'Entre 10 y 50 m', puntos: 13 },
   { valor: 'Entre 50 y 100 m', puntos: 7 },
   { valor: 'Más de 100 m', puntos: 2 },
 ] as const;
+
+export type DistanciaReporte = (typeof DISTANCIAS)[number]['valor'];
+
+// Guards para los valores que llegan desde formularios o desde la API.
+export const esCategoriaReporte = (valor: unknown): valor is CategoriaReporte =>
+  typeof valor === 'string' && CATEGORIAS.some((opcion) => opcion.valor === valor);
+
+export const esVolumenReporte = (valor: unknown): valor is VolumenReporte =>
+  typeof valor === 'string' && VOLUMENES.some((opcion) => opcion.valor === valor);
+
+export const esDistanciaReporte = (valor: unknown): valor is DistanciaReporte =>
+  typeof valor === 'string' && DISTANCIAS.some((opcion) => opcion.valor === valor);
 
 // Apoyos: 1 punto por cada apoyo vecinal, hasta 20.
 export const puntosApoyos = (votos: number) => Math.min(PUNTAJE_MAXIMO_FACTOR, votos);
@@ -47,9 +63,9 @@ const puntosDe = (opciones: readonly { valor: string; puntos: number }[], valor:
   opciones.find((opcion) => opcion.valor === valor)?.puntos ?? null;
 
 export interface DatosIndice {
-  categoria: string;
-  volumen: string;
-  distancia: string;
+  categoria: CategoriaReporte | '';
+  volumen: VolumenReporte | '';
+  distancia: DistanciaReporte | '';
   votos: number;
   // Fecha del reporte (AAAA-MM-DD). Si no se indica, se considera un reporte de hoy.
   fecha?: string;

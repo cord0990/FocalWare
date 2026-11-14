@@ -590,9 +590,12 @@
 }
 
 /* Sugerencias de dirección */
+/* Envuelve el campo de sector: ocupa el ancho libre junto a "Usar mi ubicación" */
 .formulario-sugerencias-contenedor {
   position: relative;
   z-index: 2000;
+  flex: 1;
+  min-width: 0;
 }
 
 .formulario-sugerencias {

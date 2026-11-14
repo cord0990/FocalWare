@@ -3,6 +3,15 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { prisma } = require('../../dist/db/index.js');
 const climaService = require('./climaService');
+const {
+  ESTADOS,
+  ESTADOS_APROBADOS,
+  DISTANCIAS,
+  esEstadoRevision,
+  esCategoriaReporte,
+  esVolumenReporte,
+  esDistanciaReporte,
+} = require('../dominio/opcionesReporte');
 
 // Carpeta donde multer deja las fotos.
 const CARPETA_UPLOADS = path.join(__dirname, '..', '..', 'uploads');
@@ -38,40 +47,46 @@ const aReporteVisible = (reporte, { conVecino = false, idUsuario = null } = {}) 
 // El frontend manda la cercanía como una de estas cuatro categorías,
 // pero la base guarda los metros. Se traduce al punto medio de cada rango.
 const DISTANCIAS_A_METROS = {
-  'Menos de 10 m': 5,
-  'Entre 10 y 50 m': 30,
-  'Entre 50 y 100 m': 75,
-  'Más de 100 m': 150,
+  [DISTANCIAS.MENOS_10]: 5,
+  [DISTANCIAS.ENTRE_10_50]: 30,
+  [DISTANCIAS.ENTRE_50_100]: 75,
+  [DISTANCIAS.MAS_100]: 150,
 };
 
 const metrosDeDistancia = (valor) => {
   if (valor === undefined || valor === null || valor === '') return null;
   if (typeof valor === 'number') return valor;
-  return DISTANCIAS_A_METROS[valor] ?? null;
+  return esDistanciaReporte(valor) ? DISTANCIAS_A_METROS[valor] : null;
 };
 
 const categoriaDeDistancia = (metros) => {
   if (metros === null || metros === undefined) return '';
   const numero = Number(metros);
-  if (numero < 10) return 'Menos de 10 m';
-  if (numero <= 50) return 'Entre 10 y 50 m';
-  if (numero <= 100) return 'Entre 50 y 100 m';
-  return 'Más de 100 m';
+  if (numero < 10) return DISTANCIAS.MENOS_10;
+  if (numero <= 50) return DISTANCIAS.ENTRE_10_50;
+  if (numero <= 100) return DISTANCIAS.ENTRE_50_100;
+  return DISTANCIAS.MAS_100;
 };
 
 // El estado no está en el reporte:
 // sale de su revisión, o es Pendiente si todavía no fue revisado.
-const estadoDe = (reporte) => reporte.revision?.estado ?? 'Pendiente';
+// Si la base tuviera un estado desconocido, se devuelve Pendiente en vez de
+// mandarle al frontend un valor que no está en su lista.
+const estadoDe = (reporte) => {
+  const estado = reporte.revision?.estado;
+  if (estado === undefined || estado === null) return ESTADOS.PENDIENTE;
+  return esEstadoRevision(estado) ? estado : ESTADOS.PENDIENTE;
+};
 
 // Traduce de la base a lo que entiende el frontend. El id vuelve como string
 // porque el frontend lo usa como clave y en las rutas.
-const esAprobada = (estado) => estado === 'Aprobado' || estado === 'En atención';
+const esAprobada = (estado) => ESTADOS_APROBADOS.includes(estado);
 
 const gestionDe = (reporte) => {
   if (!reporte.revision) return undefined;
 
   const estado = estadoDe(reporte);
-  if (estado === 'Rechazado') {
+  if (estado === ESTADOS.RECHAZADO) {
     return {
       rechazo: {
         motivo: reporte.revision.descripcion ?? '',
@@ -88,7 +103,7 @@ const gestionDe = (reporte) => {
 
   const gestion = {};
 
-  if (esAprobada(estado) || estado === 'Controlado') {
+  if (esAprobada(estado) || estado === ESTADOS.CONTROLADO) {
     gestion.aprobacion = {
       cuadrilla: reporte.revision.cuadrilla?.nombre ?? '',
       fechaAtencion: reporte.revision.fechaAtencion?.toISOString().slice(0, 10) ?? '',
@@ -102,7 +117,7 @@ const gestionDe = (reporte) => {
   // se creó con PUT /api/revisiones/:id y guarda el detalle y las fotos de
   // evidencia del cierre. Las rutas llegan como "controles/archivo.png" y el
   // frontend las convierte a direcciones con urlDeImagen.
-  if (estado === 'Controlado' && control) {
+  if (estado === ESTADOS.CONTROLADO && control) {
     gestion.control = {
       detalle: control.descripcion ?? '',
       imagenes: control.imagenes?.map((imagen) => imagen.rutaDirectorio) ?? [],
@@ -121,7 +136,7 @@ const aReporte = (reporte, { conVecino = false, idUsuario = null } = {}) => ({
   id: String(reporte.idReporte),
   nombre: reporte.titulo,
   sector: reporte.sector,
-  categoria: reporte.categoria,
+  categoria: esCategoriaReporte(reporte.categoria) ? reporte.categoria : '',
   estado: estadoDe(reporte),
   // Id de la revisión que lleva este reporte. Solo lo reciben el dueño del
   // reporte y los funcionarios, igual que nombreVecino y emailVecino: es la
@@ -143,7 +158,7 @@ const aReporte = (reporte, { conVecino = false, idUsuario = null } = {}) => ({
   latitud: Number(reporte.latitud),
   longitud: Number(reporte.longitud),
   descripcion: reporte.descripcion ?? '',
-  volumen: reporte.tamano,
+  volumen: esVolumenReporte(reporte.tamano) ? reporte.tamano : '',
   distanciaViviendas: categoriaDeDistancia(reporte.distanciaACasas),
   imagenes: reporte.imagenes?.map((imagen) => imagen.rutaDirectorio) ?? [],
   clima:
@@ -202,10 +217,10 @@ const listar = async ({ sector, categoria, estado, idVecino = null, esFuncionari
 
   const visibles = conEstado.filter((reporte) => {
     if (estado && reporte.estado !== estado) return false;
-    if (reporte.estado === 'Rechazado') return false;
+    if (reporte.estado === ESTADOS.RECHAZADO) return false;
     // RF-11: el mes se cuenta desde el control (si no hay control guardado, desde
     // la creación). Los funcionarios los siguen viendo como historial.
-    if (reporte.estado === 'Controlado' && !esFuncionario) {
+    if (reporte.estado === ESTADOS.CONTROLADO && !esFuncionario) {
       const fechaControl = reporte.revision?.controles?.[0]?.fechaControl ?? reporte.fechaCreacion;
       const antiguedad = Date.now() - new Date(fechaControl ?? 0).getTime();
       return antiguedad < UN_MES;

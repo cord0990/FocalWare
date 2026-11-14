@@ -7,7 +7,7 @@ import 'leaflet/dist/leaflet.css';
 import type { Reporte } from '../../services/reportesService';
 import AjustarTamanoMapa from './AjustarTamanoMapa';
 import CapaCalor from './CapaCalor';
-import { CENTRO_VALPARAISO, ESTILOS_MAPA } from './capasMapa';
+import { CENTRO_VALPARAISO, ESTILOS_MAPA, ZOOM_MINIMO } from './capasMapa';
 import { ICONOS_RIESGO } from './iconosMapa';
 import { NIVELES_RIESGO, obtenerNivelRiesgo } from '../../utils/riesgo';
 import './MapaReportes.css';
@@ -115,7 +115,7 @@ const MapaReportes: React.FC<MapaReportesProps> = ({
 
   return (
     <div className="mapa-reportes">
-      <MapContainer center={CENTRO_VALPARAISO} zoom={13} className="mapa-contenedor">
+      <MapContainer center={CENTRO_VALPARAISO} zoom={13} minZoom={ZOOM_MINIMO} className="mapa-contenedor">
         {/* La key obliga a recrear la capa al cambiar de estilo */}
         <TileLayer
           key={estilo}

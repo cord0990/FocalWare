@@ -64,7 +64,9 @@
   --color: #1f1f1f;
   --placeholder-color: #8a8a8a;
   --icon-color: #1f1f1f;
-  padding: 0;
+  /* El borde rojo es una sombra de 2 px por fuera del campo. En iPhone el buscador
+     recorta lo que sale de su caja, así que se deja ese espacio libre. */
+  padding: 2px;
 }
 
 .inicio-boton-icono {
@@ -183,6 +185,12 @@
   .inicio-lista {
     overflow: visible;
     padding-right: 0;
+  }
+
+  /* En celular toda la pantalla hace scroll: si el conteo quedara fijo arriba,
+     taparía las tarjetas y chocaría con la leyenda del mapa */
+  .inicio-conteo {
+    position: static;
   }
 }
 

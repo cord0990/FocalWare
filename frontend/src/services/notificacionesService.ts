@@ -1,13 +1,14 @@
 // Notificaciones del vecino. Vienen de la API y se crean cuando un funcionario
 // cambia el estado de uno de sus reportes (RF-08).
 import { pedir } from './api';
+import { esEstadoReporte, type EstadoReporte } from './reportesService';
 
 export interface Notificacion {
   id: string;
   reporteId: string;
   tituloReporte: string;
   mensaje: string;
-  estado: string;
+  estado: EstadoReporte | null;
   leida: boolean;
   fechaCreacion: string;
   fechaAprobacion?: string;
@@ -47,7 +48,7 @@ const aNotificacion = (n: NotificacionApi): Notificacion => ({
   reporteId: n.reporte ? String(n.reporte.id) : '',
   tituloReporte: n.reporte?.titulo ?? '',
   mensaje: n.mensaje,
-  estado: n.estado ?? '',
+  estado: n.estado && esEstadoReporte(n.estado) ? n.estado : null,
   leida: n.leida,
   fechaCreacion: aFecha(n.fechas.creacion),
   fechaAprobacion: aFecha(n.fechas.aprobacion) || undefined,

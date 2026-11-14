@@ -9,6 +9,14 @@ const VIEWBOX_VALPARAISO = '-71.95,-33.25,-71.40,-32.85';
 
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutos
 const cache = new Map<string, { valor: string | null; expira: number }>();
+const cachePuntos = new Map<string, { valor: PuntoGeocodificado; expira: number }>();
+
+export type EstadoPais = 'chile' | 'otro' | 'desconocido';
+
+export interface PuntoGeocodificado {
+  estado: EstadoPais;
+  direccion: string | null;
+}
 
 function cacheGet(clave: string): string | null | undefined {
   const entrada = cache.get(clave);
@@ -37,16 +45,25 @@ export function formatearDireccion(address?: Record<string, string> | null, disp
   return displayName ?? null;
 }
 
-// funcion: obtenerDireccionDesdePunto - consulta Nominatim (reverse) para obtener la direccion de un punto; valida que sea Chile.
-// El cache (cache key por lat/lng redondeado) evita repetir la misma consulta a Nominatim para el mismo punto dentro de 5 minutos, asi reduce latencia y consumo de red.
-export async function obtenerDireccionDesdePunto(
+// Consulta Nominatim para un punto y clasifica si está en Chile.
+// - chile: country_code "cl", o no viene país pero el nombre menciona Chile.
+// - otro: otro país o una respuesta sin país (por ejemplo, océano).
+// - desconocido: no se pudo consultar (red caída, timeout, HTTP no exitoso).
+//
+// El caché por coordenada redondeada evita repetir la misma consulta a Nominatim
+// dentro de 5 minutos. No se cachea "desconocido" para poder reintentar.
+export async function consultarPunto(
   latitud: number,
   longitud: number,
   signal?: AbortSignal,
-): Promise<string | null> {
-  const clave = `rev:${latitud.toFixed(5)},${longitud.toFixed(5)}`;
-  const enCache = cacheGet(clave);
-  if (enCache !== undefined) return enCache;
+): Promise<PuntoGeocodificado> {
+  const clave = `punto:${latitud.toFixed(5)},${longitud.toFixed(5)}`;
+  const enCache = cachePuntos.get(clave);
+
+  if (enCache) {
+    if (enCache.expira > Date.now()) return enCache.valor;
+    cachePuntos.delete(clave);
+  }
 
   try {
     const url = `${ENDPOINT_REVERSE}?format=jsonv2&lat=${encodeURIComponent(latitud)}&lon=${encodeURIComponent(longitud)}&addressdetails=1&accept-language=es`;
@@ -54,25 +71,53 @@ export async function obtenerDireccionDesdePunto(
       signal,
       headers: { Accept: 'application/json' },
     });
-    if (!respuesta.ok) {
-      cacheSet(clave, null);
-      return null;
-    }
+
+    if (!respuesta.ok) return { estado: 'desconocido', direccion: null };
+
     const datos = (await respuesta.json()) as {
       display_name?: string;
       address?: Record<string, string>;
     };
-    // Restringir a Chile.
-    if (datos.address?.country_code && datos.address.country_code.toLowerCase() !== CODIGO_PAIS) {
-      cacheSet(clave, null);
-      return null;
-    }
-    const resultado = formatearDireccion(datos.address, datos.display_name);
-    cacheSet(clave, resultado);
+
+    const codigoPais = datos.address?.country_code?.toLowerCase();
+    const enChile =
+      codigoPais === CODIGO_PAIS ||
+      (!codigoPais && /chile/i.test(datos.display_name ?? ''));
+
+    const resultado: PuntoGeocodificado = {
+      estado: enChile ? 'chile' : 'otro',
+      direccion: enChile ? formatearDireccion(datos.address, datos.display_name) : null,
+    };
+
+    cachePuntos.set(clave, { valor: resultado, expira: Date.now() + CACHE_TTL_MS });
     return resultado;
   } catch {
-    return null;
+    return { estado: 'desconocido', direccion: null };
   }
+}
+
+// Devuelve true si el punto está en Chile, false si está fuera y null si no se
+// pudo verificar. El null permite seguir creando reportes sin conexión.
+export async function validarUbicacionEnChile(
+  latitud: number,
+  longitud: number,
+  signal?: AbortSignal,
+): Promise<boolean | null> {
+  const resultado = await consultarPunto(latitud, longitud, signal);
+
+  if (resultado.estado === 'chile') return true;
+  if (resultado.estado === 'otro') return false;
+  return null;
+}
+
+// funcion: obtenerDireccionDesdePunto - consulta Nominatim (reverse) para obtener la direccion de un punto; valida que sea Chile.
+export async function obtenerDireccionDesdePunto(
+  latitud: number,
+  longitud: number,
+  signal?: AbortSignal,
+): Promise<string | null> {
+  const resultado = await consultarPunto(latitud, longitud, signal);
+  return resultado.estado === 'chile' ? resultado.direccion : null;
 }
 
 export interface SugerenciaDireccion {

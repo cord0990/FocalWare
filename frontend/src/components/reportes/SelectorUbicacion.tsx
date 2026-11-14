@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import AjustarTamanoMapa from './AjustarTamanoMapa';
-import { CENTRO_VALPARAISO, ESTILOS_MAPA } from './capasMapa';
+import { CENTRO_VALPARAISO, ESTILOS_MAPA, ZOOM_MINIMO } from './capasMapa';
 import { crearIconoPin } from './iconosMapa';
 import './SelectorUbicacion.css';
 
@@ -40,7 +40,12 @@ const Centrar: React.FC<{ punto?: Ubicacion | null }> = ({ punto }) => {
 // Mapa para elegir dónde está el problema: se toca el mapa o se arrastra el pin.
 const SelectorUbicacion: React.FC<SelectorUbicacionProps> = ({ ubicacion, enfocar, onCambiar }) => (
   <div className="selector-ubicacion">
-    <MapContainer center={CENTRO_VALPARAISO} zoom={13} className="selector-ubicacion-mapa">
+    <MapContainer
+      center={CENTRO_VALPARAISO}
+      zoom={13}
+      minZoom={ZOOM_MINIMO}
+      className="selector-ubicacion-mapa"
+    >
       <TileLayer attribution={ESTILOS_MAPA.simple.atribucion} url={ESTILOS_MAPA.simple.url} />
       <AjustarTamanoMapa />
       <EscucharClics onCambiar={onCambiar} />
