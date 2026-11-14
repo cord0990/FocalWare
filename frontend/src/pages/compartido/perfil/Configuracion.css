@@ -131,3 +131,33 @@
   margin: 0;
   height: 40px;
 }
+
+/* Celular: la foto arriba y los campos debajo, usando todo el ancho */
+@media (max-width: 767px) {
+  .configuracion-tab-container {
+    padding: 1.25rem;
+  }
+
+  .configuracion-grid {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.5rem;
+  }
+
+  .perfil-avatar-large {
+    width: 104px;
+    height: 104px;
+  }
+
+  .avatar-placeholder-text {
+    font-size: 2.6rem;
+  }
+
+  .formulario-seccion {
+    max-width: none;
+  }
+
+  .configuracion-acciones ion-button {
+    flex: 1;
+  }
+}

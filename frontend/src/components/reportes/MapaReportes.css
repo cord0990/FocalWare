@@ -1,5 +1,7 @@
 .mapa-reportes {
   position: relative;
+  /* Las capas de Leaflet usan z-index altos: así no se montan sobre el resto de la página */
+  isolation: isolate;
   height: 100%;
   min-height: 320px;
   border: 3px solid #d9b8b8;

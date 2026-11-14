@@ -1262,8 +1262,9 @@
                 "exec": [
                   "// Coordenadas al azar dentro de Valparaíso, para que el reporte no choque",
                   "// con uno anterior (la API rechaza reportes parecidos a menos de 50 m).",
-                  "const lat = -33.03 - Math.random() * 0.03;",
-                  "const lng = -71.58 - Math.random() * 0.06;",
+                  "// La zona queda al sur de la costa, así ningún reporte cae en la bahía.",
+                  "const lat = -33.045 - Math.random() * 0.02;",
+                  "const lng = -71.585 - Math.random() * 0.05;",
                   "pm.collectionVariables.set(\"latitud\", lat.toFixed(6));",
                   "pm.collectionVariables.set(\"longitud\", lng.toFixed(6));"
                 ]
@@ -2506,8 +2507,9 @@
                 "exec": [
                   "// Coordenadas al azar dentro de Valparaíso, para que el reporte no choque",
                   "// con uno anterior (la API rechaza reportes parecidos a menos de 50 m).",
-                  "const lat = -33.03 - Math.random() * 0.03;",
-                  "const lng = -71.58 - Math.random() * 0.06;",
+                  "// La zona queda al sur de la costa, así ningún reporte cae en la bahía.",
+                  "const lat = -33.045 - Math.random() * 0.02;",
+                  "const lng = -71.585 - Math.random() * 0.05;",
                   "pm.collectionVariables.set(\"latitud\", lat.toFixed(6));",
                   "pm.collectionVariables.set(\"longitud\", lng.toFixed(6));"
                 ]

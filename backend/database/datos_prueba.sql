@@ -81,7 +81,7 @@ INSERT INTO reporte (titulo, descripcion, categoria, tamano, sector, direccion, 
 
 ('Colchones y muebles en quebrada',
  'Dos colchones y un sillón botados al borde de la quebrada, dentro de un sitio con reja.',
- 'Residuos voluminosos', 'Mediano (un auto)', 'Cerro Barón', NULL, -33.039000, -71.611000,
+ 'Residuos voluminosos', 'Mediano (un auto)', 'Cerro Barón', NULL, -33.042000, -71.599000,
  75, 38, '2026-09-28 14:00', '2026-09-28 13:30', 20.0, 'Despejado', 40, 22, 1, 5);
 
 -- Votos (un vecino vota una sola vez por reporte)

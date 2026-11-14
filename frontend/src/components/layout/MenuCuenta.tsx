@@ -7,6 +7,7 @@ import {
 } from '@ionic/react';
 import {
   chevronForwardOutline,
+  closeOutline,
   cloudUploadOutline,
   documentTextOutline,
   helpCircleOutline,
@@ -91,6 +92,16 @@ const MenuCuenta: React.FC<{ contentId: string }> = ({ contentId }) => {
       >
         <IonContent className="cuenta-contenido">
           <div className="cuenta-cuerpo">
+            {/* En celular el menú tapa casi toda la pantalla: este botón permite cerrarlo sin elegir una opción */}
+            <div className="cuenta-encabezado">
+              <span>Mi cuenta</span>
+              <IonMenuToggle menu={ID_MENU_CUENTA} autoHide={false}>
+                <button type="button" className="cuenta-cerrar" aria-label="Cerrar menú de mi cuenta">
+                  <IonIcon icon={closeOutline} aria-hidden="true" />
+                </button>
+              </IonMenuToggle>
+            </div>
+
             <IonMenuToggle menu={ID_MENU_CUENTA} autoHide={false}>
               <button
                 type="button"

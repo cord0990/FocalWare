@@ -145,3 +145,68 @@
   color: #1f1f1f;
   margin-top: 2rem;
 }
+
+/* Celular: la línea de tiempo se achica para que las tres fechas quepan en el ancho */
+@media (max-width: 767px) {
+  .detalle-notificacion-container {
+    padding: 0.75rem;
+  }
+
+  .tarjeta-detalle-custom {
+    padding: 1.25rem 1rem;
+  }
+
+  .detalle-header-row {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .timeline-badge-title {
+    margin-bottom: 0.5rem;
+  }
+
+  .timeline-track-container {
+    gap: 0.5rem;
+    margin: 1.5rem 0;
+    padding: 0;
+  }
+
+  /* La línea va de la primera a la última fecha, a la altura de los círculos */
+  .timeline-line {
+    top: 3.6rem;
+    left: 16%;
+    right: 16%;
+    height: 6px;
+    transform: none;
+  }
+
+  .timeline-step {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+  }
+
+  .step-label {
+    min-height: 2.4rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .step-circle {
+    width: 34px;
+    height: 34px;
+    border-width: 5px;
+  }
+
+  .step-date {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    text-align: center;
+  }
+
+  .mensaje-agradecimiento {
+    margin-top: 1rem;
+    font-size: 1.3rem;
+  }
+}

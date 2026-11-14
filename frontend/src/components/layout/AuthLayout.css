@@ -221,13 +221,14 @@
     padding: 24px 16px;
   }
 
+  /* Sin la sombra desplazada: en una pantalla angosta se veía como una segunda tarjeta detrás */
   .auth-tarjeta {
     grid-template-columns: minmax(0, 1fr);
     gap: 20px;
     padding: 20px;
-    border-width: 6px;
+    border-width: 4px;
     border-radius: 28px;
-    box-shadow: 8px 8px 0 #f4efdc;
+    box-shadow: none;
   }
 
   .auth-marca {
