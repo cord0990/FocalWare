@@ -278,7 +278,9 @@ docker compose up -d --build
 
 Ese comando construye el backend y el frontend, espera a que la base y la API estén sanas, y deja la app en `http://localhost:5173` y la API en `http://localhost:3000`.
 
-No hace falta crear ningún `.env`: en el primer arranque la API genera un `JWT_SECRETO` aleatorio y lo guarda en el volumen `focalware_appdata`, así que las sesiones sobreviven a reinicios. Si quieres fijar el secreto manualmente (por ejemplo, en un servidor) o cambiar la contraseña de la base, crea un `.env` en la raíz del proyecto con `JWT_SECRETO` (mínimo 32 caracteres) y `DB_PASSWORD`. El `backend/.env` es solo para la Opción B, sin Docker.
+No hace falta crear ningún `.env`: en el primer arranque la API genera un `JWT_SECRETO` aleatorio y lo guarda en el volumen `focalware_appdata`, así que las sesiones sobreviven a reinicios. Si quieres fijar el secreto (mínimo 32 caracteres), cambiar la contraseña de la base o el puerto publicado en el equipo, copia `.env.example` a `.env` en la raíz del proyecto y ajusta esas variables. El `backend/.env` es solo para la Opción B, sin Docker.
+
+Las variables que lee Docker Compose están detalladas en [Variables de entorno](#variables-de-entorno). `VITE_API_URL` no se configura ahí: el build del frontend usa `/api` y nginx reenvía `/api` y `/uploads` a la API.
 
 3. Cargar los datos de prueba (opcional, recomendado):
 
@@ -360,7 +362,23 @@ En ambos casos la aplicación queda disponible en `http://localhost:5173` y la A
 
 Los archivos `.env` no se versionan (están en `.gitignore`).
 
+### Docker Compose (`.env` en la raíz, opcional)
+
+Estas son las variables que lee `docker-compose.yml`. Se pueden dejar en los valores por defecto o definir en un `.env` en la raíz, a partir de `.env.example`.
+
+| Variable | Valor por defecto | Uso |
+|---|---|---|
+| `DB_PASSWORD` | `postgres` | Contraseña de PostgreSQL y de `DATABASE_URL` |
+| `DB_PORT` | `5434` | Puerto publicado en el equipo; dentro de Docker la API usa `db:5432` |
+| `FRONTEND_URL` | `http://localhost:5173` | Origen permitido por CORS |
+| `JWT_SECRETO` | vacío | Clave para firmar los tokens, mínimo 32 caracteres. Si queda vacía, la API genera una y la guarda en el volumen `focalware_appdata` |
+| `JWT_EXPIRACION` | `15m` | Duración del token |
+
+`VITE_API_URL` y `TRUST_PROXY` no se configuran desde ese `.env`: el frontend se compila con `/api` y Compose fija `TRUST_PROXY=1` porque nginx está delante de la API.
+
 ### Backend (`backend/.env`, copiado de `backend/.env.example`)
+
+Esta configuración es para ejecutar la API **sin Docker**.
 
 | Variable | Descripción | Ejemplo |
 |---|---|---|
@@ -376,13 +394,13 @@ Los archivos `.env` no se versionan (están en `.gitignore`).
 | `JWT_EXPIRACION` | Duración de la sesión | `15m` |
 | `TRUST_PROXY` | `1` si la API está detrás de un proxy inverso, para limitar por la IP real de `X-Forwarded-For` (Docker Compose lo deja en `1` porque nginx está delante) | `0` |
 
-### Frontend (`frontend/.env`, opcional)
+### Frontend (`frontend/.env`, opcional para desarrollo local)
 
 | Variable | Descripción | Ejemplo |
 |---|---|---|
 | `VITE_API_URL` | URL base de la API | `http://localhost:3000/api` |
 
-Si no se define `VITE_API_URL`, el frontend usa por defecto `http://localhost:3000/api`.
+Si no se define `VITE_API_URL`, el frontend usa por defecto `http://localhost:3000/api`. En Docker no se usa este archivo: el build recibe `VITE_API_URL=/api` y nginx hace de proxy hacia la API.
 
 ## Base de datos
 
