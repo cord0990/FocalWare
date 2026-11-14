@@ -40,7 +40,16 @@ Cada servicio agrupa las llamadas de un tema y transforma la respuesta de la API
 | [usuarioService.ts](../frontend/src/services/usuarioService.ts) | `/estadisticas/mi-actividad` | "Tu aporte" en el menú del vecino |
 | [climaService.ts](../frontend/src/services/climaService.ts) | `/clima` | Panel "Clima ahora" al crear un reporte |
 
-## 3. Envío controlado del token (JWT)
+## 3. Validación de la ubicación
+
+El mapa para crear o editar un reporte valida el punto contra Nominatim (`reverse`) usando `geocodificacionService.ts`.
+
+- Si el punto está fuera de Chile, se descarta el pin, se muestra una alerta y no se puede enviar el reporte.
+- Si el usuario arrastra un pin ya existente fuera del país, vuelve a la última ubicación válida.
+- Si no hay conexión o Nominatim no responde, se mantiene el pin y se permite continuar para no romper el modo offline.
+- Las direcciones sugeridas por el buscador ya están restringidas a Chile con `countrycodes=cl`.
+
+## 4. Envío controlado del token (JWT)
 
 - **Al iniciar sesión**, la app guarda el token que entrega `/auth/login` ([sesionService.ts](../frontend/src/services/sesionService.ts) y `guardarToken` en [api.ts](../frontend/src/services/api.ts)).
 - **En cada petición privada**, `pedir` agrega la cabecera `Authorization: Bearer <token>` ([api.ts, línea 86](../frontend/src/services/api.ts#L86)).
@@ -48,7 +57,7 @@ Cada servicio agrupa las llamadas de un tema y transforma la respuesta de la API
 - **Si no hay token**, no se manda la cabecera, y la API responde 401 en las rutas privadas.
 - **El token nunca se muestra en pantalla** ni se guarda dentro de los datos del usuario.
 
-## 4. Gestión de errores
+## 5. Gestión de errores
 
 `pedir` convierte cualquier problema en un `ErrorApi` con el código HTTP ([api.ts, línea 58](../frontend/src/services/api.ts#L58)). Cada pantalla decide qué mostrar según ese código:
 
@@ -63,7 +72,7 @@ Cada servicio agrupa las llamadas de un tema y transforma la respuesta de la API
 
 Además, las listas muestran estados de carga y de error. Por ejemplo, Notificaciones muestra "Cargando notificaciones..." y, si falla, "No se pudieron cargar las notificaciones. Intenta de nuevo más tarde."
 
-## 5. Protección de rutas según el rol
+## 6. Protección de rutas según el rol
 
 Las pantallas privadas están envueltas en `RutaProtegida` ([RutaProtegida.tsx](../frontend/src/routes/RutaProtegida.tsx)):
 
@@ -82,13 +91,13 @@ Las pantallas privadas están envueltas en `RutaProtegida` ([RutaProtegida.tsx](
 
 Las reglas están en [App.tsx](../frontend/src/App.tsx#L116). La protección en la app es para la navegación: la seguridad real la pone la API, que revisa el token y el rol en cada petición (ver [EP2.1, sección 7](EP2.1-estructura-backend.md#7-seguridad-y-jwt-estado-y-correcciones)).
 
-## 6. Cierre de sesión
+## 7. Cierre de sesión
 
 - **Manual:** el botón "Cerrar sesión" del menú de cuenta ([MenuCuenta.tsx](../frontend/src/components/layout/MenuCuenta.tsx#L78)) llama a `cerrarSesion`, que borra el usuario y el token del teléfono ([sesionService.ts](../frontend/src/services/sesionService.ts#L43)) y lleva al login.
 - **Automático:** cuando la API responde 401 a una petición con token, la app hace lo mismo y avisa que la sesión expiró (sección 4).
 - **Al abrir la app**, se revisa el token guardado con `GET /auth/perfil` ([SesionProvider.tsx](../frontend/src/context/SesionProvider.tsx)). Si venció, la sesión se cierra igual que arriba. Si sigue válido, se actualizan los datos del usuario (por ejemplo, las cuadrillas del funcionario). Si no hay conexión, la sesión se mantiene y se revisa en la próxima petición.
 
-## 7. Flujos conectados a datos reales
+## 8. Flujos conectados a datos reales
 
 | Flujo | Qué pasa | Endpoints |
 |---|---|---|
@@ -102,7 +111,7 @@ Las reglas están en [App.tsx](../frontend/src/App.tsx#L116). La protección en 
 | Ver estadísticas | Cifras del mes, gráficos y CSV con los reportes reales | `GET /estadisticas` |
 | Cambiar o recuperar la contraseña | Cambia la contraseña con la actual, o con el código de recuperación | `/auth/password`, `/auth/recuperacion/...` |
 
-## 8. Capturas
+## 9. Capturas
 
 **Mapa con los reportes de la base.** Cada tarjeta muestra el riesgo y los apoyos que entrega `GET /reportes`.
 
