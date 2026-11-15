@@ -16,8 +16,9 @@ COPY src ./src
 
 RUN npm run build
 
-# Genera un JWT_SECRETO aleatorio si no se definió uno y lo persiste en /app/data.
-# Se usa un entrypoint en Node para no depender del shebang ni de finales de línea CRLF.
+# El entrypoint genera un JWT_SECRETO aleatorio si no se definió uno y lo
+# persiste en /app/data. Se usa Node para no depender del shebang ni de los
+# finales de línea CRLF del archivo (que rompen un script en /bin/sh).
 COPY docker-entrypoint.js /app/docker-entrypoint.js
 
 # El servidor corre sobre el JS compilado.

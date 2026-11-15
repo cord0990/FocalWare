@@ -1,7 +1,8 @@
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 const crypto = require('crypto');
-const { spawnSync } = require('child_process');
+const { spawn, spawnSync } = require('child_process');
 
 const secretFile = process.env.JWT_SECRETO_FILE || '/app/data/jwt_secret';
 
@@ -25,10 +26,17 @@ if (!process.env.JWT_SECRETO) {
 
 // Aplica las migraciones pendientes y después ejecuta el comando del contenedor.
 // Si falla la migración, el contenedor no arranca.
-const migrate = spawnSync('npx', ['prisma', 'migrate', 'deploy'], {
+// Se resuelve el CLI de Prisma y se ejecuta con el propio Node para no depender
+// de npx (que en Windows es npx.cmd y podría intentar descargar el paquete).
+const prismaCli = require.resolve('prisma/build/index.js');
+const migrate = spawnSync(process.execPath, [prismaCli, 'migrate', 'deploy'], {
   stdio: 'inherit',
   env: process.env,
 });
+if (migrate.error) {
+  console.error(migrate.error);
+  process.exit(1);
+}
 if (migrate.status !== 0) {
   process.exit(migrate.status ?? 1);
 }
@@ -40,5 +48,31 @@ if (!cmd) {
   process.exit(1);
 }
 
-const run = spawnSync(cmd, args, { stdio: 'inherit', env: process.env });
-process.exit(run.status ?? 0);
+// Con spawn (y no spawnSync) el entrypoint puede reenviar las señales al
+// proceso hijo: así "docker stop/restart" cierra la API en el acto en vez de
+// esperar el timeout de Docker y matarla con SIGKILL.
+const run = spawn(cmd, args, { stdio: 'inherit', env: process.env });
+
+for (const senal of ['SIGTERM', 'SIGINT', 'SIGHUP']) {
+  process.on(senal, () => {
+    try {
+      run.kill(senal);
+    } catch {
+      // El hijo ya terminó; no hay a quién reenviar.
+    }
+  });
+}
+
+run.on('error', (error) => {
+  console.error(error);
+  process.exit(1);
+});
+
+run.on('exit', (code, signal) => {
+  if (code !== null) {
+    process.exit(code);
+  }
+  // Si el hijo murió por una señal, el código 128+n permite distinguir
+  // un cierre normal de una terminación forzada (por ejemplo, SIGTERM = 143).
+  process.exit(signal ? 128 + (os.constants.signals[signal] ?? 0) : 0);
+});
