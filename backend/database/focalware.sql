@@ -26,7 +26,7 @@ CREATE TABLE vecino (
     nombre         VARCHAR(100) NOT NULL,
     email          VARCHAR(150) NOT NULL UNIQUE,
     password_hash  VARCHAR(255) NOT NULL,
-    telefono       VARCHAR(20)
+    telefono       TEXT
 );
 
 CREATE TABLE funcionario (
@@ -34,7 +34,7 @@ CREATE TABLE funcionario (
     nombre         VARCHAR(100) NOT NULL,
     email          VARCHAR(150) NOT NULL UNIQUE,
     password_hash  VARCHAR(255) NOT NULL,
-    telefono       VARCHAR(20)
+    telefono       TEXT
 );
 
 
@@ -67,7 +67,7 @@ CREATE TABLE reporte (
     categoria             VARCHAR(50)  NOT NULL,
     tamano                VARCHAR(30)  NOT NULL,
     sector                VARCHAR(100) NOT NULL,
-    direccion             VARCHAR(200),
+    direccion             TEXT,
     latitud               NUMERIC(9,6) NOT NULL,
     longitud              NUMERIC(9,6) NOT NULL,
     distancia_a_casas     NUMERIC(8,2),
