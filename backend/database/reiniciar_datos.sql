@@ -2,6 +2,9 @@
 -- Se usa antes de cada sesión de prueba con usuarios, así cada participante parte
 -- con la misma app. Después de este archivo se carga datos_prueba.sql.
 --
+-- Nota: datos_prueba.sql ya ejecuta este mismo TRUNCATE al inicio. Este archivo
+-- sirve si solo se quiere dejar la base vacía, sin volver a cargar los datos.
+--
 -- Desde la raíz del proyecto (en cmd o Git Bash, no en PowerShell):
 --   docker exec -i focalware-db psql -U postgres -d focalware < backend/database/reiniciar_datos.sql
 --   docker exec -i focalware-db psql -U postgres -d focalware < backend/database/datos_prueba.sql
