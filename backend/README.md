@@ -48,6 +48,7 @@ backend/
 | `FRONTEND_URL` | Dirección del frontend que puede usar la API (CORS) |
 | `JWT_SECRETO` | Clave para firmar los tokens de sesión (mínimo 32 caracteres). En Docker se autogenera si queda vacía |
 | `JWT_EXPIRACION` | Tiempo que dura la sesión, por ejemplo `15m` |
+| `DATA_ENCRYPTION_KEY` | Clave AES-256-GCM para cifrar datos sensibles (64 caracteres hexadecimales). En Docker se autogenera |
 
 ## Ejecución
 
@@ -83,3 +84,14 @@ Todas las respuestas de la API incluyen
 Express no envía `X-Powered-By`.
 El frontend servido por nginx agrega su propia CSP y el resto de cabeceras;
 HSTS se agrega solo en despliegues con HTTPS.
+
+## Datos sensibles
+
+Los teléfonos de vecinos y funcionarios y la dirección exacta de los reportes se cifran con **AES-256-GCM** en `src/services/cryptoService.js`.
+
+- En Docker, `DATA_ENCRYPTION_KEY` se genera y persiste en el volumen `focalware_appdata`.
+- Fuera de Docker hay que definirla en `backend/.env` (64 caracteres hexadecimales).
+- Los valores antiguos en texto plano se migran con `npm run db:encrypt`.
+- `npm run db:encrypt:check` falla si queda algún valor sensible sin cifrar.
+
+La misma clave debe conservarse entre reinicios y despliegues. Si se cambia, los valores cifrados anteriores no se pueden leer.

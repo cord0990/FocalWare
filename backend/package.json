@@ -14,6 +14,8 @@
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:reset": "prisma migrate reset",
+    "db:encrypt": "node src/scripts/encriptarDatos.js",
+    "db:encrypt:check": "node src/scripts/encriptarDatos.js --check",
     "db:studio": "prisma studio"
   },
   "dependencies": {

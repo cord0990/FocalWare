@@ -278,7 +278,7 @@ docker compose up -d --build
 
 Ese comando construye el backend y el frontend, espera a que la base y la API estén sanas, y deja la app en `http://localhost:5173` y la API en `http://localhost:3000`.
 
-No hace falta crear ningún `.env`: en el primer arranque la API genera un `JWT_SECRETO` aleatorio y lo guarda en el volumen `focalware_appdata`, así que las sesiones sobreviven a reinicios. Si quieres fijar el secreto (mínimo 32 caracteres), cambiar la contraseña de la base o el puerto publicado en el equipo, copia `.env.example` a `.env` en la raíz del proyecto y ajusta esas variables. El `backend/.env` es solo para la Opción B, sin Docker.
+No hace falta crear ningún `.env`: en el primer arranque la API genera un `JWT_SECRETO` aleatorio y lo guarda en el volumen `focalware_appdata`, así que las sesiones sobreviven a reinicios. También genera y guarda la `DATA_ENCRYPTION_KEY` que cifra teléfonos y direcciones. Si quieres fijar esas claves, cambiar la contraseña de la base o el puerto publicado en el equipo, copia `.env.example` a `.env` en la raíz del proyecto y ajusta esas variables. El `backend/.env` es solo para la Opción B, sin Docker.
 
 Las variables que lee Docker Compose están detalladas en [Variables de entorno](#variables-de-entorno). `VITE_API_URL` no se configura ahí: el build del frontend usa `/api` y nginx reenvía `/api` y `/uploads` a la API.
 
@@ -288,7 +288,13 @@ Las variables que lee Docker Compose están detalladas en [Variables de entorno]
 docker exec -i focalware-db psql -U postgres -d focalware < backend/database/datos_prueba.sql
 ```
 
-4. Abrir `http://localhost:5173`.
+4. Cifrar los teléfonos de los datos de prueba:
+
+```bash
+docker compose exec api npm run db:encrypt
+```
+
+5. Abrir `http://localhost:5173`.
 
 **Código de recuperación de contraseña:** el backend no envía correos; imprime el código en su consola. Con Docker se ve así:
 
@@ -344,6 +350,9 @@ cp .env.example .env   # los valores por defecto apuntan a localhost:5434; ajust
 # Genera una clave JWT y pégala en JWT_SECRETO dentro de backend/.env
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
+# Genera una clave de cifrado y pégala en DATA_ENCRYPTION_KEY
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+
 npm start              # compila (prestart) y levanta la API en http://localhost:3000
 ```
 
@@ -373,6 +382,7 @@ Estas son las variables que lee `docker-compose.yml`. Se pueden dejar en los val
 | `FRONTEND_URL` | `http://localhost:5173` | Origen permitido por CORS |
 | `JWT_SECRETO` | vacío | Clave para firmar los tokens, mínimo 32 caracteres. Si queda vacía, la API genera una y la guarda en el volumen `focalware_appdata` |
 | `JWT_EXPIRACION` | `15m` | Duración del token |
+| `DATA_ENCRYPTION_KEY` | vacío | Clave AES-256-GCM para cifrar teléfonos y direcciones. Si queda vacía, la API genera una y la guarda en el volumen `focalware_appdata` |
 
 `VITE_API_URL` y `TRUST_PROXY` no se configuran desde ese `.env`: el frontend se compila con `/api` y Compose fija `TRUST_PROXY=1` porque nginx está delante de la API.
 
@@ -392,6 +402,7 @@ Esta configuración es para ejecutar la API **sin Docker**.
 | `FRONTEND_URL` | Origen permitido por CORS | `http://localhost:5173` |
 | `JWT_SECRETO` | Clave para firmar los tokens (mínimo 32 caracteres). En Docker se autogenera si está vacía; fuera de Docker es obligatoria | `openssl rand -hex 32` |
 | `JWT_EXPIRACION` | Duración de la sesión | `15m` |
+| `DATA_ENCRYPTION_KEY` | Clave AES-256-GCM para cifrar teléfonos y direcciones (64 caracteres hexadecimales). En Docker se autogenera; fuera de Docker es obligatoria | `openssl rand -hex 32` |
 | `TRUST_PROXY` | `1` si la API está detrás de un proxy inverso, para limitar por la IP real de `X-Forwarded-For` (Docker Compose lo deja en `1` porque nginx está delante) | `0` |
 
 ### Frontend (`frontend/.env`, opcional para desarrollo local)
@@ -431,6 +442,29 @@ psql -U postgres -h localhost -f backend/database/focalware.sql
 
 El cliente de Prisma se genera con `npm run build` o `npm run db:generate`.
 
+### Datos sensibles
+
+Los teléfonos de vecinos y funcionarios y la dirección exacta de los reportes se guardan cifrados con **AES-256-GCM**. La clave `DATA_ENCRYPTION_KEY` se genera y persiste en el volumen `focalware_appdata` cuando se usa Docker.
+
+Los teléfonos y direcciones que ya existían en texto plano se migran con:
+
+```bash
+cd backend
+npm run db:encrypt
+npm run db:encrypt:check
+```
+
+Después de cargar `datos_prueba.sql`, hay que ejecutar `db:encrypt` para cifrar los teléfonos de ejemplo.
+
+En Docker:
+
+```bash
+docker compose exec api npm run db:encrypt
+docker compose exec api npm run db:encrypt:check
+```
+
+`db:encrypt` es idempotente. Si se cambia la clave de cifrado, los datos anteriores dejan de poder leerse; hay que conservar la misma clave o hacer una migración de re-cifrado.
+
 ## Ejecución
 
 ### Con Docker
@@ -449,18 +483,18 @@ docker compose logs -f api
 
 ### Detener, apagar y eliminar
 
-| Acción | Comando | Base de datos (`focalware_pgdata`) | Fotos (`backend/uploads`) | Secreto JWT (`focalware_appdata`) |
+| Acción | Comando | Base de datos (`focalware_pgdata`) | Fotos (`backend/uploads`) | Secretos (`focalware_appdata`) |
 |---|---|---|---|---|
-| Pausar y retomar rápido | `docker compose stop` / `docker compose start` | Se conserva | Se conservan | Se conserva |
-| Apagar y eliminar los contenedores | `docker compose down` | Se conserva | Se conservan | Se conserva |
-| Volver a levantar | `docker compose up -d` | Se reutiliza la misma | Se reutilizan | Se reutiliza |
+| Pausar y retomar rápido | `docker compose stop` / `docker compose start` | Se conserva | Se conservan | Se conservan |
+| Apagar y eliminar los contenedores | `docker compose down` | Se conserva | Se conservan | Se conservan |
+| Volver a levantar | `docker compose up -d` | Se reutiliza la misma | Se reutilizan | Se reutilizan |
 | Empezar de cero | `docker compose down -v` | **Se borra completa** | Se conservan | **Se borra** |
 
-`docker compose down` es la forma normal de apagar el proyecto: elimina los contenedores y la red, pero **no** borra el volumen `focalware_pgdata` (base de datos y datos de muestra), la carpeta `backend/uploads` (fotos) ni el volumen `focalware_appdata` (secreto JWT). Al volver a ejecutar `docker compose up -d`, todo sigue ahí.
+`docker compose down` es la forma normal de apagar el proyecto: elimina los contenedores y la red, pero **no** borra el volumen `focalware_pgdata` (base de datos y datos de muestra), la carpeta `backend/uploads` (fotos) ni el volumen `focalware_appdata` (secreto JWT y clave de cifrado). Al volver a ejecutar `docker compose up -d`, todo sigue ahí.
 
 `docker compose stop` solo detiene los contenedores sin eliminarlos, y `docker compose start` los retoma. Es útil para una pausa corta.
 
-`docker compose down -v` (o `docker compose down --volumes`) **sí borra el volumen de PostgreSQL y el del secreto JWT**: se pierden todos los usuarios, reportes y datos de muestra, y al volver a levantar se genera un secreto nuevo, por lo que las sesiones anteriores dejan de valer. Las fotos no se borran porque `backend/uploads` es una carpeta del proyecto, no un volumen de Docker. Después de un `down -v` hay que volver a cargar `backend/database/datos_prueba.sql` para recuperar los datos de muestra.
+`docker compose down -v` (o `docker compose down --volumes`) **sí borra el volumen de PostgreSQL y el de secretos**: se pierden todos los usuarios, reportes y datos de muestra, y al volver a levantar se generan claves nuevas, por lo que las sesiones anteriores dejan de valer. Las fotos no se borran porque `backend/uploads` es una carpeta del proyecto, no un volumen de Docker. Después de un `down -v` hay que volver a cargar `backend/database/datos_prueba.sql` y ejecutar `db:encrypt` para recuperar los datos de muestra.
 
 Si necesitas respaldar la base antes de eliminarla:
 

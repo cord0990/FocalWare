@@ -22,6 +22,28 @@ if [ -z "${JWT_SECRETO:-}" ]; then
   export JWT_SECRETO
 fi
 
+# Clave de cifrado de datos sensibles. Se genera y persiste igual que el JWT.
+# También se guarda en archivo para que `docker exec` pueda ejecutar el script
+# de migración sin depender de las variables exportadas por este entrypoint.
+ARCHIVO_CLAVE="${DATA_ENCRYPTION_KEY_FILE:-/app/data/data_encryption_key}"
+
+mkdir -p "$(dirname "$ARCHIVO_CLAVE")"
+umask 077
+
+if [ -n "${DATA_ENCRYPTION_KEY:-}" ]; then
+  printf '%s' "$DATA_ENCRYPTION_KEY" > "$ARCHIVO_CLAVE"
+  chmod 600 "$ARCHIVO_CLAVE"
+elif [ -s "$ARCHIVO_CLAVE" ]; then
+  DATA_ENCRYPTION_KEY="$(cat "$ARCHIVO_CLAVE")"
+  export DATA_ENCRYPTION_KEY
+else
+  DATA_ENCRYPTION_KEY="$(node -e "process.stdout.write(require('crypto').randomBytes(32).toString('hex'))")"
+  printf '%s' "$DATA_ENCRYPTION_KEY" > "$ARCHIVO_CLAVE"
+  chmod 600 "$ARCHIVO_CLAVE"
+  export DATA_ENCRYPTION_KEY
+  echo "[SEGURIDAD] Se generó DATA_ENCRYPTION_KEY aleatoria en $ARCHIVO_CLAVE"
+fi
+
 # Aplica las migraciones pendientes y después ejecuta el comando del contenedor.
 npx prisma migrate deploy
 exec "$@"
