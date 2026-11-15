@@ -16,6 +16,7 @@
     "db:reset": "prisma migrate reset",
     "db:sql": "node scripts/generarSql.js",
     "db:sql:check": "node scripts/generarSql.js --check",
+    "db:check": "npm run db:sql:check && prisma validate",
     "db:studio": "prisma studio"
   },
   "dependencies": {

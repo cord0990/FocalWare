@@ -32,7 +32,7 @@ backend/
 
 ## Instalación
 
-1. Crear la base de datos ejecutando `database/focalware.sql` en PostgreSQL. Ese archivo se genera desde `prisma/schema.prisma`; si cambias el schema, regeneralo con `npm run db:sql`.
+1. Crear la base de datos ejecutando `database/focalware.sql` en PostgreSQL. Ese archivo se genera desde `prisma/schema.prisma`; si cambias el schema, regeneralo con `npm run db:sql`. Para verificar que el SQL y el schema siguen sincronizados, ejecuta `npm run db:check`.
 2. Instalar las dependencias:
 
    ```bash

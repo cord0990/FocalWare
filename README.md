@@ -417,6 +417,7 @@ Scripts reproducibles:
 - `backend/database/focalware.sql`: **generado** desde `schema.prisma`; crea la base, las tablas y carga los datos de prueba. No se edita a mano.
 - `backend/database/datos_prueba.sql`: datos de prueba. Es re-ejecutable: antes de insertar, vacía las tablas y reinicia los ids.
 - `backend/database/reiniciar_datos.sql`: deja la base vacía sin volver a cargar los datos.
+- `backend/scripts/generarSql.js`: genera `focalware.sql` desde `schema.prisma`.
 
 Para regenerar el SQL después de cambiar `schema.prisma`:
 
@@ -424,7 +425,10 @@ Para regenerar el SQL después de cambiar `schema.prisma`:
 cd backend
 npm run db:sql          # regenera database/focalware.sql
 npm run db:sql:check    # falla si el archivo quedó desactualizado
+npm run db:check        # db:sql:check + validación del schema
 ```
+
+`db:check` no necesita una base de datos. Para revisar el estado de las migraciones contra una base real se usa `npx prisma migrate status`.
 
 > `focalware.sql` elimina y recrea la base `focalware`. No lo ejecutes sobre una base con datos que quieras conservar.
 

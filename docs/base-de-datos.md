@@ -41,7 +41,10 @@ Ese archivo crea la base `focalware` en UTF-8, las tablas y al final carga los d
 > cd backend
 > npm run db:sql
 > npm run db:sql:check
+> npm run db:check
 > ```
+>
+> `db:check` valida que `focalware.sql` coincida con el schema y que el schema sea válido, sin conectarse a la base. Para el estado de las migraciones contra una base real se usa `npx prisma migrate status`.
 >
 > `focalware.sql` elimina y recrea la base `focalware`; no se debe ejecutar sobre datos que se quieran conservar. `datos_prueba.sql` también es re-ejecutable: vacía las tablas antes de insertar.
 
