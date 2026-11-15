@@ -14,6 +14,8 @@
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:reset": "prisma migrate reset",
+    "db:sql": "node scripts/generarSql.js",
+    "db:sql:check": "node scripts/generarSql.js --check",
     "db:studio": "prisma studio"
   },
   "dependencies": {
