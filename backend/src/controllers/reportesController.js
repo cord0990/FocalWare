@@ -333,7 +333,7 @@ const corregirDesglose = async (req, res, next) => {
       });
     }
 
-    const reporte = await reportesService.corregirDesglose({ idReporte, cambios });
+    const reporte = await reportesService.corregirDesglose({ idReporte, cambios, idFuncionario: req.usuario.id });
 
     res.json({ ok: true, data: { reporte } });
   } catch (error) {
