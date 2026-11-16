@@ -1,5 +1,6 @@
 import { ErrorApi } from './api';
 import { crearReporte, fechaHoraActual, type DatosNuevoReporte } from './reportesService';
+import { obtenerDireccionDesdePunto, validarUbicacionEnChile } from './geocodificacionService';
 
 // Reportes creados sin conexión (RF-02). Se guardan en el navegador hasta que se envían
 // a la API.
@@ -91,9 +92,15 @@ export const enviarPendientes = async (): Promise<ResultadoEnvio> => {
 
   for (const pendiente of leer()) {
     try {
-      await crearReporte(pendiente);
-      eliminarPendiente(pendiente.id);
-      resultado.enviados += 1;
+      const res = await validarYEnviarPendiente(pendiente.id);
+      if (res.ok) {
+        resultado.enviados += 1;
+      } else {
+        resultado.rechazados.push({
+          nombre: pendiente.nombre,
+          motivo: res.motivo ?? 'Ocurrió un problema al enviarlo.',
+        });
+      }
     } catch (error) {
       // Sin conexión (0) o con la sesión vencida (401) los demás también van a fallar.
       if (error instanceof ErrorApi && (error.estado === 0 || error.estado === 401)) {
@@ -108,4 +115,54 @@ export const enviarPendientes = async (): Promise<ResultadoEnvio> => {
   }
 
   return resultado;
+};
+
+// Valida un pendiente con OpenGeo y, si es válido, lo envía. Útil para reintentar
+// manualmente un reporte que falló por falta de dirección.
+export const validarYEnviarPendiente = async (
+  id: string,
+): Promise<{ ok: boolean; motivo?: string }> => {
+  const pendiente = obtenerPendientePorId(id);
+  if (!pendiente) return { ok: false, motivo: 'El reporte ya no existe.' };
+
+  if (
+    !Number.isFinite(pendiente.latitud) ||
+    pendiente.latitud < -90 ||
+    pendiente.latitud > 90 ||
+    !Number.isFinite(pendiente.longitud) ||
+    pendiente.longitud < -180 ||
+    pendiente.longitud > 180
+  ) {
+    return { ok: false, motivo: 'Coordenadas inválidas. Corrige la ubicación.' };
+  }
+
+  const enChile = await validarUbicacionEnChile(pendiente.latitud, pendiente.longitud);
+  if (enChile === false) {
+    return { ok: false, motivo: 'La ubicación del reporte debe estar dentro de Chile.' };
+  }
+
+  if (enChile === true) {
+    const direccion = await obtenerDireccionDesdePunto(pendiente.latitud, pendiente.longitud);
+    if (direccion) {
+      // Actualiza el sector con la dirección validada desde el pin.
+      actualizarPendiente(id, { sector: direccion });
+    } else if (!(pendiente.sector?.trim().length >= 3)) {
+      return { ok: false, motivo: 'No se encontró una dirección válida. Agrega un sector/dirección.' };
+    }
+  }
+
+  const actualizado = obtenerPendientePorId(id) ?? pendiente;
+  try {
+    await crearReporte(actualizado);
+    eliminarPendiente(id);
+    return { ok: true };
+  } catch (error) {
+    if (error instanceof ErrorApi && (error.estado === 0 || error.estado === 401)) {
+      throw error;
+    }
+    return {
+      ok: false,
+      motivo: error instanceof Error ? error.message : 'Ocurrió un problema al enviarlo.',
+    };
+  }
 };
