@@ -14,7 +14,10 @@ backend/
 │   ├── db/             # Conexión a PostgreSQL
 │   └── app.js          # Punto de entrada de la API
 ├── database/
-│   └── focalware.sql   # Tablas, claves y datos de prueba
+│   ├── focalware.sql   # Generado desde prisma/schema.prisma
+│   └── datos_prueba.sql
+├── scripts/
+│   └── generarSql.js   # Regenera focalware.sql
 ├── uploads/
 │   ├── reportes/       # Fotos que suben los vecinos
 │   └── controles/      # Fotos de evidencia de los funcionarios
@@ -29,7 +32,7 @@ backend/
 
 ## Instalación
 
-1. Crear la base de datos ejecutando `database/focalware.sql` en PostgreSQL.
+1. Crear la base de datos ejecutando `database/focalware.sql` en PostgreSQL. Ese archivo se genera desde `prisma/schema.prisma`; si cambias el schema, regeneralo con `npm run db:sql`. Para verificar que el SQL y el schema siguen sincronizados, ejecuta `npm run db:check`.
 2. Instalar las dependencias:
 
    ```bash

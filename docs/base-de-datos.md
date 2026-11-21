@@ -35,7 +35,18 @@ psql -U postgres -h localhost -f backend/database/focalware.sql
 
 Ese archivo crea la base `focalware` en UTF-8, las tablas y al final carga los datos de prueba de `datos_prueba.sql`. Los dos archivos parten con `SET client_encoding = 'UTF8'`, para que las tildes y la ñ se guarden bien aunque se carguen desde la terminal de Windows. En Windows, el PostgreSQL instalado usa normalmente el puerto 5432, así que hay que ajustarlo en `backend/.env` (ver la Opción B del README).
 
-> **Importante:** la fuente de verdad es `backend/prisma/schema.prisma`. El archivo `focalware.sql` es una copia del mismo esquema para montar la base a mano. Si se cambia uno, hay que cambiar el otro.
+> **Importante:** la fuente de verdad es `backend/prisma/schema.prisma`. `backend/database/focalware.sql` se genera desde ese schema y no se edita a mano. Después de cambiar el schema:
+>
+> ```bash
+> cd backend
+> npm run db:sql
+> npm run db:sql:check
+> npm run db:check
+> ```
+>
+> `db:check` valida que `focalware.sql` coincida con el schema y que el schema sea válido, sin conectarse a la base. Para el estado de las migraciones contra una base real se usa `npx prisma migrate status`.
+>
+> `focalware.sql` elimina y recrea la base `focalware`; no se debe ejecutar sobre datos que se quieran conservar. `datos_prueba.sql` también es re-ejecutable: vacía las tablas antes de insertar.
 
 ## 2. Diagrama de la base
 
@@ -376,6 +387,8 @@ Los pasos 3 y 4 se guardan en una **transacción**: o se guardan todas las filas
 
 `backend/database/datos_prueba.sql` carga datos para probar la app sin tener que crearlos a mano. Todos los usuarios tienen la contraseña `Clave123`.
 
+El archivo es re-ejecutable: antes de insertar ejecuta un `TRUNCATE ... RESTART IDENTITY CASCADE`, así que **borra los datos existentes** y vuelve a dejar exactamente los registros de prueba.
+
 | Rol | Nombre | Correo |
 |---|---|---|
 | Vecino | Valentina Rojas | `valentina.rojas@correo.cl` |
@@ -399,8 +412,10 @@ Las tablas, columnas y llaves de la base siguen el esquema relacional de ERDPlus
 |---|---|
 | `backend/prisma/schema.prisma` | El esquema que usa Prisma. **Es la fuente de verdad.** |
 | `backend/prisma/migrations/` | Las migraciones que aplica Docker al arrancar la API |
-| `backend/database/focalware.sql` | El mismo esquema en SQL, para montar la base a mano |
-| `backend/database/datos_prueba.sql` | Los datos de prueba |
+| `backend/database/focalware.sql` | **Archivo generado** desde `schema.prisma` para montar la base a mano. No editar |
+| `backend/database/datos_prueba.sql` | Los datos de prueba; se puede volver a ejecutar y reinicia las tablas |
+| `backend/database/reiniciar_datos.sql` | Deja la base vacía sin volver a cargar los datos |
+| `backend/scripts/generarSql.js` | Genera `focalware.sql` desde `schema.prisma` |
 | `docs/diagramas/` | Los archivos originales de ERDPlus (diagrama entidad-relación y esquema relacional) |
 | `backend/src/db/repositorios/` | Las consultas a la base hechas con Prisma |
 | `docker-compose.yml` | El contenedor de PostgreSQL (`focalware-db`, puerto 5434) |

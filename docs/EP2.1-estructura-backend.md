@@ -68,7 +68,7 @@ backend/
 │   ├── schema.prisma   Esquema de la base (fuente de verdad)
 │   └── migrations/     Migraciones que aplica Docker al arrancar
 ├── database/
-│   ├── focalware.sql   Script reproducible: crea la base, las tablas y carga los datos
+│   ├── focalware.sql   Generado desde schema.prisma; crea la base y carga datos
 │   └── datos_prueba.sql
 ├── postman/            Colección de pruebas de la API
 └── uploads/

@@ -10,6 +10,25 @@
 -- Este archivo está escrito en UTF-8. Sin esta línea, la terminal de Windows guarda
 -- mal las tildes y la ñ (por ejemplo "Muñoz" queda como "MuÃ±oz").
 SET client_encoding = 'UTF8';
+
+-- El archivo es re-ejecutable: deja la base sin datos y vuelve a cargar
+-- exactamente los mismos registros. Esto borra cualquier dato creado por
+-- usuarios en la base donde se ejecute.
+TRUNCATE TABLE
+    imagen_control,
+    reporte_control,
+    notificacion,
+    log,
+    votos,
+    imagen_reporte,
+    reporte,
+    revision,
+    puede_pertenecer,
+    cuadrilla,
+    funcionario,
+    vecino
+RESTART IDENTITY CASCADE;
+
 --
 -- Los reportes son los mismos que muestra el frontend como ejemplo.
 -- No se cargan fotos porque los archivos no se suben al repositorio.

@@ -101,122 +101,132 @@ Aca se deben realizar los escenarios, adjuntar las imagenes de las pruebas para 
 
 ### RF-01
 - **Resultado**: Cumple
-- **Evidencia**: ![RF-01](./img/rf-01.png)
+- **Evidencia**: ![RF-01](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RF-01%20PT1.png)
+![RF-01](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RF-01%20PT2.png)
 - **Descripción**: Se creó un reporte con ubicación, 3 fotos, categoría, volumen, distancia y descripción; se guardó correctamente.
 
 ### RF-02
 - **Resultado**: Cumple
-- **Evidencia**: ![RF-02](./img/rf-02.png)
+- **Evidencia**: ![RF-02]
 - **Descripción**: Se desactivó internet, se creó un reporte y quedó guardado como pendiente.
 
 ### RF-03
 - **Resultado**: Cumple
-- **Evidencia**: ![RF-03](./img/rf-03.png)
+- **Evidencia**: ![RF-03](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RF-03%20.png)
 - **Descripción**: Se abrió el mapa y se verificó que los reportes existentes aparecen en su ubicación.
 
 ### RF-04
 - **Resultado**: Cumple
-- **Evidencia**: ![RF-04](./img/rf-04.png)
+- **Evidencia**: ![RF-04](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RF-04%20%20pt1.png)
+- ![RF-04](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RF-04%20%20pt2.png)
 - **Descripción**: Se filtró por estado, categoría, riesgo, sector y fecha; solo se mostraron los que cumplen.
 
 ### RF-05
 - **Resultado**: Cumple
-- **Evidencia**: ![RF-05](./img/rf-05.png)
+- **Evidencia**: ![RF-05](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RF-05%20%20pt1.png)
+  ![RF-05](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RF-05%20%20pt2.png)
 - **Descripción**: Se crearon reportes con distintas categorías/volúmenes y el índice de riesgo cambió según los factores.
 
 ### RF-06
 - **Resultado**: Cumple
-- **Evidencia**: ![RF-06](./img/rf-06.png)
+- **Evidencia**: ![RF-06](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RF-06.png)
 - **Descripción**: En la cola municipal los reportes con mayor riesgo aparecieron primero.
 
 ### RF-07
 - **Resultado**: Cumple
-- **Evidencia**: ![RF-07](./img/rf-07.png)
+- **Evidencia**: ![RF-07](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RF-06.png)
 - **Descripción**: Se inició sesión como funcionario y la cola solo fue visible para ese rol.
 
 ### RF-08
 - **Resultado**: Cumple
-- **Evidencia**: ![RF-08](./img/rf-08.png)
+- **Evidencia**: ![RF-08](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RF-08%20PT1.png)
+- ![RF-08](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RF-08%20PT2.png)
 - **Descripción**: Se cambió el estado de un reporte y el vecino recibió la notificación.
 
 ### RF-09
 - **Resultado**: Cumple
-- **Evidencia**: ![RF-09](./img/rf-09.png)
+- **Evidencia**: ![RF-09](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RF-09.png)
 - **Descripción**: Como funcionario, se abrió Estadísticas y se comprobó total, resueltos, tiempo promedio y evolución mensual.
 
 ### RF-10
 - **Resultado**: Cumple
-- **Evidencia**: ![RF-10](./img/rf-10.png)
+- **Evidencia**: ![RF-10](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RF-10%20PT1.png)
+  ![RF-10](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RF-10%20PT2.png)
 - **Descripción**: Se crearon dos reportes y tuvieron IDs distintos asignados automáticamente.
 
 ### RF-11
 - **Resultado**: Cumple
-- **Evidencia**: ![RF-11](./img/rf-11.png)
+- **Evidencia**: ![RF-11](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RF-11%20PT1.png)
+- ![RF-11](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RF-11%20PT2.png)
+- ![RF-11](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RF-11%20PT3.png)
 - **Descripción**: Se marcó un reporte como Controlado, se simuló +1 mes y desapareció del mapa para vecinos pero siguió visible para funcionarios.
 
 ### RF-12
 - **Resultado**: Cumple
-- **Evidencia**: ![RF-12](./img/rf-12.png)
+- **Evidencia**: ![RF-12](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RF-12.png)
 - **Descripción**: Como funcionario, se aceptó un reporte pendiente y quedó disponible para asignar cuadrilla.
 
 ### RF-13
 - **Resultado**: Cumple
-- **Evidencia**: ![RF-13](./img/rf-13.png)
+- **Evidencia**: ![RF-13](./img/rf-13.png) (DEBO PONER LA IMAGEN,SI LEES ESTO,RECUERDAME)
 - **Descripción**: Se guardó un reporte sin conexión, se editó y los cambios se mantuvieron localmente.
 
 ### RF-14
 - **Resultado**: Cumple
-- **Evidencia**: ![RF-14](./img/rf-14.png)
+- **Evidencia**: ![RF-14](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RF-14%20PT%201.png)
+  ![RF-14](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RF-14%20PT2.png)
 - **Descripción**: Se votó a favor de un reporte y el contador aumentó; al intentar votar de nuevo no se duplicó.
 
 ### RF-15
 - **Resultado**: Cumple
-- **Evidencia**: ![RF-15](./img/rf-15.png)
+- **Evidencia**: ![RF-15](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RF-15.png)
 - **Descripción**: Se abrió el detalle de un reporte y se verificó ubicación, sector, ID, fotos, categoría, volumen, votos, descripción, riesgo y clima.
 
 ### RF-16
 - **Resultado**: Cumple
-- **Evidencia**: ![RF-16](./img/rf-16.png)
+- **Evidencia**: ![RF-16](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RF-16.png)
 - **Descripción**: Como funcionario de otra cuadrilla, se intentó crear un reporte de control y se rechazó.
 
 ### RF-17
 - **Resultado**: Cumple
-- **Evidencia**: ![RF-17](./img/rf-17.png)
+- **Evidencia**: ![RF-17](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RF-17.png)
 - **Descripción**: Se asignó cuadrilla y fecha a un reporte aprobado y se verificó que se guardaran.
 
 ### RF-18
 - **Resultado**: Cumple
-- **Evidencia**: ![RF-18](./img/rf-18.png)
+- **Evidencia**: ![RF-18](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RF-18.png)
 - **Descripción**: Se intentó rechazar un reporte sin motivo y el sistema exigió la descripción.
 
 ### RF-19
 - **Resultado**: Cumple
-- **Evidencia**: ![RF-19](./img/rf-19.png)
+- **Evidencia**: ![RF-19](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RF-19.png)
 - **Descripción**: Se verificó en la tabla log de la base de datos que cada cambio generó su registro.
 
 ### RF-20
 - **Resultado**: Cumple
-- **Evidencia**: ![RF-20](./img/rf-20.png)
+- **Evidencia**: ![RF-20](./img/rf-20.png) (DEBO PONER LA IMAGEN,SI LEES ESTO,RECUERDAME)
 - **Descripción**: Como funcionario, se cambió el estado de un reporte y se verificó que se guardara y reflejara.
 
 ### RF-21
 - **Resultado**: Cumple
-- **Evidencia**: ![RF-21](./img/rf-21.png)
+- **Evidencia**: ![RF-21](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RF-21%20PT%201.png)
+- ![RF-21](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RF-21%20PT2.png)
 - **Descripción**: Como funcionario, se rechazó un reporte pendiente y quedó en estado Rechazado.
 
 ### RF-22
 - **Resultado**: Cumple
-- **Evidencia**: ![RF-22](./img/rf-22.png)
+- **Evidencia**: ![RF-22](./img/rf-22.png) (DEBO PONER LA IMAGEN,SI LEES ESTO,RECUERDAME)
 - **Descripción**: Como funcionario, se corrigió el desglose de un reporte aprobado/en atención y se verificó guardado y notificación al vecino.
 
 ### RF-23
 - **Resultado**: Cumple
-- **Evidencia**: ![RF-23](./img/rf-23.png)
+- **Evidencia**: ![RF-23](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RF-23%20PT1.png)
+- ![RF-23](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RF-23%20PT2.png)
 - **Descripción**: Como funcionario de la cuadrilla, se generó un reporte de control con fotos de evidencia y se registró.
 
 ### RF-24
 - **Resultado**: Cumple
-- **Evidencia**: ![RF-24](./img/rf-24.png)
+- **Evidencia**: ![RF-24](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RF-24.png)
 - **Descripción**: Se programó fecha de atención de un reporte aprobado y se verificó que se guardara.
 
 ### RNF-01
@@ -231,7 +241,7 @@ Aca se deben realizar los escenarios, adjuntar las imagenes de las pruebas para 
 
 ### RNF-03
 - **Resultado**: Cumple
-- **Evidencia**: ![RNF-03](./img/rnf-03.png)
+- **Evidencia**: ![RNF-03](./img/rnf-03.png) (SI LEES ESTO,RECUERDAME PONER LA IMAGEN)
 - **Descripción**: Se desactivó internet, se creó un reporte y se verificó que se guardara en el dispositivo.
 
 ### RNF-04
@@ -241,32 +251,32 @@ Aca se deben realizar los escenarios, adjuntar las imagenes de las pruebas para 
 
 ### RNF-05
 - **Resultado**: Cumple
-- **Evidencia**: ![RNF-05](./img/rnf-05.png)
+- **Evidencia**: ![RNF-05](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RNF-05.png)
 - **Descripción**: Se inició sesión, se esperó 15 min y se verificó que el token expire; firma HS256 y secreto ≥32 chars.
 
 ### RNF-06
 - **Resultado**: Cumple
-- **Evidencia**: ![RNF-06](./img/rnf-06.png)
+- **Evidencia**: ![RNF-06](./img/rnf-06.png) (SI LEES ESTO,RECUERDAME PONER LA IMAGEN)
 - **Descripción**: Se hizo una petición desde un origen no autorizado y CORS la bloqueó; no había `*`.
 
 ### RNF-07
 - **Resultado**: Cumple
-- **Evidencia**: ![RNF-07](./img/rnf-07.png)
+- **Evidencia**: ![RNF-07](./img/rnf-07.png) (SI LEES ESTO,RECUERDAME PONER LA IMAGEN)
 - **Descripción**: Se consultó un reporte público y no incluyó nombre ni email del autor.
 
 ### RNF-08
 - **Resultado**: Cumple
-- **Evidencia**: ![RNF-08](./img/rnf-08.png)
+- **Evidencia**: ![RNF-08](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RNF-08.png)
 - **Descripción**: Se intentó crear un reporte duplicado y se verificó el mensaje “Ya existe un antecedente previo…”.
 
 ### RNF-09
-- **Resultado**: No verificado
-- **Evidencia**: ![RNF-09](./img/rnf-09.png)
+- **Resultado**: No verificado 
+- **Evidencia**: ![RNF-09](./img/rnf-09.png) (SI LEES ESTO,RECUERDAME PONER LA IMAGEN)
 - **Descripción**: Se instaló la app en Android 9+ / iOS 14+ y se verificó que ejecuta.
 
 ### RNF-10
 - **Resultado**: No verificado
-- **Evidencia**: Sin imagen (no se consideró necesaria)
+- **Evidencia**: (SI LEES ESTO,RECUERDAME PONER LA IMAGEN)
 - **Descripción**: No se probó en Chrome/Firefox/Edge/Safari (N-2).
 
 ### RNF-11
@@ -276,6 +286,6 @@ Aca se deben realizar los escenarios, adjuntar las imagenes de las pruebas para 
 
 ### RNF-12
 - **Resultado**: Cumple
-- **Evidencia**: ![RNF-12](./img/rnf-12.png)
+- **Evidencia**: ![RNF-12](https://github.com/cord0990/FocalWare/blob/5c14c01586288e0e6b7280f1db0ccc310bd441ea/docs/img/Pruebas%20de%20escenario/RNF-12.png)
 - **Descripción**: Como funcionario, se exportaron reportes a CSV y se verificó que el archivo se descargara correctamente.
 
