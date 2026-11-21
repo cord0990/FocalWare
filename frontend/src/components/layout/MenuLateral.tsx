@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { IonIcon, useIonRouter } from '@ionic/react';
 import { useLocation } from 'react-router-dom';
 import {
@@ -11,6 +12,8 @@ import {
 } from 'ionicons/icons';
 import { useMenu } from '../../hooks/useMenu';
 import { useSesion } from '../../hooks/useSesion';
+import { EVENTO_NOTIFICACIONES, obtenerNotificaciones } from '../../services/notificacionesService';
+import { EVENTO_REPORTES } from '../../services/reportesService';
 import { RUTAS } from '../../routes/rutas';
 
 // Las cuatro secciones principales de EP 1.4. Sin sesión, las tres últimas piden iniciar sesión.
@@ -40,7 +43,36 @@ const MenuLateral: React.FC = () => {
   const { pathname } = useLocation();
   const router = useIonRouter();
   const { usuario } = useSesion();
+  const [tieneCambiosReportes, setTieneCambiosReportes] = useState(false);
+
   const opciones = usuario?.rol === 'funcionario' ? OPCIONES_FUNCIONARIO : OPCIONES_VECINO;
+
+  useEffect(() => {
+    if (!usuario || usuario.rol === 'funcionario') {
+      setTieneCambiosReportes(false);
+      return;
+    }
+
+    let activo = true;
+    const revisarNotificaciones = async () => {
+      try {
+        const { noLeidas } = await obtenerNotificaciones();
+        if (activo) setTieneCambiosReportes(noLeidas > 0);
+      } catch {
+        // Si falla la consulta, mantiene el estado actual sin bloquear el menú.
+      }
+    };
+
+    revisarNotificaciones();
+    window.addEventListener(EVENTO_NOTIFICACIONES, revisarNotificaciones);
+    window.addEventListener(EVENTO_REPORTES, revisarNotificaciones);
+
+    return () => {
+      activo = false;
+      window.removeEventListener(EVENTO_NOTIFICACIONES, revisarNotificaciones);
+      window.removeEventListener(EVENTO_REPORTES, revisarNotificaciones);
+    };
+  }, [usuario, pathname]);
 
   const navegar = (evento: React.MouseEvent, ruta: string) => {
     evento.preventDefault();
@@ -60,19 +92,29 @@ const MenuLateral: React.FC = () => {
       </button>
 
       <div className="menu-opciones">
-        {opciones.map((opcion) => (
-          <a
-            key={opcion.ruta}
-            href={opcion.ruta}
-            onClick={(evento) => navegar(evento, opcion.ruta)}
-            className={estaEnSeccion(pathname, opcion.ruta) ? 'menu-opcion activa' : 'menu-opcion'}
-            aria-current={estaEnSeccion(pathname, opcion.ruta) ? 'page' : undefined}
-            title={opcion.texto}
-          >
-            <IonIcon icon={opcion.icono} aria-hidden="true" />
-            <span className="menu-texto">{opcion.texto}</span>
-          </a>
-        ))}
+        {opciones.map((opcion) => {
+          const activa = estaEnSeccion(pathname, opcion.ruta);
+          const mostrarPuntito = opcion.ruta === RUTAS.misReportes && tieneCambiosReportes;
+          const etiquetaTitulo = mostrarPuntito
+            ? `${opcion.texto} (tienes reportes con cambio de estado)`
+            : opcion.texto;
+
+          return (
+            <a
+              key={opcion.ruta}
+              href={opcion.ruta}
+              onClick={(evento) => navegar(evento, opcion.ruta)}
+              className={activa ? 'menu-opcion activa' : 'menu-opcion'}
+              aria-current={activa ? 'page' : undefined}
+              aria-label={etiquetaTitulo}
+              title={etiquetaTitulo}
+            >
+              <IonIcon icon={opcion.icono} aria-hidden="true" />
+              <span className="menu-texto">{opcion.texto}</span>
+              {mostrarPuntito && <span className="menu-punto-notificacion" aria-hidden="true" />}
+            </a>
+          );
+        })}
       </div>
     </nav>
   );

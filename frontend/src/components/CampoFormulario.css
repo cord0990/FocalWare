@@ -1,0 +1,28 @@
+.campo--error .campo-etiqueta {
+  color: #991b1b;
+  font-weight: 700;
+}
+
+.campo--error ion-input {
+  --border-color: #b91c1c !important;
+  --highlight-color-invalid: #b91c1c !important;
+  --border-width: 2px !important;
+  --background: #fef2f2 !important;
+  --color: #7f1d1d;
+}
+
+.campo-mensaje-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  color: #b91c1c;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.campo-mensaje-error ion-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}

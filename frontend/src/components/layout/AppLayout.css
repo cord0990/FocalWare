@@ -197,6 +197,7 @@
 }
 
 .menu-opcion {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -210,10 +211,14 @@
   font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
-  overflow: hidden;
   transition:
     background 0.15s ease,
     transform 0.15s ease;
+}
+
+.menu-texto {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .menu-opcion:hover {
@@ -388,6 +393,7 @@
   .app-crear-cuenta strong {
     display: none;
   }
+
   .app-principal {
     padding: 12px 12px 88px;
   }
@@ -488,5 +494,33 @@
 @media (max-width: 300px) {
   .app-marca span {
     display: none;
+  }
+}
+
+/* UX-12: Puntito de notificación en "Mis reportes" cuando hay cambios de estado sin leer */
+.menu-punto-notificacion {
+  position: absolute;
+  top: 2px;
+  right: 10px;
+  width: 13px;
+  height: 13px;
+  border: 2px solid #e3d6d6;
+  border-radius: 50%;
+  background: #e0283a;
+  box-shadow: 0 1px 4px rgba(87, 12, 8, 0.45);
+  pointer-events: none;
+}
+
+.menu-lateral.colapsado .menu-punto-notificacion {
+  top: 4px;
+  right: 10px;
+}
+
+@media (max-width: 767px) {
+  .menu-punto-notificacion {
+    top: 6px;
+    right: 22%;
+    width: 11px;
+    height: 11px;
   }
 }
