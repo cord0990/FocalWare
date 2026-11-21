@@ -16,9 +16,10 @@ COPY src ./src
 
 RUN npm run build
 
-# Genera un JWT_SECRETO aleatorio si no se definió uno y lo persiste en /app/data.
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+# El entrypoint genera un JWT_SECRETO aleatorio si no se definió uno y lo
+# persiste en /app/data. Se usa Node para no depender del shebang ni de los
+# finales de línea CRLF del archivo (que rompen un script en /bin/sh).
+COPY docker-entrypoint.js /app/docker-entrypoint.js
 
 # El servidor corre sobre el JS compilado.
 EXPOSE 3000
@@ -30,5 +31,5 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=5 \
 
 # El entrypoint asegura el JWT_SECRETO, aplica las migraciones pendientes y recién después levanta la API.
 # Si falla la migración, el contenedor no arranca.
-ENTRYPOINT ["docker-entrypoint.sh"]
+ENTRYPOINT ["node", "/app/docker-entrypoint.js"]
 CMD ["node", "src/app.js"]

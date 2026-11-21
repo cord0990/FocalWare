@@ -51,7 +51,7 @@ const OpcionesFuncionario: React.FC<OpcionesFuncionarioProps> = ({
 
   const ayuda =
     estado === 'Pendiente'
-      ? ''
+      ? 'Primero acepta o rechaza el reporte; solo los aceptados se pueden modificar.'
       : estado === 'Rechazado'
         ? 'Este reporte fue rechazado.'
         : estado === 'Controlado'
@@ -86,7 +86,7 @@ const OpcionesFuncionario: React.FC<OpcionesFuncionarioProps> = ({
           type="button"
           className={modificando ? 'opcion-funcionario activa' : 'opcion-funcionario'}
           onClick={onModificar}
-          disabled={cerrado}
+          disabled={cerrado || estado === 'Pendiente'}
           aria-pressed={modificando}
         >
           Modificar reporte

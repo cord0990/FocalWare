@@ -1,5 +1,5 @@
 import { IonIcon } from '@ionic/react';
-import { cloudOfflineOutline, createOutline, trashOutline } from 'ionicons/icons';
+import { cloudOfflineOutline, cloudUploadOutline, createOutline, trashOutline } from 'ionicons/icons';
 import type { ReportePendiente } from '../../services/pendientesService';
 import { formatearFecha } from '../../utils/fechas';
 import './TarjetaPendiente.css';
@@ -8,6 +8,7 @@ interface TarjetaPendienteProps {
   pendiente: ReportePendiente;
   onEditar: () => void;
   onEliminar: () => void;
+  onReintentar?: () => void;
 }
 
 const formatearGuardado = (fechaHora: string) => {
@@ -16,7 +17,7 @@ const formatearGuardado = (fechaHora: string) => {
 };
 
 // Reporte guardado en el teléfono que todavía no se envía al servidor.
-const TarjetaPendiente: React.FC<TarjetaPendienteProps> = ({ pendiente, onEditar, onEliminar }) => (
+const TarjetaPendiente: React.FC<TarjetaPendienteProps> = ({ pendiente, onEditar, onEliminar, onReintentar }) => (
   <article className="tarjeta-pendiente">
     <span className="tarjeta-pendiente-icono">
       <IonIcon icon={cloudOfflineOutline} aria-hidden="true" />
@@ -28,6 +29,17 @@ const TarjetaPendiente: React.FC<TarjetaPendienteProps> = ({ pendiente, onEditar
       </p>
       <small>Guardado el {formatearGuardado(pendiente.guardadoEn)}</small>
     </div>
+    {onReintentar && (
+      <button
+        type="button"
+        className="tarjeta-pendiente-accion"
+        onClick={onReintentar}
+        aria-label={`Reintentar envío del borrador "${pendiente.nombre}"`}
+        title="Reintentar envío"
+      >
+        <IonIcon icon={cloudUploadOutline} aria-hidden="true" />
+      </button>
+    )}
     <button
       type="button"
       className="tarjeta-pendiente-accion"

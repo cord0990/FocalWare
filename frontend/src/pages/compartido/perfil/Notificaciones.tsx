@@ -131,7 +131,7 @@ const Notificaciones: React.FC<Props> = ({ onVerDetalles }) => {
           <p className="sin-resultados-texto">{error}</p>
         ) : notificaciones.length === 0 ? (
           <p className="sin-resultados-texto">
-            Todavía no tienes notificaciones. Te avisaremos cuando cambie el estado de tus reportes.
+            Todavía no tienes notificaciones. Te avisaremos cuando cambie el estado o los datos de tus reportes.
           </p>
         ) : notificacionesFiltradas.length === 0 ? (
           <p className="sin-resultados-texto">

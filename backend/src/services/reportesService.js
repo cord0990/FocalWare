@@ -475,23 +475,65 @@ const modificar = async ({ idReporte, idVecino, cambios, fotosNuevas = [], rutas
 // de un reporte. A diferencia de modificar, no hace falta ser el dueño ni que el
 // reporte esté sin revisar. El índice de riesgo no se recalcula acá (la fórmula
 // vive en el frontend): si viene un riesgo nuevo, se guarda junto con su fecha.
-const corregirDesglose = async ({ idReporte, cambios }) => {
-  await obtenerPorId(idReporte); // 404 si el reporte no existe
-
-  const actualizado = await prisma.reporte.update({
+// Un funcionario corrige el desglose solo si el reporte ya fue aceptado
+// (Aprobado o En atención): así la notificación al vecino siempre queda ligada
+// a una revisión válida, sin tocar el schema de Notificacion.
+const corregirDesglose = async ({ idReporte, cambios, idFuncionario }) => {
+  const reporte = await prisma.reporte.findUnique({
     where: { idReporte },
-    data: {
-      ...(cambios.categoria !== undefined && { categoria: cambios.categoria }),
-      ...(cambios.volumen !== undefined && { tamano: cambios.volumen }),
-      ...(cambios.distanciaViviendas !== undefined && {
-        distanciaACasas: metrosDeDistancia(cambios.distanciaViviendas),
-      }),
-      ...(cambios.riesgo !== undefined && {
-        indiceRiesgo: cambios.riesgo,
-        fechaCalculoRiesgo: new Date(),
-      }),
-    },
-    include: { ...INCLUIR_DETALLE, vecino: true },
+    include: { revision: true },
+  });
+  if (!reporte) throw noEncontrado();
+
+  if (reporte.idRevision === null) {
+    const error = new Error('Solo se puede modificar un reporte que ya fue aceptado');
+    error.estado = 409;
+    throw error;
+  }
+
+  const estadoRevision = reporte.revision?.estado;
+  if (estadoRevision !== ESTADOS.APROBADO && estadoRevision !== ESTADOS.EN_ATENCION) {
+    const error = new Error('Solo se puede modificar un reporte aprobado o en atención');
+    error.estado = 409;
+    throw error;
+  }
+
+  const actualizado = await prisma.$transaction(async (tx) => {
+    const r = await tx.reporte.update({
+      where: { idReporte },
+      data: {
+        ...(cambios.categoria !== undefined && { categoria: cambios.categoria }),
+        ...(cambios.volumen !== undefined && { tamano: cambios.volumen }),
+        ...(cambios.distanciaViviendas !== undefined && {
+          distanciaACasas: metrosDeDistancia(cambios.distanciaViviendas),
+        }),
+        ...(cambios.riesgo !== undefined && {
+          indiceRiesgo: cambios.riesgo,
+          fechaCalculoRiesgo: new Date(),
+        }),
+      },
+      include: { ...INCLUIR_DETALLE, vecino: true },
+    });
+
+    await tx.log.create({
+      data: {
+        estadoLog: 'Modificado',
+        comentario: 'Corrección del desglose del reporte.',
+        idFuncionario: idFuncionario,
+        idRevision: reporte.idRevision,
+      },
+    });
+
+    await tx.notificacion.create({
+      data: {
+        mensaje: 'Tu reporte fue modificado por el municipio.',
+        tipo: estadoRevision,
+        idVecino: reporte.idVecino,
+        idRevision: reporte.idRevision,
+      },
+    });
+
+    return r;
   });
 
   // Quien llega acá es funcionario, así que ve también los datos del vecino.

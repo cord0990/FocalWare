@@ -229,6 +229,8 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
       });
       setModificando(false);
       setMensaje('Desglose actualizado.');
+      // Avisa al resto de la app (y recarga el detalle) con los datos nuevos.
+      window.dispatchEvent(new Event(EVENTO_REPORTES));
     } catch (error) {
       // Antes esto guardaba en localStorage y siempre confirmaba. Ahora pega a la
       // API, así que el backend puede rechazar el cambio y hay que decirlo.

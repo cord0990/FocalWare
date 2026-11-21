@@ -26,7 +26,7 @@ import TarjetaReporte from '../../components/reportes/TarjetaReporte';
 import { useConexion } from '../../hooks/useConexion';
 import { usePendientes } from '../../hooks/usePendientes';
 import { RUTAS, rutaEditarEnLocal, rutaMiReporte } from '../../routes/rutas';
-import { eliminarPendiente, enviarPendientes } from '../../services/pendientesService';
+import { eliminarPendiente, enviarPendientes, validarYEnviarPendiente } from '../../services/pendientesService';
 import {
   ESTADOS_REPORTE,
   EVENTO_REPORTES,
@@ -102,6 +102,18 @@ const MisReportes: React.FC = () => {
       texto: partes.join(' ') || 'No había reportes para enviar.',
       exito: enviados > 0 && rechazados.length === 0 && !interrumpido,
     });
+  };
+
+  const reintentarPendiente = async (id: string) => {
+    setEnviando(true);
+    const resultado = await validarYEnviarPendiente(id);
+    await cargarReportes().catch(() => undefined);
+    setEnviando(false);
+    if (resultado.ok) {
+      setMensaje({ texto: 'Reporte enviado correctamente.', exito: true });
+    } else {
+      setMensaje({ texto: resultado.motivo ?? 'No se pudo enviar el reporte.', exito: false });
+    }
   };
 
   // Cuando la conexión vuelve (pasa de sin conexión a en línea), los pendientes se envían solos.
@@ -190,6 +202,7 @@ const MisReportes: React.FC = () => {
                   pendiente={pendiente}
                   onEditar={() => router.push(rutaEditarEnLocal(pendiente.id), 'forward')}
                   onEliminar={() => confirmarEliminar(pendiente.id, pendiente.nombre)}
+                  onReintentar={() => reintentarPendiente(pendiente.id)}
                 />
               ))}
             </div>
