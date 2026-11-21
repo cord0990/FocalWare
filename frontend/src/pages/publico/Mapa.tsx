@@ -8,7 +8,7 @@ import {
   IonSpinner,
   useIonRouter,
 } from '@ionic/react';
-import { funnelOutline, refreshOutline } from 'ionicons/icons';
+import { funnelOutline, helpOutline, refreshOutline } from 'ionicons/icons';
 import AppLayout from '../../components/layout/AppLayout';
 import FiltrosActivos from '../../components/reportes/FiltrosActivos';
 import FiltrosReportesModal from '../../components/reportes/FiltrosReportesModal';
@@ -152,17 +152,6 @@ const Mapa: React.FC = () => {
         }
       >
         <div className="inicio-barra">
-          <IonButton
-            fill="clear"
-            className="inicio-boton-icono"
-            aria-label={
-              filtrosActivos ? `Filtrar reportes, ${filtrosActivos} filtros activos` : 'Filtrar reportes'
-            }
-            onClick={() => setFiltrosAbiertos(true)}
-          >
-            <IonIcon slot="icon-only" icon={funnelOutline} />
-            {filtrosActivos > 0 && <IonBadge className="inicio-filtros-activos">{filtrosActivos}</IonBadge>}
-          </IonButton>
           <IonSearchbar
             className="inicio-buscador"
             placeholder="Buscar por sector, nombre o categoría"
@@ -170,19 +159,41 @@ const Mapa: React.FC = () => {
             debounce={250}
             onIonInput={(e) => setBusqueda(e.detail.value ?? '')}
           />
-          <IonButton
-            fill="clear"
-            className="inicio-boton-icono"
-            aria-label="Actualizar reportes"
-            onClick={cargarReportes}
-            disabled={cargando}
-          >
-            {cargando ? (
-              <IonSpinner name="crescent" />
-            ) : (
-              <IonIcon slot="icon-only" icon={refreshOutline} />
-            )}
-          </IonButton>
+          <div className="inicio-acciones">
+            <IonButton
+              fill="solid"
+              className="inicio-boton-icono inicio-boton-principal"
+              aria-label={
+                filtrosActivos ? `Filtrar reportes, ${filtrosActivos} filtros activos` : 'Filtrar reportes'
+              }
+              onClick={() => setFiltrosAbiertos(true)}
+            >
+              <IonIcon slot="icon-only" icon={funnelOutline} />
+              {filtrosActivos > 0 && (
+                <IonBadge className="inicio-filtros-activos">{filtrosActivos}</IonBadge>
+              )}
+            </IonButton>
+            <IonButton
+              fill="solid"
+              className="inicio-boton-icono inicio-boton-principal"
+              aria-label="Actualizar reportes"
+              onClick={cargarReportes}
+              disabled={cargando}
+            >
+              {cargando ? (
+                <IonSpinner name="crescent" color="light" />
+              ) : (
+                <IonIcon slot="icon-only" icon={refreshOutline} />
+              )}
+            </IonButton>
+            <IonButton
+              fill="outline"
+              className="inicio-boton-icono inicio-boton-ayuda"
+              aria-label="Ayuda sobre esta vista"
+            >
+              <IonIcon slot="icon-only" icon={helpOutline} />
+            </IonButton>
+          </div>
         </div>
 
         <section className="inicio-mapa" aria-label="Mapa de reportes">

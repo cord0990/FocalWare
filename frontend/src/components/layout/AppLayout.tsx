@@ -7,7 +7,7 @@ import {
   IonToolbar,
   useIonRouter,
 } from '@ionic/react';
-import { chevronDownOutline, logInOutline } from 'ionicons/icons';
+import { chevronDownOutline, logInOutline, personAddOutline } from 'ionicons/icons';
 import MenuLateral from './MenuLateral';
 import { ID_MENU_CUENTA } from './MenuCuenta';
 import { CLAVE_ANCHO_MENU } from '../../context/MenuProvider';
@@ -69,16 +69,26 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             </IonMenuToggle>
           ) : (
             // Sin sesión se puede mirar el mapa; para reportar o votar hay que entrar.
-            <button
-              type="button"
-              slot="end"
-              className="app-cuenta app-entrar"
-              aria-label="Iniciar sesión"
-              onClick={() => irAlLogin()}
-            >
-              <IonIcon icon={logInOutline} aria-hidden="true" />
-              <strong>Iniciar sesión</strong>
-            </button>
+            <div slot="end" className="app-acciones">
+              <button
+                type="button"
+                className="app-cuenta app-entrar"
+                aria-label="Iniciar sesión"
+                onClick={() => irAlLogin()}
+              >
+                <IonIcon icon={logInOutline} aria-hidden="true" />
+                <strong>Iniciar sesión</strong>
+              </button>
+              <button
+                type="button"
+                className="app-cuenta app-crear-cuenta"
+                aria-label="Crear cuenta"
+                onClick={() => router.push(RUTAS.registro, 'root')}
+              >
+                <IonIcon icon={personAddOutline} aria-hidden="true" />
+                <strong>Crear cuenta</strong>
+              </button>
+            </div>
           )}
         </IonToolbar>
       </IonHeader>

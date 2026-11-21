@@ -46,6 +46,41 @@
   background: rgba(255, 255, 255, 0.42);
 }
 
+/* Contenedor de las acciones de la barra cuando no hay sesión */
+.app-acciones {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Botón "Crear cuenta": acción principal para quien no ha iniciado sesión.
+   Mismas medidas que "Iniciar sesión" (app-cuenta); solo cambia la paleta. */
+.app-crear-cuenta {
+  gap: 8px;
+  padding: 0 20px;
+  border-color: #fff;
+  background: #fff;
+  color: #e0283a;
+  font-size: 1rem;
+  font-weight: 700;
+  text-shadow: none;
+}
+
+.app-crear-cuenta:hover {
+  background: #ffe9e7;
+}
+
+.app-crear-cuenta ion-icon {
+  flex-shrink: 0;
+  width: 1.4rem;
+  height: 1.4rem;
+}
+
+.app-crear-cuenta:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+}
+
 .app-cuenta-texto {
   display: flex;
   flex-direction: column;
@@ -332,6 +367,27 @@
     display: none;
   }
 
+  /* En celular las acciones se separan un poco menos y el texto queda oculto */
+  .app-acciones {
+    gap: 8px;
+  }
+
+  /* "Crear cuenta" en celular: círculo blanco sólido con icono rojo */
+  .app-cuenta.app-crear-cuenta {
+    justify-content: center;
+    width: 44px;
+    min-height: 44px;
+    padding: 0;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    background: #fff;
+    color: #e0283a;
+    box-shadow: none;
+  }
+
+  .app-crear-cuenta strong {
+    display: none;
+  }
   .app-principal {
     padding: 12px 12px 88px;
   }
@@ -403,4 +459,34 @@
   flex-shrink: 0;
   width: 1.4rem;
   height: 1.4rem;
+}
+
+/* Pantallas muy estrechas: evita que el logo + dos botones desborden */
+@media (max-width: 360px) {
+  .app-encabezado {
+    --padding-start: 12px;
+    --padding-end: 12px;
+  }
+
+  .app-marca {
+    gap: 8px;
+    font-size: 1.2rem;
+  }
+
+  .app-marca img {
+    width: 36px;
+    height: 36px;
+  }
+
+  .app-acciones {
+    gap: 6px;
+  }
+}
+
+/* Pantallas extremadamente angostas: el logo se queda solo, sin el texto,
+   para que las acciones del header no se superpongan. */
+@media (max-width: 300px) {
+  .app-marca span {
+    display: none;
+  }
 }

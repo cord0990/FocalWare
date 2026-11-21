@@ -53,8 +53,18 @@
 .inicio-barra {
   grid-area: barra;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
+}
+
+/* Los tres botones viajan juntos: si no caben al lado del buscador,
+   bajan a una segunda fila en lugar de superponerse. */
+.inicio-acciones {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
 }
 
 .inicio-buscador {
@@ -64,9 +74,20 @@
   --color: #1f1f1f;
   --placeholder-color: #8a8a8a;
   --icon-color: #1f1f1f;
+  /* El buscador ocupa el espacio disponible. Si la columna del mapa es muy angosta,
+     los botones bajan a una segunda fila en vez de superponerse. */
+  flex: 1 1 170px;
+  min-width: 0;
   /* El borde rojo es una sombra de 2 px por fuera del campo. En iPhone el buscador
      recorta lo que sale de su caja, así que se deja ese espacio libre. */
   padding: 2px;
+}
+
+/* El buscador de Ionic es "scoped": su contenido interno está en el DOM normal.
+   Sin esto, el input conserva su ancho intrínseco y se desborda sobre los botones. */
+.inicio-buscador .searchbar-input-container,
+.inicio-buscador .searchbar-input {
+  min-width: 0;
 }
 
 .inicio-boton-icono {
@@ -75,6 +96,35 @@
   height: 48px;
   margin: 0;
   font-size: 1.1rem;
+  --border-radius: 12px;
+  border-radius: 12px;
+  flex: 0 0 auto;
+}
+
+/* Botones principales (filtro y recargar): cuadrado redondeado rojo con icono blanco */
+.inicio-boton-principal {
+  --background: #e72441;
+  --background-activated: #c91f38;
+  --background-hover: #d01d35;
+  --color: #fff;
+  --border-radius: 12px;
+  --box-shadow: 0 2px 6px rgba(231, 36, 65, 0.35);
+}
+
+.inicio-boton-principal:disabled {
+  --background: #e72441;
+  opacity: 0.6;
+}
+
+/* Botón de ayuda: cuadrado redondeado blanco con icono y borde rojo */
+.inicio-boton-ayuda {
+  --background: #fff;
+  --color: #e72441;
+  --border-color: #e72441;
+  --border-width: 2px;
+  --border-style: solid;
+  --border-radius: 12px;
+  --box-shadow: none;
 }
 
 .inicio-mapa {
@@ -202,9 +252,10 @@
   position: absolute;
   top: 2px;
   right: 2px;
-  --background: #e0283a;
-  --color: #fff;
+  --background: #fff;
+  --color: #e72441;
   --padding-start: 6px;
   --padding-end: 6px;
   font-size: 0.7rem;
+  font-weight: 700;
 }
