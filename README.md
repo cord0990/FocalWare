@@ -317,6 +317,9 @@ cd FocalWare
 psql -U postgres -h localhost -f backend/database/focalware.sql
 ```
 
+> El script elimina y recrea la base `focalware`, y vuelve a cargar los datos de prueba.
+> No lo ejecutes sobre una base con datos que quieras conservar.
+
 > Si `psql` no se reconoce, usa la ruta completa (por ejemplo `C:\Program Files\PostgreSQL\18\bin\psql.exe`) o agrega esa carpeta al `PATH`. En PowerShell la ruta completa va precedida de `&`: `& "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -h localhost -f backend/database/focalware.sql`.
 
 **Si ya habías cargado la base antes y las tildes se ven raras** (por ejemplo "elÃ©ctrico" o "MuÃ±oz"), la base se cargó con una versión anterior del script, que no avisaba que el archivo está en UTF-8, y la terminal de Windows leyó mal las tildes. Hay que borrarla y volver a cargarla (con la API apagada):
@@ -410,9 +413,24 @@ La base es PostgreSQL 16 y el acceso se hace con **Prisma 7**. El esquema, las t
 
 Scripts reproducibles:
 
-- `backend/prisma/schema.prisma` y `backend/prisma/migrations/` (fuente de verdad, aplicadas por Docker al arrancar la API).
-- `backend/database/focalware.sql` (crea la base, las tablas y carga los datos; útil para montar a mano sin Docker).
-- `backend/database/datos_prueba.sql` (3 vecinos, 2 funcionarios, 3 cuadrillas y 7 reportes).
+- `backend/prisma/schema.prisma` y `backend/prisma/migrations/`: fuente de verdad del esquema; Docker aplica las migraciones al arrancar la API.
+- `backend/database/focalware.sql`: **generado** desde `schema.prisma`; crea la base, las tablas y carga los datos de prueba. No se edita a mano.
+- `backend/database/datos_prueba.sql`: datos de prueba. Es re-ejecutable: antes de insertar, vacía las tablas y reinicia los ids.
+- `backend/database/reiniciar_datos.sql`: deja la base vacía sin volver a cargar los datos.
+- `backend/scripts/generarSql.js`: genera `focalware.sql` desde `schema.prisma`.
+
+Para regenerar el SQL después de cambiar `schema.prisma`:
+
+```bash
+cd backend
+npm run db:sql          # regenera database/focalware.sql
+npm run db:sql:check    # falla si el archivo quedó desactualizado
+npm run db:check        # db:sql:check + validación del schema
+```
+
+`db:check` no necesita una base de datos. Para revisar el estado de las migraciones contra una base real se usa `npx prisma migrate status`.
+
+> `focalware.sql` elimina y recrea la base `focalware`. No lo ejecutes sobre una base con datos que quieras conservar.
 
 Con Docker:
 
