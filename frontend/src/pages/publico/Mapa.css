@@ -1,7 +1,5 @@
 /* Escritorio: barra y mapa a la izquierda, lista de reportes a la derecha */
 .inicio {
-  /* Ancho por defecto de la lista: 30 % de la pantalla, entre 380 y 560 px.
-     Si el usuario arrastra el divisor, se usa --ancho-lista (nunca más del 60 %). */
   --ancho-lista-defecto: clamp(380px, 30vw, 560px);
   display: grid;
   grid-template-columns: minmax(0, 1fr) 16px min(var(--ancho-lista, var(--ancho-lista-defecto)), 60%);
@@ -52,8 +50,6 @@
   outline-offset: 2px;
 }
 
-/* Botón redondo del centro: un clic abre o cierra la lista.
-   No recibe el puntero para que el arrastre lo siga manejando el divisor. */
 .inicio-divisor-icono {
   position: absolute;
   top: 50%;
@@ -82,7 +78,6 @@
   color: #e0283a;
 }
 
-/* Lista oculta: el mapa ocupa el resto del ancho */
 .inicio.cerrado .inicio-lista {
   display: none;
 }
@@ -95,8 +90,6 @@
   gap: 8px;
 }
 
-/* Los tres botones viajan juntos: si no caben al lado del buscador,
-   bajan a una segunda fila en lugar de superponerse. */
 .inicio-acciones {
   display: flex;
   align-items: center;
@@ -111,23 +104,18 @@
   --color: #1f1f1f;
   --placeholder-color: #8a8a8a;
   --icon-color: #1f1f1f;
-  /* El buscador ocupa el espacio disponible. Si la columna del mapa es muy angosta,
-     los botones bajan a una segunda fila en vez de superponerse. */
   flex: 1 1 170px;
   min-width: 0;
-  /* El borde rojo es una sombra de 2 px por fuera del campo. En iPhone el buscador
-     recorta lo que sale de su caja, así que se deja ese espacio libre. */
   padding: 2px;
 }
 
-/* El buscador de Ionic es "scoped": su contenido interno está en el DOM normal.
-   Sin esto, el input conserva su ancho intrínseco y se desborda sobre los botones. */
 .inicio-buscador .searchbar-input-container,
 .inicio-buscador .searchbar-input {
   min-width: 0;
 }
 
 .inicio-boton-icono {
+  position: relative;
   --color: #1f1f1f;
   width: 48px;
   height: 48px;
@@ -138,7 +126,6 @@
   flex: 0 0 auto;
 }
 
-/* Botones principales (filtro y recargar): cuadrado redondeado rojo con icono blanco */
 .inicio-boton-principal {
   --background: #e72441;
   --background-activated: #c91f38;
@@ -153,15 +140,24 @@
   opacity: 0.6;
 }
 
-/* Botón de ayuda: cuadrado redondeado blanco con icono y borde rojo */
 .inicio-boton-ayuda {
-  --background: #fff;
-  --color: #e72441;
-  --border-color: #e72441;
-  --border-width: 2px;
-  --border-style: solid;
-  --border-radius: 12px;
-  --box-shadow: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  background: #fff;
+  color: #e72441;
+  border: 2px solid #e72441;
+  border-radius: 12px;
+  font-size: 1.35rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.inicio-boton-ayuda:hover {
+  background: #fdebed;
 }
 
 .inicio-mapa {
@@ -171,7 +167,6 @@
 
 .inicio-lista {
   grid-area: lista;
-  /* Las tarjetas cambian su diseño según el ancho de la lista (ver TarjetaReporte.css) */
   container: lista-reportes / inline-size;
   display: flex;
   flex-direction: column;
@@ -211,7 +206,6 @@
   line-height: 1;
 }
 
-/* Escala de colores del riesgo: de bajo a crítico */
 .inicio-escala {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -249,7 +243,6 @@
   }
 }
 
-/* Celular: todo en una columna y se hace scroll en la pantalla completa */
 @media (max-width: 767px) {
   .inicio {
     grid-template-columns: minmax(0, 1fr);
@@ -274,15 +267,9 @@
     padding-right: 0;
   }
 
-  /* En celular toda la pantalla hace scroll: si el conteo quedara fijo arriba,
-     taparía las tarjetas y chocaría con la leyenda del mapa */
   .inicio-conteo {
     position: static;
   }
-}
-
-.inicio-boton-icono {
-  position: relative;
 }
 
 .inicio-filtros-activos {
@@ -295,4 +282,147 @@
   --padding-end: 6px;
   font-size: 0.7rem;
   font-weight: 700;
+}
+
+/* Modal de ayuda rápida del mapa (UX-09) */
+.ayuda-mapa-fondo {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(31, 31, 31, 0.55);
+  backdrop-filter: blur(2px);
+}
+
+.ayuda-mapa-contenido {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: min(94vw, 520px);
+  max-height: 86vh;
+  padding: 22px 24px;
+  border-radius: 22px;
+  background: #fff;
+  color: #1f1f1f;
+  box-shadow: 0 14px 36px rgba(31, 31, 31, 0.28);
+  overflow-y: auto;
+}
+
+.ayuda-mapa-encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ayuda-mapa-titulo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ayuda-mapa-insignia {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #fdebed;
+  color: #e72441;
+  font-size: 1.3rem;
+}
+
+.ayuda-mapa-titulo h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.ayuda-mapa-btn-x {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 12px;
+  background: #f5eded;
+  color: #5a4545;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+.ayuda-mapa-btn-x:hover {
+  background: #ecdfdf;
+  color: #1f1f1f;
+}
+
+.ayuda-mapa-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ayuda-mapa-lista li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: #faf5f5;
+}
+
+.ayuda-mapa-item-icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  margin-top: 2px;
+  border-radius: 10px;
+  background: #ecdfdf;
+  color: #e0283a;
+  font-size: 1.2rem;
+}
+
+.ayuda-mapa-lista strong {
+  display: block;
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: #1f1f1f;
+}
+
+.ayuda-mapa-lista p {
+  margin: 2px 0 0;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  color: #4a3d3d;
+}
+
+.ayuda-mapa-cerrar {
+  width: 100%;
+  min-height: 46px;
+  margin: 4px 0 0;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 14px;
+  background: #e72441;
+  color: #fff;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.ayuda-mapa-cerrar:hover {
+  background: #c91f38;
 }

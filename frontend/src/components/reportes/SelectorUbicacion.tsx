@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
+import L from 'leaflet';
 import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import AjustarTamanoMapa from './AjustarTamanoMapa';
 import { CENTRO_VALPARAISO, ESTILOS_MAPA, ZOOM_MINIMO } from './capasMapa';
-import { crearIconoPin } from './iconosMapa';
 import './SelectorUbicacion.css';
 
 export interface Ubicacion {
@@ -13,14 +13,24 @@ export interface Ubicacion {
 
 interface SelectorUbicacionProps {
   ubicacion: Ubicacion | null;
-  // Punto al que se mueve el mapa (por ejemplo, la ubicación obtenida con el GPS).
+  confirmada?: boolean;
   enfocar?: Ubicacion | null;
   onCambiar: (ubicacion: Ubicacion) => void;
 }
 
-const ICONO_NUEVO = crearIconoPin('#e0283a');
+const ICONO_NUEVO = L.divIcon({
+  className: 'pin-ubicacion-destacado',
+  html: `
+    <span class="pin-ubicacion-halo" aria-hidden="true"></span>
+    <svg width="46" height="58" viewBox="0 0 46 58" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M23 2C11.954 2 3 10.954 3 22C3 36.2 23 55 23 55C23 55 43 36.2 43 22C43 10.954 34.046 2 23 2Z" fill="#e0283a" stroke="#ffffff" stroke-width="3.5"/>
+      <circle cx="23" cy="21" r="8" fill="#ffffff"/>
+    </svg>
+  `,
+  iconSize: [46, 58],
+  iconAnchor: [23, 55],
+});
 
-// Marca el punto donde el usuario toca el mapa.
 const EscucharClics: React.FC<{ onCambiar: (ubicacion: Ubicacion) => void }> = ({ onCambiar }) => {
   useMapEvents({
     click: (evento) => onCambiar({ latitud: evento.latlng.lat, longitud: evento.latlng.lng }),
@@ -28,7 +38,6 @@ const EscucharClics: React.FC<{ onCambiar: (ubicacion: Ubicacion) => void }> = (
   return null;
 };
 
-// Mueve el mapa cuando se pide enfocar un punto (por ejemplo, con "Usar mi ubicación").
 const Centrar: React.FC<{ punto?: Ubicacion | null }> = ({ punto }) => {
   const mapa = useMap();
   useEffect(() => {
@@ -37,9 +46,13 @@ const Centrar: React.FC<{ punto?: Ubicacion | null }> = ({ punto }) => {
   return null;
 };
 
-// Mapa para elegir dónde está el problema: se toca el mapa o se arrastra el pin.
-const SelectorUbicacion: React.FC<SelectorUbicacionProps> = ({ ubicacion, enfocar, onCambiar }) => (
-  <div className="selector-ubicacion">
+const SelectorUbicacion: React.FC<SelectorUbicacionProps> = ({
+  ubicacion,
+  confirmada = false,
+  enfocar,
+  onCambiar,
+}) => (
+  <div className={confirmada ? 'selector-ubicacion confirmada' : 'selector-ubicacion'}>
     <MapContainer
       center={CENTRO_VALPARAISO}
       zoom={13}
@@ -64,7 +77,13 @@ const SelectorUbicacion: React.FC<SelectorUbicacionProps> = ({ ubicacion, enfoca
         />
       )}
     </MapContainer>
-    {!ubicacion && <p className="selector-ubicacion-ayuda">Toca el mapa para marcar dónde está el problema</p>}
+    {!ubicacion ? (
+      <p className="selector-ubicacion-ayuda">Toca el mapa para marcar dónde está el problema</p>
+    ) : (
+      <p className="selector-ubicacion-ayuda confirmada">
+        Punto marcado · Puedes arrastrar el pin para ajustarlo
+      </p>
+    )}
   </div>
 );
 

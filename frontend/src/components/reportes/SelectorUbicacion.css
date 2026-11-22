@@ -1,12 +1,16 @@
 .selector-ubicacion {
   position: relative;
-  /* Las capas de Leaflet usan z-index altos: así no se montan sobre el resto del formulario */
   isolation: isolate;
   height: 100%;
   min-height: 300px;
   border: 3px solid #d9b8b8;
   border-radius: 22px;
   overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+
+.selector-ubicacion.confirmada {
+  border-color: #1b8a4b;
 }
 
 .selector-ubicacion-mapa {
@@ -28,10 +32,47 @@
   color: #1f1f1f;
   font-size: 0.85rem;
   font-weight: 600;
-  /* Si el mapa es angosto, el texto pasa a dos líneas en vez de salirse por los lados */
   width: max-content;
   max-width: calc(100% - 24px);
   text-align: center;
   transform: translateX(-50%);
   pointer-events: none;
+}
+
+.selector-ubicacion-ayuda.confirmada {
+  border: 1.5px solid #1b8a4b;
+  background: #f3fbf6;
+  color: #146c3a;
+}
+
+/* Pin más visible y destacado */
+.pin-ubicacion-destacado {
+  position: relative;
+  background: transparent;
+  border: 0;
+  filter: drop-shadow(0 5px 8px rgba(0, 0, 0, 0.38));
+}
+
+.pin-ubicacion-halo {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(224, 40, 58, 0.32);
+  transform: translate(-50%, 35%);
+  animation: pulso-pin 1.8s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes pulso-pin {
+  0% {
+    transform: translate(-50%, 35%) scale(0.7);
+    opacity: 0.95;
+  }
+  100% {
+    transform: translate(-50%, 35%) scale(2.2);
+    opacity: 0;
+  }
 }

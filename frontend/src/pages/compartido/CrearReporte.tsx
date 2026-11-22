@@ -12,6 +12,7 @@ import {
 } from '@ionic/react';
 import {
   arrowBackOutline,
+  checkmarkCircleOutline,
   createOutline,
   folderOpenOutline,
   helpCircleOutline,
@@ -69,7 +70,17 @@ const CrearReporte: React.FC = () => {
   const [descripcion, setDescripcion] = useState('');
   const [mensaje, setMensaje] = useState('');
   const geo = useGeocodificacion('', null, setMensaje);
-  const { sector, ubicacion, enfocar, sugerencias, buscandoSugerencias, cambiarUbicacion, onSectorChange, seleccionarSugerencia, limpiar: limpiarGeo } = geo;
+  const {
+    sector,
+    ubicacion,
+    enfocar,
+    sugerencias,
+    buscandoSugerencias,
+    cambiarUbicacion,
+    onSectorChange,
+    seleccionarSugerencia,
+    limpiar: limpiarGeo,
+  } = geo;
   const [imagenes, setImagenes] = useState<string[]>([]);
   const [clima, setClima] = useState<Clima>();
   const [sinClima, setSinClima] = useState(false);
@@ -118,6 +129,13 @@ const CrearReporte: React.FC = () => {
     descripcion,
   });
   const error = (campo: keyof typeof errores) => (intentoEnviar ? errores[campo] : '');
+  const direccionLista = Boolean(
+    ubicacion &&
+      sector.trim() &&
+      !geo.validandoUbicacion &&
+      !geo.errorUbicacion &&
+      !errores.sector,
+  );
   const hayCambios =
     !!(titulo || sector || categoria || volumen || distancia || descripcion || ubicacion) || imagenes.length > 0;
 
@@ -189,9 +207,6 @@ const CrearReporte: React.FC = () => {
           'Gracias por ayudar a tu comunidad. Tu reporte ya está en el mapa y quedará Pendiente hasta que el municipio lo revise.',
       });
     } catch (causa) {
-      // Si el servidor respondió con un motivo concreto (reporte duplicado, campo
-      // inválido, sesión vencida), se muestra ese texto. Solo si la conexión
-      // misma falló se usa el mensaje genérico.
       const sinEspacio = causa instanceof DOMException && causa.name === 'QuotaExceededError';
       const sinConexion = causa instanceof ErrorApi && causa.estado === 0;
 
@@ -346,15 +361,29 @@ const CrearReporte: React.FC = () => {
                 label="Sector o dirección"
                 labelPlacement="stacked"
                 fill="outline"
-                placeholder="Ej: Cerro Cordillera, escalera Fischer"
+                placeholder="Escribe una calle o un cerro"
                 value={sector}
-                className={error('sector') ? 'campo-invalido ion-invalid ion-touched' : ''}
+                className={
+                  error('sector')
+                    ? 'campo-invalido ion-invalid ion-touched'
+                    : direccionLista
+                      ? 'campo-confirmado'
+                      : ''
+                }
                 errorText={error('sector')}
                 onIonInput={(e) => {
                   onSectorChange(e.detail.value ?? '');
                 }}
-                onIonBlur={() => { /* sugerencias se limpian en el hook */ }}
+                onIonBlur={() => {
+                  /* sugerencias se limpian en el hook */
+                }}
               />
+              {direccionLista && !buscandoSugerencias && sugerencias.length === 0 && (
+                <p className="formulario-direccion-ok">
+                  <IonIcon icon={checkmarkCircleOutline} aria-hidden="true" />
+                  Dirección confirmada en el mapa
+                </p>
+              )}
               {sugerencias.length > 0 && (
                 <ul className="formulario-sugerencias" role="listbox" aria-label="Sugerencias de dirección">
                   {sugerencias.map((sugerencia) => (
@@ -382,10 +411,17 @@ const CrearReporte: React.FC = () => {
 
           <div className="formulario-fila-mapa">
             <div className={error('ubicacion') ? 'formulario-mapa invalido' : 'formulario-mapa'}>
-              <SelectorUbicacion ubicacion={ubicacion} enfocar={enfocar} onCambiar={cambiarUbicacion} />
+              <SelectorUbicacion
+                ubicacion={ubicacion}
+                confirmada={direccionLista}
+                enfocar={enfocar}
+                onCambiar={cambiarUbicacion}
+              />
               {!geo.errorUbicacion && error('ubicacion') && <p className="formulario-error">{error('ubicacion')}</p>}
               {geo.errorUbicacion && (
-                <p className="formulario-error" role="alert">{geo.errorUbicacion}</p>
+                <p className="formulario-error" role="alert">
+                  {geo.errorUbicacion}
+                </p>
               )}
             </div>
 

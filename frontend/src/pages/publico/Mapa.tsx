@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useLocation } from 'react-router-dom';
 import {
   IonBadge,
@@ -8,7 +9,19 @@ import {
   IonSpinner,
   useIonRouter,
 } from '@ionic/react';
-import { chevronBack, chevronForward, funnelOutline, helpOutline, refreshOutline } from 'ionicons/icons';
+import {
+  chevronBack,
+  chevronForward,
+  closeOutline,
+  flameOutline,
+  funnelOutline,
+  helpOutline,
+  listOutline,
+  locateOutline,
+  locationOutline,
+  refreshOutline,
+  searchOutline,
+} from 'ionicons/icons';
 import AppLayout from '../../components/layout/AppLayout';
 import FiltrosActivos from '../../components/reportes/FiltrosActivos';
 import FiltrosReportesModal from '../../components/reportes/FiltrosReportesModal';
@@ -54,6 +67,7 @@ const Mapa: React.FC = () => {
   const [busqueda, setBusqueda] = useState('');
   const [filtros, setFiltros] = useState<FiltrosReportes>(FILTROS_INICIALES);
   const [filtrosAbiertos, setFiltrosAbiertos] = useState(false);
+  const [ayudaAbierta, setAyudaAbierta] = useState(false);
   const [seleccionadoId, setSeleccionadoId] = useState<string>();
   // El calor usa todos los reportes visibles de los últimos 12 meses,
   // sin la búsqueda ni los filtros de la lista: así representa el historial del mapa.
@@ -94,11 +108,19 @@ const Mapa: React.FC = () => {
 
   useEffect(() => {
     cargarReportes();
-    // Cuando se crea o modifica un reporte, la lista se actualiza sin mostrar la carga.
     const actualizar = async () => setReportes(await obtenerReportes());
     window.addEventListener(EVENTO_REPORTES, actualizar);
     return () => window.removeEventListener(EVENTO_REPORTES, actualizar);
   }, []);
+
+  useEffect(() => {
+    if (!ayudaAbierta) return;
+    const alPresionarTecla = (evento: KeyboardEvent) => {
+      if (evento.key === 'Escape') setAyudaAbierta(false);
+    };
+    window.addEventListener('keydown', alPresionarTecla);
+    return () => window.removeEventListener('keydown', alPresionarTecla);
+  }, [ayudaAbierta]);
 
   // Desde "Mis reportes" se llega con /inicio?reporte=ID para ver ese reporte en el mapa.
   const { search } = useLocation();
@@ -109,7 +131,6 @@ const Mapa: React.FC = () => {
     setBusqueda('');
     setFiltros(FILTROS_INICIALES);
     setSeleccionadoId(reporteSolicitado);
-    // Espera a que termine la animación de entrada antes de desplazar la lista.
     const espera = setTimeout(
       () =>
         document
@@ -213,13 +234,15 @@ const Mapa: React.FC = () => {
                 <IonIcon slot="icon-only" icon={refreshOutline} />
               )}
             </IonButton>
-            <IonButton
-              fill="outline"
+            <button
+              type="button"
               className="inicio-boton-icono inicio-boton-ayuda"
               aria-label="Ayuda sobre esta vista"
+              aria-expanded={ayudaAbierta}
+              onClick={() => setAyudaAbierta(true)}
             >
-              <IonIcon slot="icon-only" icon={helpOutline} />
-            </IonButton>
+              <IonIcon icon={helpOutline} aria-hidden="true" />
+            </button>
           </div>
         </div>
 
@@ -327,6 +350,106 @@ const Mapa: React.FC = () => {
         onCerrar={() => setFiltrosAbiertos(false)}
         onAplicar={aplicarNuevosFiltros}
       />
+
+      {ayudaAbierta &&
+        createPortal(
+          <div
+            className="ayuda-mapa-fondo"
+            onClick={(evento) => {
+              if (evento.target === evento.currentTarget) setAyudaAbierta(false);
+            }}
+          >
+            <div
+              className="ayuda-mapa-contenido"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="ayuda-mapa-titulo"
+            >
+              <div className="ayuda-mapa-encabezado">
+                <div className="ayuda-mapa-titulo">
+                  <span className="ayuda-mapa-insignia" aria-hidden="true">
+                    <IonIcon icon={helpOutline} />
+                  </span>
+                  <h2 id="ayuda-mapa-titulo">Guía rápida del mapa</h2>
+                </div>
+                <button
+                  type="button"
+                  className="ayuda-mapa-btn-x"
+                  onClick={() => setAyudaAbierta(false)}
+                  aria-label="Cerrar guía del mapa"
+                >
+                  <IonIcon icon={closeOutline} aria-hidden="true" />
+                </button>
+              </div>
+
+              <ul className="ayuda-mapa-lista">
+                <li>
+                  <span className="ayuda-mapa-item-icono" aria-hidden="true">
+                    <IonIcon icon={searchOutline} />
+                  </span>
+                  <div>
+                    <strong>Buscador</strong>
+                    <p>Escribe un sector, cerro, título o tipo de residuo para encontrar reportes al instante.</p>
+                  </div>
+                </li>
+                <li>
+                  <span className="ayuda-mapa-item-icono" aria-hidden="true">
+                    <IonIcon icon={funnelOutline} />
+                  </span>
+                  <div>
+                    <strong>Filtros y actualizar</strong>
+                    <p>Filtra los reportes por estado, nivel de riesgo o sector, y actualiza el mapa para ver los reportes más recientes.</p>
+                  </div>
+                </li>
+                <li>
+                  <span className="ayuda-mapa-item-icono" aria-hidden="true">
+                    <IonIcon icon={locationOutline} />
+                  </span>
+                  <div>
+                    <strong>Marcadores de riesgo</strong>
+                    <p>Cada marcador señala un microbasural y su color indica el nivel de riesgo. Tócalo para resaltarlo.</p>
+                  </div>
+                </li>
+                <li>
+                  <span className="ayuda-mapa-item-icono" aria-hidden="true">
+                    <IonIcon icon={locateOutline} />
+                  </span>
+                  <div>
+                    <strong>Mi ubicación y vista del mapa</strong>
+                    <p>Centra el mapa en tu posición actual o cambia entre mapa simple y mapa detallado.</p>
+                  </div>
+                </li>
+                <li>
+                  <span className="ayuda-mapa-item-icono" aria-hidden="true">
+                    <IonIcon icon={flameOutline} />
+                  </span>
+                  <div>
+                    <strong>Mapa de calor</strong>
+                    <p>Resalta las zonas con mayor acumulación de reportes en los últimos 12 meses.</p>
+                  </div>
+                </li>
+                <li>
+                  <span className="ayuda-mapa-item-icono" aria-hidden="true">
+                    <IonIcon icon={listOutline} />
+                  </span>
+                  <div>
+                    <strong>Lista de reportes y apoyos</strong>
+                    <p>Revisa cada ficha, apoya un reporte para darle prioridad o entra a Detalles.</p>
+                  </div>
+                </li>
+              </ul>
+
+              <button
+                type="button"
+                className="ayuda-mapa-cerrar"
+                onClick={() => setAyudaAbierta(false)}
+              >
+                Entendido
+              </button>
+            </div>
+          </div>,
+          document.body,
+        )}
     </AppLayout>
   );
 };
