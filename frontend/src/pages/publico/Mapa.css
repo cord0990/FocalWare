@@ -19,6 +19,8 @@
 }
 
 .inicio-divisor {
+  position: relative;
+  z-index: 1;
   grid-area: divisor;
   display: flex;
   align-items: center;
@@ -48,6 +50,41 @@
 .inicio-divisor:focus-visible {
   outline: 2px solid #e0283a;
   outline-offset: 2px;
+}
+
+/* Botón redondo del centro: un clic abre o cierra la lista.
+   No recibe el puntero para que el arrastre lo siga manejando el divisor. */
+.inicio-divisor-icono {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 2px solid #d9b8b8;
+  border-radius: 50%;
+  background: #fff;
+  color: #6b5a5a;
+  font-size: 0.8rem;
+  pointer-events: none;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.inicio-divisor:hover .inicio-divisor-icono,
+.inicio-divisor:focus-visible .inicio-divisor-icono,
+.inicio.arrastrando .inicio-divisor-icono {
+  border-color: #e0283a;
+  color: #e0283a;
+}
+
+/* Lista oculta: el mapa ocupa el resto del ancho */
+.inicio.cerrado .inicio-lista {
+  display: none;
 }
 
 .inicio-barra {

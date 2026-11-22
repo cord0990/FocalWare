@@ -19,6 +19,7 @@ const Login: React.FC = () => {
   const [correo, setCorreo] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [enviando, setEnviando] = useState(false);
+  const [errorServidor, setErrorServidor] = useState('');
   const { tocar, claseCampo } = useCamposTocados();
   const sesion = useSesion();
 
@@ -37,10 +38,18 @@ const Login: React.FC = () => {
     if (errores.correo || errores.contrasena) return;
 
     setEnviando(true);
-    const usuario = await iniciarSesion({ correo, contrasena });
-    setEnviando(false);
-    // Con la sesión iniciada, RutaPublica lleva al mapa o a la página que se quería abrir.
-    sesion.iniciarSesion(usuario);
+    setErrorServidor('');
+    try {
+      const { usuario, token } = await iniciarSesion({ email: correo, password: contrasena });
+      // Con la sesión iniciada, RutaPublica lleva al mapa o a la página que se quería abrir.
+      sesion.iniciarSesion(usuario, token);
+    } catch (error) {
+      setErrorServidor(
+        error instanceof Error ? error.message : 'No se pudo iniciar sesión. Intenta de nuevo.',
+      );
+    } finally {
+      setEnviando(false);
+    }
   };
 
   return (
@@ -81,6 +90,12 @@ const Login: React.FC = () => {
             ¿Olvidaste tu contraseña?
           </IonRouterLink>
         </div>
+
+        {errorServidor && (
+          <p role="alert" style={{ color: 'var(--ion-color-danger)', marginBottom: '12px' }}>
+            {errorServidor}
+          </p>
+        )}
 
         <IonButton type="submit" expand="block" className="btn-principal" disabled={enviando}>
           {enviando ? <IonSpinner name="crescent" /> : 'Iniciar sesión'}

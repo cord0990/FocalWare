@@ -1,5 +1,7 @@
 import { IonButton, IonIcon } from '@ionic/react';
-import { caretUp, imageOutline, locationOutline } from 'ionicons/icons';
+import { close, imageOutline, locationOutline } from 'ionicons/icons';
+import votoDisponible from '../../assets/icons/voto-disponible.svg';
+import votoVotado from '../../assets/icons/voto-votado.svg';
 import type { Reporte } from '../../services/reportesService';
 import { estiloDeEstado } from '../../utils/estados';
 import { formatearFecha } from '../../utils/fechas';
@@ -80,18 +82,44 @@ const TarjetaReporte: React.FC<TarjetaReporteProps> = ({
           <IonButton className="btn-detalles" onClick={onDetalles}>
             Detalles
           </IonButton>
-          <button
-            type="button"
-            className={votado ? 'btn-voto votado' : 'btn-voto'}
-            onClick={onVotar}
-            disabled={!puedeVotar}
-            aria-pressed={votado}
-            aria-label={puedeVotar ? `Votar a favor, ${votos} votos` : `${votos} votos`}
-            title={puedeVotar ? undefined : 'Votos que ha recibido el reporte'}
-          >
-            <IonIcon icon={caretUp} aria-hidden="true" />
-            {votos}
-          </button>
+          {(() => {
+            const esPropio = Boolean(reporte.esMio);
+            const clase = [
+              'btn-voto-mapa',
+              votado ? 'votado' : '',
+              esPropio ? 'propio' : '',
+              !puedeVotar && !esPropio ? 'deshabilitado' : '',
+            ]
+              .filter(Boolean)
+              .join(' ');
+            const etiqueta = esPropio
+              ? `No puedes votar tu propio reporte, ${votos} votos`
+              : puedeVotar
+                ? votado
+                  ? `Quitar voto, ${votos} votos`
+                  : `Votar a favor, ${votos} votos`
+                : `${votos} votos`;
+            return (
+              <button
+                type="button"
+                className={clase}
+                onClick={onVotar}
+                disabled={esPropio || !puedeVotar}
+                aria-pressed={esPropio ? undefined : votado}
+                aria-label={etiqueta}
+                title={puedeVotar ? undefined : 'Votos que ha recibido el reporte'}
+              >
+                {esPropio ? (
+                  <span className="voto-x">
+                    <IonIcon icon={close} aria-hidden="true" />
+                  </span>
+                ) : (
+                  <img src={votado ? votoVotado : votoDisponible} className="icono-voto-mapa" alt="" />
+                )}
+                {votos}
+              </button>
+            );
+          })()}
         </div>
       </div>
     </article>

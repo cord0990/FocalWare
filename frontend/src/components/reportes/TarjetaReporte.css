@@ -203,3 +203,83 @@
   color: #6b5a5a;
   cursor: default;
 }
+
+/* Botón de voto con triángulo y llama: naranja #F7A94F y blanco */
+.btn-voto-mapa {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  min-width: 0;
+  min-height: 48px;
+  padding: 0 12px 0 10px;
+  border: 2px solid #F7A94F;
+  border-radius: 12px;
+  background: #fff;
+  color: #F7A94F;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.btn-voto-mapa:hover:not(:disabled) {
+  background: #fff3e8;
+}
+
+.btn-voto-mapa.votado {
+  background: #F7A94F;
+  border-color: #F7A94F;
+  color: #fff;
+}
+
+.btn-voto-mapa.votado:hover:not(:disabled) {
+  background: #e57f3d;
+  border-color: #e57f3d;
+}
+
+/* Publicación propia: no se puede votar; se marca con una X roja */
+.btn-voto-mapa.propio {
+  background: #fff;
+  border-color: #F7A94F;
+  color: #8f1426;
+  cursor: default;
+}
+
+.btn-voto-mapa.deshabilitado {
+  border-color: #c9b0b0;
+  background: #f6f0f0;
+  color: #6b5a5a;
+  cursor: default;
+}
+
+.btn-voto-mapa:disabled {
+  cursor: default;
+}
+
+.icono-voto-mapa {
+  width: 26px;
+  height: 26px;
+  display: block;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+.voto-x {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #E72441;
+  color: #fff;
+  line-height: 1;
+}
+
+.voto-x ion-icon {
+  font-size: 1rem;
+}

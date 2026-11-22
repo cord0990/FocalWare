@@ -3,7 +3,8 @@ import { useParams } from 'react-router-dom';
 import { IonButton, IonIcon, IonSpinner, IonToast, useIonRouter } from '@ionic/react';
 import {
   arrowBackOutline,
-  caretUp,
+  chevronBack,
+  chevronForward,
   createOutline,
   folderOpenOutline,
   helpCircleOutline,
@@ -21,8 +22,10 @@ import CamposDesglose from '../../components/reportes/CamposDesglose';
 import SeguimientoReporte from '../../components/reportes/SeguimientoReporte';
 import ExplicacionRiesgo from '../../components/reportes/ExplicacionRiesgo';
 import MiniMapa from '../../components/reportes/MiniMapa';
+import votoDisponible from '../../assets/icons/voto-disponible.svg';
+import votoVotado from '../../assets/icons/voto-votado.svg';
 import TarjetaReporte from '../../components/reportes/TarjetaReporte';
-import { useAnchoRedimensionable } from '../../hooks/useAnchoRedimensionable';
+import { leerAnchoGuardado, useAnchoRedimensionable } from '../../hooks/useAnchoRedimensionable';
 import { useIrAlLogin } from '../../hooks/useIrAlLogin';
 import { useSesion } from '../../hooks/useSesion';
 import { RUTAS, rutaDetalleMapa, rutaEditarReporte, rutaMunicipalReporte } from '../../routes/rutas';
@@ -79,11 +82,29 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
   const [otros, setOtros] = useState<Reporte[]>([]);
   const [fotoActiva, setFotoActiva] = useState(0);
   const [explicacionAbierta, setExplicacionAbierta] = useState(false);
+  // Columna derecha (otros reportes): un clic la oculta y otro la vuelve a mostrar.
+  const [anchoOtros, setAnchoOtros] = useState<number | null>(() =>
+    leerAnchoGuardado('focalware-ancho-otros'),
+  );
+  const [anchoOtrosPrevio, setAnchoOtrosPrevio] = useState<number | null>(null);
+  const alternarOtros = () => {
+    if (anchoOtros === 0) {
+      setAnchoOtros(anchoOtrosPrevio);
+    } else {
+      setAnchoOtrosPrevio(anchoOtros);
+      setAnchoOtros(0);
+    }
+  };
+
   const divisor = useAnchoRedimensionable({
     clave: 'focalware-ancho-otros',
     minimo: 300,
     maximoProporcion: 0.5,
+    estado: [anchoOtros, setAnchoOtros],
+    onClic: alternarOtros,
   });
+  const otrosCerrado = divisor.ancho === 0;
+
   // La columna izquierda (riesgo, desglose y opciones) también se puede ensanchar.
   const divisorLateral = useAnchoRedimensionable({
     clave: 'focalware-ancho-lateral-detalle',
@@ -263,13 +284,17 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
           divisor.contenedor.current = elemento;
           divisorLateral.contenedor.current = elemento;
         }}
-        className={
-          divisor.arrastrando || divisorLateral.arrastrando ? 'detalle-reporte arrastrando' : 'detalle-reporte'
-        }
+        className={[
+          'detalle-reporte',
+          divisor.arrastrando || divisorLateral.arrastrando ? 'arrastrando' : '',
+          otrosCerrado ? 'otros-cerrado' : '',
+        ]
+          .filter(Boolean)
+          .join(' ')}
         style={
           {
-            ...(divisor.ancho ? { '--ancho-otros': `${divisor.ancho}px` } : {}),
-            ...(divisorLateral.ancho ? { '--ancho-lateral': `${divisorLateral.ancho}px` } : {}),
+            ...(divisor.ancho !== null ? { '--ancho-otros': `${divisor.ancho}px` } : {}),
+            ...(divisorLateral.ancho !== null ? { '--ancho-lateral': `${divisorLateral.ancho}px` } : {}),
           } as React.CSSProperties
         }
       >
@@ -369,6 +394,29 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
               <p className="detalle-sin-datos">Sin información del clima.</p>
             )}
           </section>
+
+          {puedeVotarPrincipal() && (
+            <button
+              type="button"
+              className={reporte.miVoto ? 'detalle-apoyo votado' : 'detalle-apoyo'}
+              onClick={alternarVotoPrincipal}
+              aria-pressed={reporte.miVoto}
+              aria-label={
+                reporte.miVoto
+                  ? `Quitar apoyo, ${reporte.votos} votos`
+                  : `Apoyar reporte, ${reporte.votos} votos`
+              }
+            >
+              <img
+                src={reporte.miVoto ? votoVotado : votoDisponible}
+                className="detalle-apoyo-icono"
+                alt=""
+              />
+              <span className="detalle-apoyo-texto">
+                {reporte.miVoto ? 'Quitar apoyo' : 'Apoyar reporte'}
+              </span>
+            </button>
+          )}
         </aside>
 
         {/* Solo se muestra en PC: se arrastra para cambiar el ancho de la columna izquierda */}
@@ -378,10 +426,9 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
           aria-orientation="vertical"
           aria-label="Cambiar el ancho de la columna de riesgo y desglose"
           tabIndex={0}
-          title="Arrastra para cambiar el ancho. Doble clic para restablecer."
+          title="Arrastra para cambiar el ancho."
           onPointerDown={divisorLateral.alPresionar}
           onKeyDown={divisorLateral.alTeclado}
-          onDoubleClick={divisorLateral.restablecer}
         >
           <span aria-hidden="true" />
         </div>
@@ -407,18 +454,6 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
               >
                 <IonIcon icon={createOutline} aria-hidden="true" />
                 Modificar reporte
-              </button>
-            )}
-            {puedeVotarPrincipal() && (
-              <button
-                type="button"
-                className={reporte.miVoto ? 'btn-voto votado' : 'btn-voto'}
-                onClick={alternarVotoPrincipal}
-                aria-pressed={reporte.miVoto}
-                aria-label={`Votar a favor, ${reporte.votos} votos`}
-              >
-                <IonIcon icon={caretUp} aria-hidden="true" />
-                {reporte.votos}
               </button>
             )}
           </div>
@@ -477,19 +512,34 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
           </div>
         </div>
 
-        {/* Solo se muestra en PC: se arrastra para cambiar el ancho de otros reportes */}
+        {/* Solo se muestra en PC: un clic oculta o muestra otros reportes; arrastrar los ajusta */}
         <div
           className="detalle-divisor"
           role="separator"
           aria-orientation="vertical"
-          aria-label="Cambiar el ancho de otros reportes"
+          aria-label={otrosCerrado ? 'Mostrar otros reportes' : 'Ocultar otros reportes'}
           tabIndex={0}
-          title="Arrastra para cambiar el ancho. Doble clic para restablecer."
+          title={
+            otrosCerrado
+              ? 'Clic para mostrar otros reportes. Mantén presionado y arrastra para ajustar el ancho.'
+              : 'Clic para ocultar otros reportes. Mantén presionado y arrastra para ajustar el ancho.'
+          }
           onPointerDown={divisor.alPresionar}
-          onKeyDown={divisor.alTeclado}
-          onDoubleClick={divisor.restablecer}
+          onKeyDown={(evento) => {
+            if (evento.key === 'Enter' || evento.key === ' ') {
+              evento.preventDefault();
+              alternarOtros();
+              return;
+            }
+            divisor.alTeclado(evento);
+          }}
         >
           <span aria-hidden="true" />
+          <IonIcon
+            className="detalle-divisor-icono"
+            icon={otrosCerrado ? chevronBack : chevronForward}
+            aria-hidden="true"
+          />
         </div>
 
         <section ref={divisor.panel} className="detalle-otros" aria-label="Otros reportes">

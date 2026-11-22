@@ -89,6 +89,60 @@
   color: #fff;
 }
 
+/* "Mi ubicación" va primero y resalta sobre los demás controles */
+.mapa-boton-ubicacion {
+  border-color: #2f2a2a;
+  background: #2f2a2a;
+  color: #fff;
+}
+
+.mapa-boton-ubicacion:hover {
+  border-color: #463d3d;
+  background: #463d3d;
+}
+
+.mapa-boton-ubicacion:disabled {
+  opacity: 0.75;
+  cursor: progress;
+}
+
+.mapa-boton-ubicacion ion-spinner {
+  width: 1.2rem;
+  height: 1.2rem;
+  --color: #fff;
+}
+
+.mapa-aviso-ubicacion {
+  max-width: 240px;
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  color: #c62828;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+/* Punto azul de "estás aquí" */
+.marcador-ubicacion {
+  background: none;
+  border: 0;
+}
+
+.marcador-ubicacion-punto {
+  display: block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: #1a73e8;
+  box-shadow:
+    0 0 0 3px rgba(26, 115, 232, 0.35),
+    0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
 /* Leyenda del mapa de calor */
 .mapa-calor-leyenda {
   width: 200px;

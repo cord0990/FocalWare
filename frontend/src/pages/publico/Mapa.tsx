@@ -8,14 +8,14 @@ import {
   IonSpinner,
   useIonRouter,
 } from '@ionic/react';
-import { funnelOutline, helpOutline, refreshOutline } from 'ionicons/icons';
+import { chevronBack, chevronForward, funnelOutline, helpOutline, refreshOutline } from 'ionicons/icons';
 import AppLayout from '../../components/layout/AppLayout';
 import FiltrosActivos from '../../components/reportes/FiltrosActivos';
 import FiltrosReportesModal from '../../components/reportes/FiltrosReportesModal';
 import MapaReportes from '../../components/reportes/MapaReportes';
 import SinResultados from '../../components/reportes/SinResultados';
 import TarjetaReporte from '../../components/reportes/TarjetaReporte';
-import { useAnchoRedimensionable } from '../../hooks/useAnchoRedimensionable';
+import { leerAnchoGuardado, useAnchoRedimensionable } from '../../hooks/useAnchoRedimensionable';
 import { useIrAlLogin } from '../../hooks/useIrAlLogin';
 import { useSesion } from '../../hooks/useSesion';
 import { NIVELES_RIESGO, rangoNivel } from '../../utils/riesgo';
@@ -61,11 +61,30 @@ const Mapa: React.FC = () => {
     () => reportes.filter((reporte) => reporte.fecha >= fechaHace12Meses()),
     [reportes],
   );
+  const [anchoLista, setAnchoLista] = useState<number | null>(() =>
+    leerAnchoGuardado('focalware-ancho-lista'),
+  );
+  // Ancho que tenía la lista antes de cerrarla, para devolverlo al abrirla.
+  const [anchoListaPrevio, setAnchoListaPrevio] = useState<number | null>(null);
+
+  // Un clic en el divisor oculta o muestra la lista completa; arrastrar la ajusta a mano.
+  const alternarLista = () => {
+    if (anchoLista === 0) {
+      setAnchoLista(anchoListaPrevio);
+    } else {
+      setAnchoListaPrevio(anchoLista);
+      setAnchoLista(0);
+    }
+  };
+
   const divisor = useAnchoRedimensionable({
     clave: 'focalware-ancho-lista',
     minimo: 320,
     maximoProporcion: 0.6,
+    estado: [anchoLista, setAnchoLista],
+    onClic: alternarLista,
   });
+  const listaCerrada = divisor.ancho === 0;
 
   const cargarReportes = async () => {
     setCargando(true);
@@ -146,9 +165,17 @@ const Mapa: React.FC = () => {
     <AppLayout>
       <div
         ref={divisor.contenedor}
-        className={divisor.arrastrando ? 'inicio arrastrando' : 'inicio'}
+        className={[
+          'inicio',
+          divisor.arrastrando ? 'arrastrando' : '',
+          listaCerrada ? 'cerrado' : '',
+        ]
+          .filter(Boolean)
+          .join(' ')}
         style={
-          divisor.ancho ? ({ '--ancho-lista': `${divisor.ancho}px` } as React.CSSProperties) : undefined
+          divisor.ancho !== null
+            ? ({ '--ancho-lista': `${divisor.ancho}px` } as React.CSSProperties)
+            : undefined
         }
       >
         <div className="inicio-barra">
@@ -208,19 +235,36 @@ const Mapa: React.FC = () => {
           />
         </section>
 
-        {/* Solo se muestra en PC: se arrastra para cambiar el ancho de la lista */}
+        {/* Solo se muestra en PC: un clic oculta o muestra la lista; arrastrar la ajusta a mano */}
         <div
-          className="inicio-divisor"
+          className={listaCerrada ? 'inicio-divisor cerrado' : 'inicio-divisor'}
           role="separator"
           aria-orientation="vertical"
-          aria-label="Cambiar el ancho de la lista de reportes"
+          aria-label={
+            listaCerrada ? 'Mostrar la lista de reportes' : 'Ocultar la lista de reportes'
+          }
           tabIndex={0}
-          title="Arrastra para cambiar el ancho. Doble clic para restablecer."
+          title={
+            listaCerrada
+              ? 'Clic para mostrar la lista. Mantén presionado y arrastra para ajustar el ancho.'
+              : 'Clic para ocultar la lista. Mantén presionado y arrastra para ajustar el ancho.'
+          }
           onPointerDown={divisor.alPresionar}
-          onKeyDown={divisor.alTeclado}
-          onDoubleClick={divisor.restablecer}
+          onKeyDown={(evento) => {
+            if (evento.key === 'Enter' || evento.key === ' ') {
+              evento.preventDefault();
+              alternarLista();
+              return;
+            }
+            divisor.alTeclado(evento);
+          }}
         >
           <span aria-hidden="true" />
+          <IonIcon
+            className="inicio-divisor-icono"
+            icon={listaCerrada ? chevronBack : chevronForward}
+            aria-hidden="true"
+          />
         </div>
 
         <section ref={divisor.panel} className="inicio-lista" aria-label="Lista de reportes">

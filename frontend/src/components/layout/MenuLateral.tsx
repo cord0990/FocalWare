@@ -21,7 +21,7 @@ const OPCIONES_VECINO = [
   { texto: 'Mapa', ruta: RUTAS.mapa, icono: mapOutline },
   { texto: 'Crear reporte', ruta: RUTAS.reportar, icono: documentTextOutline },
   { texto: 'Mis reportes', ruta: RUTAS.misReportes, icono: folderOpenOutline },
-  { texto: 'Mi perfil', ruta: RUTAS.perfil, icono: personOutline },
+  { texto: 'Mi perfil', ruta: RUTAS.perfil, icono: personOutline, destino: RUTAS.perfilConfiguracion },
 ];
 
 //Logica: Se modifico la ruta de mi perfil para evitar errores de "pantalla negra".
@@ -30,7 +30,7 @@ const OPCIONES_VECINO = [
 const OPCIONES_FUNCIONARIO = [
   { texto: 'Mapa', ruta: RUTAS.mapa, icono: mapOutline },
   { texto: 'Estadísticas', ruta: RUTAS.municipalEstadisticas, icono: statsChartOutline },
-  { texto: 'Mi perfil', ruta: RUTAS.perfil, icono: personOutline },
+  { texto: 'Mi perfil', ruta: RUTAS.perfil, icono: personOutline, destino: RUTAS.perfilConfiguracion },
 ];
 
 // La sección sigue marcada en sus subpáginas (por ejemplo, /mis-reportes/R-001).
@@ -94,6 +94,7 @@ const MenuLateral: React.FC = () => {
       <div className="menu-opciones">
         {opciones.map((opcion) => {
           const activa = estaEnSeccion(pathname, opcion.ruta);
+          const destino = opcion.destino ?? opcion.ruta;
           const mostrarPuntito = opcion.ruta === RUTAS.misReportes && tieneCambiosReportes;
           const etiquetaTitulo = mostrarPuntito
             ? `${opcion.texto} (tienes reportes con cambio de estado)`
@@ -102,8 +103,8 @@ const MenuLateral: React.FC = () => {
           return (
             <a
               key={opcion.ruta}
-              href={opcion.ruta}
-              onClick={(evento) => navegar(evento, opcion.ruta)}
+              href={destino}
+              onClick={(evento) => navegar(evento, destino)}
               className={activa ? 'menu-opcion activa' : 'menu-opcion'}
               aria-current={activa ? 'page' : undefined}
               aria-label={etiquetaTitulo}

@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
-import { IonIcon } from '@ionic/react';
-import { caretUp, flameOutline, imageOutline, layersOutline } from 'ionicons/icons';
+import { IonIcon, IonSpinner } from '@ionic/react';
+import { close, flameOutline, imageOutline, layersOutline, locateOutline } from 'ionicons/icons';
+import votoDisponible from '../../assets/icons/voto-disponible.svg';
+import votoVotado from '../../assets/icons/voto-votado.svg';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { Reporte } from '../../services/reportesService';
@@ -10,6 +12,8 @@ import CapaCalor from './CapaCalor';
 import { CENTRO_VALPARAISO, ESTILOS_MAPA, ZOOM_MINIMO } from './capasMapa';
 import { ICONOS_RIESGO } from './iconosMapa';
 import { NIVELES_RIESGO, obtenerNivelRiesgo } from '../../utils/riesgo';
+import { useUbicacionActual } from '../../hooks/useUbicacionActual';
+import type { Ubicacion } from './SelectorUbicacion';
 import './MapaReportes.css';
 import './TarjetaReporte.css';
 import { urlDeImagen } from '../../services/api';
@@ -71,6 +75,25 @@ const EnfocarReporte: React.FC<{ reporte?: Reporte; marcadores: Map<string, L.Ma
   return null;
 };
 
+// Mueve el mapa al punto obtenido con el GPS cuando el usuario toca "Mi ubicación".
+const CentrarEnUbicacion: React.FC<{ punto?: Ubicacion | null }> = ({ punto }) => {
+  const mapa = useMap();
+
+  useEffect(() => {
+    if (punto) mapa.flyTo([punto.latitud, punto.longitud], Math.max(mapa.getZoom(), 16));
+  }, [punto, mapa]);
+
+  return null;
+};
+
+// Punto azul que marca dónde está el usuario en el mapa.
+const ICONO_UBICACION = L.divIcon({
+  className: 'marcador-ubicacion',
+  html: '<span class="marcador-ubicacion-punto"></span>',
+  iconSize: [20, 20],
+  iconAnchor: [10, 10],
+});
+
 interface MapaReportesProps {
   reportes: Reporte[];
   reportesCalor: Reporte[];
@@ -106,6 +129,15 @@ const MapaReportes: React.FC<MapaReportesProps> = ({
     guardarCalor(!calor);
   };
 
+  // "Mi ubicación" reutiliza el GPS de Crear reporte y mueve el mapa al punto obtenido.
+  const gps = useUbicacionActual();
+  const [miUbicacion, setMiUbicacion] = useState<Ubicacion | null>(null);
+  const [errorUbicacion, setErrorUbicacion] = useState('');
+  const buscarMiUbicacion = () => {
+    setErrorUbicacion('');
+    gps.obtener(setMiUbicacion, setErrorUbicacion);
+  };
+
   // La lista de puntos se mantiene estable entre renders para no recrear la capa
   // de calor cada vez que se selecciona un reporte o cambia un filtro.
   const puntosCalor = useMemo(
@@ -125,6 +157,15 @@ const MapaReportes: React.FC<MapaReportesProps> = ({
         <AjustarTamanoMapa />
         {calor && <CapaCalor puntos={puntosCalor} />}
         <EnfocarReporte reporte={seleccionado} marcadores={marcadores.current} />
+        <CentrarEnUbicacion punto={miUbicacion} />
+        {miUbicacion && (
+          <Marker
+            position={[miUbicacion.latitud, miUbicacion.longitud]}
+            icon={ICONO_UBICACION}
+            interactive={false}
+            title="Tu ubicación"
+          />
+        )}
 
         {reportes.map((reporte) => {
           const nivel = obtenerNivelRiesgo(reporte.riesgo);
@@ -161,19 +202,46 @@ const MapaReportes: React.FC<MapaReportesProps> = ({
                       Riesgo {nivel.etiqueta.toLowerCase()} {reporte.riesgo}%
                     </span>
                     {onVotar ? (
-                      <button
-                        type="button"
-                        className={reporte.miVoto ? 'btn-voto votado' : 'btn-voto'}
-                        onClick={() => onVotar(reporte.id)}
-                        disabled={puedeVotar ? !puedeVotar(reporte) : false}
-                        aria-pressed={reporte.miVoto}
-                        aria-label={`Votar a favor, ${reporte.votos} votos`}
-                      >
-                        <IonIcon icon={caretUp} aria-hidden="true" /> {reporte.votos}
-                      </button>
+                      (() => {
+                        const esPropio = Boolean(reporte.esMio);
+                        const votado = Boolean(reporte.miVoto);
+                        const habilitado = puedeVotar ? puedeVotar(reporte) : true;
+                        const clase = [
+                          'btn-voto-mapa',
+                          votado ? 'votado' : '',
+                          esPropio ? 'propio' : '',
+                          !habilitado && !esPropio ? 'deshabilitado' : '',
+                        ]
+                          .filter(Boolean)
+                          .join(' ');
+                        const etiqueta = esPropio
+                          ? `No puedes votar tu propio reporte, ${reporte.votos} votos`
+                          : votado
+                            ? `Quitar voto, ${reporte.votos} votos`
+                            : `Votar a favor, ${reporte.votos} votos`;
+                        return (
+                          <button
+                            type="button"
+                            className={clase}
+                            onClick={() => onVotar(reporte.id)}
+                            disabled={esPropio || !habilitado}
+                            aria-pressed={esPropio ? undefined : votado}
+                            aria-label={etiqueta}
+                          >
+                            {esPropio ? (
+                              <span className="voto-x">
+                                <IonIcon icon={close} aria-hidden="true" />
+                              </span>
+                            ) : (
+                              <img src={reporte.miVoto ? votoVotado : votoDisponible} className="icono-voto-mapa" alt="" />
+                            )}
+                            {reporte.votos}
+                          </button>
+                        );
+                      })()
                     ) : (
                       <span className="popup-votos">
-                        <IonIcon icon={caretUp} aria-hidden="true" /> {reporte.votos}
+                        <img src={reporte.miVoto ? votoVotado : votoDisponible} className="icono-voto-mapa" alt="" /> {reporte.votos}
                       </span>
                     )}
                   </div>
@@ -194,6 +262,20 @@ const MapaReportes: React.FC<MapaReportesProps> = ({
       <div className="mapa-controles">
         <button
           type="button"
+          className="mapa-boton-estilo mapa-boton-ubicacion"
+          onClick={buscarMiUbicacion}
+          disabled={gps.buscando}
+          title="Centra el mapa en tu ubicación actual"
+        >
+          {gps.buscando ? (
+            <IonSpinner name="crescent" aria-label="Buscando ubicación" />
+          ) : (
+            <IonIcon icon={locateOutline} aria-hidden="true" />
+          )}
+          Mi ubicación
+        </button>
+        <button
+          type="button"
           className="mapa-boton-estilo"
           onClick={cambiarEstilo}
           title={`Cambiar a ${ESTILOS_MAPA[otroEstilo].nombre.toLowerCase()}`}
@@ -211,6 +293,11 @@ const MapaReportes: React.FC<MapaReportesProps> = ({
           <IonIcon icon={flameOutline} aria-hidden="true" />
           Mapa de calor
         </button>
+        {errorUbicacion && (
+          <p className="mapa-aviso-ubicacion" role="alert">
+            {errorUbicacion}
+          </p>
+        )}
         {calor && (
           <div className="mapa-calor-leyenda">
             <span>Concentración de reportes (12 meses)</span>
