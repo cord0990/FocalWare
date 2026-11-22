@@ -262,8 +262,16 @@
 .detalle-barra {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 12px;
+}
+
+/* "Apoyar · 3" va en una sola línea; si no cabe, el botón baja */
+.detalle-barra .btn-voto {
+  flex-shrink: 0;
+  padding: 0 14px;
+  white-space: nowrap;
 }
 
 .detalle-modificar {

@@ -29,7 +29,7 @@ const DetalleNotificacion: React.FC<Props> = ({ notificacion, onVolver, onIrADet
     );
   }
 
-  const { fechaCreacion, fechaAprobacion, fechaRechazo, fechaControl, reporteId } = notificacion;
+  const { fechaCreacion, fechaAprobacion, fechaRechazo, fechaControl, reporteId, tituloReporte } = notificacion;
 
   // La línea de tiempo se arma con las fechas que ya pasaron en la revisión del reporte.
   const esRechazado = Boolean(fechaRechazo);
@@ -65,7 +65,7 @@ const DetalleNotificacion: React.FC<Props> = ({ notificacion, onVolver, onIrADet
 
         <div className="detalle-header-row">
           <div className="badge-reporte-id">
-            Reporte ID: {reporteId}
+            {tituloReporte || `Reporte N° ${reporteId}`}
           </div>
           {reporteId && (
             <button className="btn-ir-reporte" onClick={() => onIrADetallesReporte?.(reporteId)}>
