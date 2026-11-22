@@ -2,38 +2,12 @@ const crypto = require('crypto');
 const fs = require('fs/promises');
 const path = require('path');
 const multer = require('multer');
+const { detectarExtension } = require('../dominio/imagenes');
 
 // Máximo 5 fotos por reporte, igual que en el frontend (RF-15)
 const MAXIMO_FOTOS = 5;
 const TAMANO_MAXIMO = 5 * 1024 * 1024; // 5 MB por foto
 const CARPETA_UPLOADS = path.join(__dirname, '..', '..', 'uploads');
-
-// La extensión sale del contenido real, nunca del nombre que envía el cliente.
-// Así un archivo .html o .svg no puede terminar guardado y servido como tal.
-const EXTENSIONES_IMAGEN = new Map([
-  ['image/jpeg', '.jpg'],
-  ['image/png', '.png'],
-  ['image/webp', '.webp'],
-]);
-
-const errorInvalido = (mensaje) => {
-  const error = new Error(mensaje);
-  error.estado = 400;
-  return error;
-};
-
-// file-type es un módulo ESM, así que se carga con import() desde CommonJS.
-const detectarExtension = async (archivo) => {
-  const { fileTypeFromBuffer } = await import('file-type');
-  const tipo = await fileTypeFromBuffer(archivo.buffer);
-  const extension = tipo ? EXTENSIONES_IMAGEN.get(tipo.mime) : undefined;
-
-  if (!extension) {
-    throw errorInvalido('Solo se permiten imágenes JPG, PNG o WEBP');
-  }
-
-  return extension;
-};
 
 // Crea el multer que guarda las fotos en la carpeta indicada (reportes o controles)
 const crearSubida = (carpeta) => {
@@ -59,7 +33,7 @@ const crearSubida = (carpeta) => {
         await fs.mkdir(destino, { recursive: true });
 
         for (const archivo of archivos) {
-          const extension = await detectarExtension(archivo);
+          const extension = await detectarExtension(archivo.buffer);
           const nombre = `${crypto.randomUUID()}${extension}`;
           const ruta = path.join(destino, nombre);
 

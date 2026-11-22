@@ -1,6 +1,7 @@
 // Lógica de los votos de apoyo de los vecinos.
 const { prisma } = require('../../dist/db/index.js');
 const { ESTADOS } = require('../dominio/opcionesReporte');
+const { recalcularRiesgoDeReporte } = require('./riesgoService');
 
 // Un vecino apoya un reporte.
 //
@@ -35,9 +36,12 @@ const registrar = async ({ idReporte, idVecino }) => {
     throw error;
   }
 
-  await prisma.voto.create({ data: { idReporte, idVecino } });
+  const votos = await prisma.$transaction(async (tx) => {
+    await tx.voto.create({ data: { idReporte, idVecino } });
+    return recalcularRiesgoDeReporte(idReporte, { prismaClient: tx });
+  });
 
-  return { votos: await contar(idReporte) };
+  return { votos };
 };
 
 // El vecino saca su apoyo. Si no lo había puesto, no es un error: la pantalla
@@ -45,9 +49,12 @@ const registrar = async ({ idReporte, idVecino }) => {
 const quitar = async ({ idReporte, idVecino }) => {
   await obtenerReporte(idReporte);
 
-  await prisma.voto.deleteMany({ where: { idReporte, idVecino } });
+  const votos = await prisma.$transaction(async (tx) => {
+    await tx.voto.deleteMany({ where: { idReporte, idVecino } });
+    return recalcularRiesgoDeReporte(idReporte, { prismaClient: tx });
+  });
 
-  return { votos: await contar(idReporte) };
+  return { votos };
 };
 
 // Total de apoyos de un reporte.

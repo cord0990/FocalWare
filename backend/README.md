@@ -72,6 +72,24 @@ El tipo se detecta por el contenido real con `file-type`, no por el nombre ni po
 
 Las imágenes se sirven en `/uploads` solo si tienen extensión `.jpg`, `.jpeg`, `.png` o `.webp`, con las cabeceras `X-Content-Type-Options: nosniff`, `Content-Security-Policy: default-src 'none'; sandbox` y `Cross-Origin-Resource-Policy: same-origin`.
 
+## Cálculo del riesgo
+
+El backend calcula el índice de riesgo al crear un reporte, al editarlo, al corregir el desglose y al registrar o quitar apoyos. La fórmula está en `src/dominio/riesgo.js`; el frontend solo la usa para previsualizar mientras se completa el formulario. El cliente no puede imponer el riesgo: si manda un valor, se ignora.
+
+## Límite de intentos
+
+Login y recuperación de contraseña limitan los intentos por correo y por IP. Al superar el tope responden `429` con la cabecera `Retry-After`. Los valores están en `src/routes/authRoutes.js` y el detalle en `docs/EP2.7-endpoints-y-pruebas.md`.
+
+## Pruebas
+
+Las pruebas unitarias usan el runner nativo de Node:
+
+```bash
+npm run test:backend
+```
+
+Cubren la fórmula del riesgo, la detección de imágenes por magic bytes, el límite de intentos y las guardas de seguridad: `.env` trackeados, clave por defecto vieja y consultas raw sin parámetros.
+
 ## Formato de respuestas
 
 Todas las respuestas son JSON:

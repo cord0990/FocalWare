@@ -3,14 +3,15 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { prisma } = require('../../dist/db/index.js');
 const climaService = require('./climaService');
+const { calcularRiesgo } = require('../dominio/riesgo');
+const { calcularRiesgoDeReporte } = require('./riesgoService');
+const { metrosDeDistancia, categoriaDeDistancia } = require('../dominio/distancias');
 const {
   ESTADOS,
   ESTADOS_APROBADOS,
-  DISTANCIAS,
   esEstadoRevision,
   esCategoriaReporte,
   esVolumenReporte,
-  esDistanciaReporte,
 } = require('../dominio/opcionesReporte');
 
 // Carpeta donde multer deja las fotos.
@@ -42,30 +43,6 @@ const quitarDatosDelVecino = (reporte) => {
 const aReporteVisible = (reporte, { conVecino = false, idUsuario = null, esVecino = false } = {}) => {
   const completo = aReporte(reporte, { conVecino, idUsuario, esVecino });
   return conVecino ? completo : quitarDatosDelVecino(completo);
-};
-
-// El frontend manda la cercanía como una de estas cuatro categorías,
-// pero la base guarda los metros. Se traduce al punto medio de cada rango.
-const DISTANCIAS_A_METROS = {
-  [DISTANCIAS.MENOS_10]: 5,
-  [DISTANCIAS.ENTRE_10_50]: 30,
-  [DISTANCIAS.ENTRE_50_100]: 75,
-  [DISTANCIAS.MAS_100]: 150,
-};
-
-const metrosDeDistancia = (valor) => {
-  if (valor === undefined || valor === null || valor === '') return null;
-  if (typeof valor === 'number') return valor;
-  return esDistanciaReporte(valor) ? DISTANCIAS_A_METROS[valor] : null;
-};
-
-const categoriaDeDistancia = (metros) => {
-  if (metros === null || metros === undefined) return '';
-  const numero = Number(metros);
-  if (numero < 10) return DISTANCIAS.MENOS_10;
-  if (numero <= 50) return DISTANCIAS.ENTRE_10_50;
-  if (numero <= 100) return DISTANCIAS.ENTRE_50_100;
-  return DISTANCIAS.MAS_100;
 };
 
 // El estado no está en el reporte:
@@ -342,6 +319,17 @@ const crear = async ({ idVecino, datos, fotos }) => {
     // Si Open-Meteo falla, el reporte se guarda igual, sin clima.
     const clima = await climaService.obtenerClima(datos.latitud, datos.longitud);
 
+    // El índice de riesgo se calcula acá. El cliente no puede imponerlo.
+    const ahora = new Date();
+    const riesgo = calcularRiesgo({
+      categoria: datos.categoria,
+      volumen: datos.volumen,
+      distancia: datos.distanciaViviendas,
+      votos: 0,
+      fechaCreacion: ahora,
+      clima,
+    });
+
     const reporte = await prisma.$transaction(
       async (tx) => {
         await tx.$executeRaw`SELECT pg_advisory_xact_lock(${CLAVE_BLOQUEO_CREAR})`;
@@ -361,7 +349,8 @@ const crear = async ({ idVecino, datos, fotos }) => {
             latitud: datos.latitud,
             longitud: datos.longitud,
             distanciaACasas: metrosDeDistancia(datos.distanciaViviendas),
-            indiceRiesgo: datos.riesgo,
+            indiceRiesgo: riesgo.indice,
+            fechaCalculoRiesgo: ahora,
             climaTemperatura: clima?.temperatura ?? null,
             climaHumedad: clima?.humedad ?? null,
             climaViento: clima?.viento ?? null,
@@ -437,6 +426,16 @@ const modificar = async ({ idReporte, idVecino, cambios, fotosNuevas = [], rutas
     }
   }
 
+  // Se recalcula con los valores nuevos o los actuales. La antigüedad y los
+  // votos salen del reporte guardado.
+  const votos = await prisma.voto.count({ where: { idReporte } });
+  const riesgo = calcularRiesgoDeReporte(reporte, {
+    categoria: cambios.categoria,
+    volumen: cambios.volumen,
+    distancia: cambios.distanciaViviendas,
+    votos,
+  });
+
   try {
     const _actualizado = await prisma.reporte.update({
       where: { idReporte },
@@ -451,6 +450,8 @@ const modificar = async ({ idReporte, idVecino, cambios, fotosNuevas = [], rutas
         ...(cambios.distanciaViviendas !== undefined && {
           distanciaACasas: metrosDeDistancia(cambios.distanciaViviendas),
         }),
+        indiceRiesgo: riesgo.indice,
+        fechaCalculoRiesgo: new Date(),
       },
       include: INCLUIR_DETALLE,
     });
@@ -473,8 +474,8 @@ const modificar = async ({ idReporte, idVecino, cambios, fotosNuevas = [], rutas
 
 // Un funcionario corrige la categoría, el volumen y la distancia a las viviendas
 // de un reporte. A diferencia de modificar, no hace falta ser el dueño ni que el
-// reporte esté sin revisar. El índice de riesgo no se recalcula acá (la fórmula
-// vive en el frontend): si viene un riesgo nuevo, se guarda junto con su fecha.
+// reporte esté sin revisar. El índice de riesgo se recalcula con los valores
+// nuevos, los votos y la antigüedad del reporte.
 // Un funcionario corrige el desglose solo si el reporte ya fue aceptado
 // (Aprobado o En atención): así la notificación al vecino siempre queda ligada
 // a una revisión válida, sin tocar el schema de Notificacion.
@@ -499,6 +500,14 @@ const corregirDesglose = async ({ idReporte, cambios, idFuncionario }) => {
   }
 
   const actualizado = await prisma.$transaction(async (tx) => {
+    const votos = await tx.voto.count({ where: { idReporte } });
+    const riesgo = calcularRiesgoDeReporte(reporte, {
+      categoria: cambios.categoria,
+      volumen: cambios.volumen,
+      distancia: cambios.distanciaViviendas,
+      votos,
+    });
+
     const r = await tx.reporte.update({
       where: { idReporte },
       data: {
@@ -507,10 +516,8 @@ const corregirDesglose = async ({ idReporte, cambios, idFuncionario }) => {
         ...(cambios.distanciaViviendas !== undefined && {
           distanciaACasas: metrosDeDistancia(cambios.distanciaViviendas),
         }),
-        ...(cambios.riesgo !== undefined && {
-          indiceRiesgo: cambios.riesgo,
-          fechaCalculoRiesgo: new Date(),
-        }),
+        indiceRiesgo: riesgo.indice,
+        fechaCalculoRiesgo: new Date(),
       },
       include: { ...INCLUIR_DETALLE, vecino: true },
     });
