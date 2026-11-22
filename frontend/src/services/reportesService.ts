@@ -45,7 +45,10 @@ export interface GestionReporte {
 export interface Reporte {
   id: string;
   nombre: string;
+  // Sector canónico calculado por el backend.
   sector: string;
+  // Dirección o referencia escrita por el vecino.
+  direccion: string;
   categoria: CategoriaReporte | '';
   estado: EstadoReporte;
   // Id de la revisión que lleva este reporte. Solo llega si el reporte es del
@@ -86,7 +89,7 @@ export interface Reporte {
 export type CambiosReporte = Pick<
   Reporte,
   | 'nombre'
-  | 'sector'
+  | 'direccion'
   | 'categoria'
   | 'volumen'
   | 'distanciaViviendas'
@@ -98,7 +101,7 @@ export type CambiosReporte = Pick<
 
 export interface DatosNuevoReporte {
   nombre: string;
-  sector: string;
+  direccion: string;
   categoria: CategoriaReporte | '';
   volumen: VolumenReporte | '';
   distanciaViviendas: DistanciaReporte | '';
@@ -127,7 +130,7 @@ const aFormulario = async (datos: DatosNuevoReporte): Promise<FormData> => {
   const formulario = new FormData();
 
   formulario.append('nombre', datos.nombre);
-  formulario.append('sector', datos.sector);
+  formulario.append('direccion', datos.direccion);
   formulario.append('categoria', datos.categoria);
   formulario.append('volumen', datos.volumen);
   formulario.append('descripcion', datos.descripcion);
@@ -162,7 +165,8 @@ const aFormularioDeEdicion = async (
   if (soloTexto(cambios.descripcion)) formulario.append('descripcion', cambios.descripcion);
   if (soloTexto(cambios.categoria)) formulario.append('categoria', cambios.categoria);
   if (soloTexto(cambios.volumen)) formulario.append('volumen', cambios.volumen);
-  if (soloTexto(cambios.sector)) formulario.append('sector', cambios.sector);
+  // La dirección se manda aunque quede vacía: así el vecino puede borrarla.
+  if (cambios.direccion !== undefined) formulario.append('direccion', cambios.direccion);
   if (soloTexto(cambios.distanciaViviendas)) {
     formulario.append('distanciaViviendas', cambios.distanciaViviendas);
   }
@@ -241,6 +245,7 @@ const aReporte = (dato: ReporteApi): Reporte => {
 
   return {
     ...resto,
+    direccion: dato.direccion ?? '',
     estado: esEstadoReporte(resto.estado) ? resto.estado : 'Pendiente',
     categoria,
     volumen,

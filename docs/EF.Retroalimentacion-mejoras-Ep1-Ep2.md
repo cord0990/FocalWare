@@ -43,7 +43,7 @@ La subida valida el contenido real mediante `file-type`, aceptando solo JPG, PNG
 ### 11. Cálculo del riesgo movido del frontend al backend
 Se movió el cálculo del índice de riesgo desde el frontend al backend, cumpliendo la nota de la Entrega 1.
 
-### 12. Retiro del valor por defecto `cambia_esta_clave` en Docker Compose
+### 12. Retiro del valor por defecto inseguro en Docker Compose
 Se eliminó el valor por defecto inseguro, obligando a definir un `JWT_SECRETO` válido o a que la API lo autogenere.
 
 ### 13. Limitación de intentos de login
@@ -72,7 +72,7 @@ Se actualizó la rama `frontend` desde `main` y se corrigieron los textos que a�
 | EP2 | Confirmación de cuenta y alineación README | Aplicado |
 | EP2 | Validación magic bytes de fotos | Aplicado |
 | EP2 | Riesgo movido de frontend a backend | Aplicado |
-| EP2 | Retiro de `cambia_esta_clave` | Aplicado |
+| EP2 | Retiro del valor por defecto inseguro | Aplicado |
 | EP2 | Limitación de intentos de login | Aplicado |
 | EP2 | Reemplazo de Cypress y tests cliente | Aplicado |
 | EP2 | Actualización rama `frontend` y textos | Aplicado |

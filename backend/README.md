@@ -81,15 +81,28 @@ El backend calcula el índice de riesgo al crear un reporte, al editarlo, al cor
 
 Login y recuperación de contraseña limitan los intentos por correo y por IP. Al superar el tope responden `429` con la cabecera `Retry-After`. Los valores están en `src/routes/authRoutes.js` y el detalle en `docs/EP2.7-endpoints-y-pruebas.md`.
 
+## Sectores geográficos
+
+El catálogo de sectores vive en `src/dominio/sectores.json` y se expone en `GET /api/sectores`. El backend calcula el sector de cada reporte desde sus coordenadas y guarda la dirección escrita por el vecino en `direccion`. Si la ubicación está fuera del área o a más de `distanciaMaximaKm` del sector más cercano, el reporte nuevo se rechaza.
+
+Para recalcular el sector de reportes existentes:
+
+```bash
+npm run db:sectores:check   # solo muestra los cambios
+npm run db:sectores         # los aplica
+```
+
+El script informa los reportes con coordenadas inválidas y los que quedan lejos del sector más cercano.
+
 ## Pruebas
 
 Las pruebas unitarias usan el runner nativo de Node:
 
 ```bash
-npm run test:backend
+npm test
 ```
 
-Cubren la fórmula del riesgo, la detección de imágenes por magic bytes, el límite de intentos y las guardas de seguridad: `.env` trackeados, clave por defecto vieja y consultas raw sin parámetros.
+Cubren la fórmula del riesgo, la detección de imágenes por magic bytes, el límite de intentos, las guardas de seguridad (`.env` trackeados, clave por defecto vieja y consultas raw sin parámetros) y el catálogo geográfico de sectores.
 
 ## Formato de respuestas
 

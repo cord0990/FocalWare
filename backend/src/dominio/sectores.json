@@ -1,0 +1,68 @@
+{
+  "version": "2026-11-22",
+  "actualizadoEn": "2026-11-22",
+  "distanciaMaximaKm": 8,
+  "caja": {
+    "minLat": -33.25,
+    "maxLat": -32.85,
+    "minLng": -71.95,
+    "maxLng": -71.4
+  },
+  "sectores": [
+    {
+      "id": "playa-ancha",
+      "nombre": "Playa Ancha",
+      "centro": { "latitud": -33.0433, "longitud": -71.6427 },
+      "poligono": [
+        [-33.065, -71.665],
+        [-33.065, -71.638],
+        [-33.02, -71.638],
+        [-33.02, -71.665]
+      ]
+    },
+    {
+      "id": "cerro-cordillera",
+      "nombre": "Cerro Cordillera",
+      "centro": { "latitud": -33.0418, "longitud": -71.6335 },
+      "poligono": [
+        [-33.05, -71.638],
+        [-33.05, -71.63],
+        [-33.03, -71.63],
+        [-33.03, -71.638]
+      ]
+    },
+    {
+      "id": "cerro-alegre",
+      "nombre": "Cerro Alegre",
+      "centro": { "latitud": -33.0433, "longitud": -71.6268 },
+      "poligono": [
+        [-33.05, -71.63],
+        [-33.05, -71.615],
+        [-33.03, -71.615],
+        [-33.03, -71.63]
+      ]
+    },
+    {
+      "id": "las-canas",
+      "nombre": "Las Cañas",
+      "centro": { "latitud": -33.0562, "longitud": -71.6118 },
+      "poligono": [
+        [-33.065, -71.615],
+        [-33.065, -71.6],
+        [-33.045, -71.6],
+        [-33.045, -71.615]
+      ]
+    },
+    {
+      "id": "rodelillo",
+      "nombre": "Rodelillo",
+      "centro": { "latitud": -33.0518, "longitud": -71.5795 },
+      "poligono": [
+        [-33.065, -71.6],
+        [-33.065, -71.555],
+        [-33.04, -71.555],
+        [-33.04, -71.6]
+      ]
+    }
+  ]
+}

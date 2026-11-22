@@ -526,6 +526,9 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
               <h2>Descripción</h2>
               <p>{reporte.descripcion || 'El vecino no agregó una descripción.'}</p>
               <p className="detalle-sector">Sector: {reporte.sector}</p>
+              {reporte.direccion && (
+                <p className="detalle-sector">Dirección: {reporte.direccion}</p>
+              )}
             </section>
             <MiniMapa
               latitud={reporte.latitud}

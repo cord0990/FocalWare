@@ -112,8 +112,9 @@ Todas las rutas empiezan con `http://localhost:3000/api`.
 | F21 | Estadísticas | Reportes del año para el panel del funcionario y el aporte del vecino | `GET /estadisticas` | [estadisticasService.js](../backend/src/services/estadisticasService.js) | Probada · Postman carpeta 8 |
 | F22 | Clima real | Clima de Open-Meteo por zona de Valparaíso, guardado hasta que sale el siguiente dato | `GET /clima` | [climaService.js](../backend/src/services/climaService.js) | Probada · Postman carpeta 1 |
 | F23 | Límite de intentos de autenticación | Corta con 429 la fuerza bruta: 10 fallos por correo y 30 por IP cada 15 minutos en el login; 3 solicitudes de código por correo y 10 por IP; 10 fallos de código por correo | `/auth/login` y `/auth/recuperacion/...` | [limiteIntentos.js](../backend/src/middlewares/limiteIntentos.js) | Probada · fuerza bruta por correo y por IP, y reinicio al iniciar sesión bien |
+| F24 | Sectores geográficos | Catálogo de sectores para el filtro y el mapa. El backend calcula el sector de cada reporte desde sus coordenadas y rechaza ubicaciones fuera de Valparaíso o demasiado lejos de los sectores | `GET /sectores` | [sectores.js](../backend/src/dominio/sectores.js) | Probada · Postman carpeta 3 ("Sectores disponibles", "Listar reportes por sector" y "Crear reporte fuera de Valparaíso") |
 
-La lista completa de endpoints (27), con sus datos y errores, está en [EP2.7](EP2.7-endpoints-y-pruebas.md#4-lista-de-endpoints).
+La lista completa de endpoints (28), con sus datos y errores, está en [EP2.7](EP2.7-endpoints-y-pruebas.md#4-lista-de-endpoints).
 
 ## 5. Relación con la Entrega 1
 
@@ -124,7 +125,7 @@ Estos son los requerimientos funcionales de [EP1.1](EP1.1.%20Requerimientos%20de
 | RF-01 | Registro de reporte georreferenciado | Implementado | `POST /reportes` con ubicación, fotos, categoría, volumen y descripción. Solo lo crean vecinos (acuerdo 8.2) |
 | RF-02 | Almacenamiento local offline | Implementado | La app guarda el reporte en el teléfono si no hay conexión y lo envía a la API cuando vuelve |
 | RF-03 | Mapa interactivo | Implementado | GET /reportes alimenta el mapa de la app, hecho con Leaflet y React Leaflet. Usa el mapa base de Esri World Street Map (vista simple) y OpenStreetMap (vista detallada), y leaflet.heat para el mapa de calor |
-| RF-04 | Filtrado del mapa | Implementado | La API filtra por estado, sector y categoría. La app agrega riesgo, fechas y orden |
+| RF-04 | Filtrado del mapa | Implementado | La API filtra por estado, sector canónico y categoría. El catálogo de sectores viene de `GET /sectores` y el backend asigna el sector desde las coordenadas. La app agrega riesgo, fechas y orden |
 | RF-05 | Índice ponderado | Implementado | El backend calcula el índice con categoría, volumen, distancia a viviendas, apoyos, antigüedad y el clima real de Open-Meteo. Se recalcula al crear, editar, corregir el desglose y registrar o quitar apoyos |
 | RF-06 | Uso del índice para priorizar | Implementado | `GET /revisiones/cola` ordena por índice de mayor a menor |
 | RF-07 | Gestión municipal | Implementado | Revisar, asignar cuadrilla y fecha, cambiar estado y registrar el control con fotos |

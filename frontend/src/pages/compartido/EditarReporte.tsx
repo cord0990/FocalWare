@@ -31,6 +31,7 @@ import SelectorUbicacion, { type Ubicacion } from '../../components/reportes/Sel
 import { useConexion } from '../../hooks/useConexion';
 import { useUbicacionActual } from '../../hooks/useUbicacionActual';
 import { useGeocodificacion } from '../../hooks/useGeocodificacion';
+import { useSectores } from '../../hooks/useSectores';
 import { RUTAS, rutaMiReporte } from '../../routes/rutas';
 import { esClimaDeRiesgo } from '../../services/climaService';
 import {
@@ -63,6 +64,7 @@ import {
   type VolumenReporte,
 } from '../../utils/opcionesReporte';
 import { obtenerNivelRiesgo } from '../../utils/riesgo';
+import { sectorDeCoordenadas } from '../../utils/sectores';
 import { MAXIMO_TITULO, validarReporte } from '../../utils/validacionReporte';
 import './FormularioReporte.css';
 
@@ -78,6 +80,8 @@ const sinSaltosDeLinea = (texto: string) => texto.replace(/\s*\n\s*/g, ' ');
 // Un borrador guardado sin conexión se muestra con la misma forma que un reporte enviado.
 const borradorComoReporte = (borrador: ReportePendiente): Reporte => ({
   ...borrador,
+  // El borrador todavía no tiene sector canónico; se calcula al enviarlo.
+  sector: '',
   estado: 'Pendiente',
   fecha: borrador.guardadoEn.slice(0, 10),
   riesgo: borrador.riesgo ?? 0,
@@ -109,6 +113,7 @@ const EditarReporte: React.FC<EditarReporteProps> = ({ origen }) => {
   const [mensaje, setMensaje] = useState('');
   const geo = useGeocodificacion('', null, setMensaje);
   const { sector, ubicacion, enfocar, sugerencias, buscandoSugerencias, cambiarUbicacion, onSectorChange, seleccionarSugerencia, setSector, setUbicacion, setEnfocar, limpiar: limpiarGeo } = geo;
+  const { catalogo, cargando: cargandoSectores } = useSectores();
   const [imagenes, setImagenes] = useState<string[]>([]);
   const [intentoGuardar, setIntentoGuardar] = useState(false);
   const [guardando, setGuardando] = useState(false);
@@ -122,7 +127,7 @@ const EditarReporte: React.FC<EditarReporteProps> = ({ origen }) => {
     setReporte(encontrado);
     if (!encontrado) return;
     setTitulo(encontrado.nombre);
-    setSector(encontrado.sector);
+    setSector(encontrado.direccion);
     setCategoria(encontrado.categoria);
     setVolumen(encontrado.volumen);
     setDistancia(encontrado.distanciaViviendas);
@@ -194,9 +199,39 @@ const EditarReporte: React.FC<EditarReporteProps> = ({ origen }) => {
   const nivel = desglose.indice === null ? null : obtenerNivelRiesgo(desglose.indice);
   const estado = estiloDeEstado(reporte.estado);
 
+  const zona = ubicacion && catalogo
+    ? sectorDeCoordenadas(catalogo, ubicacion.latitud, ubicacion.longitud)
+    : null;
+  const sectorCalculado = zona?.sector.nombre ?? '';
+  const cambioUbicacion =
+    !!ubicacion &&
+    (Math.abs(ubicacion.latitud - reporte.latitud) > 0.000001 ||
+      Math.abs(ubicacion.longitud - reporte.longitud) > 0.000001);
+  const sectorGuardadoValido =
+    !!reporte.sector &&
+    (!catalogo || catalogo.sectores.some((sector) => sector.nombre === reporte.sector));
+
+  // Si el reporte ya tiene un sector del catálogo y el pin no se movió, se
+  // respeta el guardado. Si el sector es viejo o no canónico, se recalcula.
+  const validarSector = esBorrador || cambioUbicacion || !sectorGuardadoValido;
+  const errorSector =
+    validarSector && ubicacion && catalogo && !zona
+      ? 'La ubicación debe estar dentro de Valparaíso.'
+      : '';
+  const textoSector =
+    !esBorrador && !cambioUbicacion && sectorGuardadoValido
+      ? `Sector actual: ${reporte.sector}`
+      : cargandoSectores
+        ? 'Calculando sector…'
+        : sectorCalculado
+          ? `${cambioUbicacion ? 'Nuevo sector' : 'Sector'}: ${sectorCalculado}`
+          : errorSector
+            ? ''
+            : 'El sector se calculará al enviar.';
+
   const errores = validarReporte({
     titulo,
-    sector,
+    direccion: sector,
     ubicacion,
     categoria,
     volumen,
@@ -208,7 +243,7 @@ const EditarReporte: React.FC<EditarReporteProps> = ({ origen }) => {
 
   const cambios: CambiosReporte = {
     nombre: titulo.trim(),
-    sector: sector.trim(),
+    direccion: sector.trim(),
     categoria,
     volumen,
     distanciaViviendas: distancia,
@@ -228,7 +263,7 @@ const EditarReporte: React.FC<EditarReporteProps> = ({ origen }) => {
     }
 
     setIntentoGuardar(true);
-    if (Object.values(errores).some(Boolean)) {
+    if (Object.values(errores).some(Boolean) || errorSector) {
       setMensaje('Revisa los campos marcados en rojo.');
       return;
     }
@@ -519,12 +554,12 @@ const EditarReporte: React.FC<EditarReporteProps> = ({ origen }) => {
               <div className="formulario-fila-sector">
                 <div className="formulario-sugerencias-contenedor">
                   <IonInput
-                    label="Sector o dirección"
+                    label="Dirección o referencia (opcional)"
                     labelPlacement="stacked"
                     fill="outline"
                     value={sector}
-                    className={error('sector') ? 'campo-invalido ion-invalid ion-touched' : ''}
-                    errorText={error('sector')}
+                    className={error('direccion') ? 'campo-invalido ion-invalid ion-touched' : ''}
+                    errorText={error('direccion')}
                     onIonInput={(e) => {
                       onSectorChange(e.detail.value ?? '');
                     }}
@@ -542,6 +577,10 @@ const EditarReporte: React.FC<EditarReporteProps> = ({ origen }) => {
                     </ul>
                   )}
                   {buscandoSugerencias && <p className="formulario-sugerencias-cargando">Buscando direcciones…</p>}
+                  {ubicacion && (
+                    <p className="formulario-sector-calculado">{textoSector}</p>
+                  )}
+                  {errorSector && <p className="formulario-error">{errorSector}</p>}
                 </div>
                 <IonButton className="formulario-gps" onClick={usarMiUbicacion} disabled={gps.buscando}>
                   {gps.buscando ? (

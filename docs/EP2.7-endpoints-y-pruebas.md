@@ -127,6 +127,7 @@ Todas las rutas empiezan con `http://localhost:3000/api`.
 | 25 | `GET` | `/estadisticas/mi-actividad` | Vecino | Reportes creados, votos dados y apoyos recibidos del vecino |
 | 26 | `GET` | `/clima` | Público | Clima actual de Valparaíso, consultado en Open-Meteo |
 | 27 | `PATCH` | `/reportes/:id/desglose` | Funcionario | Corrige categoría, volumen y distancia a viviendas; el backend recalcula el riesgo |
+| 28 | `GET` | `/sectores` | Público | Catálogo geográfico de sectores para el filtro y el mapa |
 En las rutas, `:id` es el número del reporte, de la revisión o de la notificación. Si no es un número entero, la API responde `400`.
 
 ## 5. Detalle de cada endpoint
@@ -337,9 +338,11 @@ El código dura 10 minutos, permite 5 intentos y se guarda en memoria. Si la API
 
 Lista los reportes para el mapa. No muestra los rechazados ni los controlados que se crearon hace más de un mes. Si viene token de vecino, cada reporte dice si ese vecino ya lo apoyó (`miVoto`). **Nunca muestra quién creó el reporte.**
 
-**Filtros opcionales (query):** `sector`, `categoria` y `estado`. Ejemplo: `/reportes?estado=Aprobado`.
+**Filtros opcionales (query):** `sector`, `categoria` y `estado`. El `sector` usa el nombre canónico que entrega `/sectores`. Ejemplo: `/reportes?estado=Aprobado`.
 
 **Respuesta `200`:** `{ "ok": true, "data": { "reportes": [ ... ] } }`, con cada reporte en el mismo formato del detalle.
+
+**Errores:** `400` si el `sector` no pertenece al catálogo de `/sectores`.
 
 #### 6. `GET /reportes/:id`
 
@@ -355,6 +358,7 @@ Detalle de un reporte, con fotos, clima y el avance de su gestión. El correo y 
       "id": "1",
       "nombre": "Acumulación de basura en quebrada",
       "sector": "Cerro Cordillera",
+      "direccion": "",
       "categoria": "Microbasural",
       "estado": "En atención",
       "fecha": "2026-09-02",
@@ -398,7 +402,7 @@ Detalle de un reporte, con fotos, clima y el avance de su gestión. El correo y 
 | `descripcion` | texto | No | |
 | `categoria` | texto | Sí | Por ejemplo `Microbasural` |
 | `volumen` | texto | Sí | Por ejemplo `Mediano (un auto)` |
-| `sector` | texto | Sí | Máximo 100 caracteres |
+| `direccion` | texto | No | Dirección o referencia, máximo 200 caracteres |
 | `latitud` | número | Sí | Entre -90 y 90 |
 | `longitud` | número | Sí | Entre -180 y 180 |
 | `distanciaViviendas` | texto | No | `Menos de 10 m`, `Entre 10 y 50 m`, `Entre 50 y 100 m` o `Más de 100 m` |
@@ -406,13 +410,15 @@ Detalle de un reporte, con fotos, clima y el avance de su gestión. El correo y 
 
 El clima **no** se manda en el formulario: el backend lo consulta en Open-Meteo para la ubicación del reporte y lo guarda junto a él. Si Open-Meteo no responde, el reporte se guarda igual, sin clima. El índice de riesgo tampoco se manda: el backend lo calcula con el desglose, los apoyos, la antigüedad y el clima.
 
-**Respuesta `201`:** `{ "ok": true, "data": { "reporte": { ... } } }`, con el reporte en estado `Pendiente`.
+El **sector tampoco se manda**: el backend lo calcula desde las coordenadas usando el catálogo de `/sectores`. Si la ubicación está fuera de Valparaíso o demasiado lejos de los sectores, responde `400`.
+
+**Respuesta `201`:** `{ "ok": true, "data": { "reporte": { ... } } }`, con el reporte en estado `Pendiente` y su `sector` canónico.
 
 **Errores:**
 
 | Código | Cuándo |
 |---|---|
-| `400` | Falta un dato obligatorio, un dato no es válido o las fotos no cumplen las reglas |
+| `400` | Falta un dato obligatorio, un dato no es válido, la ubicación está fuera de los sectores o las fotos no cumplen las reglas |
 | `401` | No hay sesión |
 | `403` | Es un funcionario |
 | `409` | `"Ya existe un antecedente previo de este reporte"`: hay otro reporte de la misma categoría a menos de 50 m |
@@ -707,32 +713,76 @@ En total son como máximo 12 consultas por hora (3 zonas × 4), sin importar cu�
 | `400` | La latitud o la longitud no son válidas |
 | `503` | Open-Meteo no respondió |
 
+### 5.9 Sectores
+
+#### 22. `GET /sectores`
+
+**Acceso:** público. Entrega el catálogo geográfico que usa el filtro del mapa y el formulario de reportes.
+
+**Respuesta `200`:**
+
+```json
+{
+  "ok": true,
+  "data": {
+    "version": "2026-11-22",
+    "actualizadoEn": "2026-11-22",
+    "distanciaMaximaKm": 8,
+    "caja": { "minLat": -33.25, "maxLat": -32.85, "minLng": -71.95, "maxLng": -71.4 },
+    "sectores": [
+      {
+        "id": "cerro-cordillera",
+        "nombre": "Cerro Cordillera",
+        "centro": { "latitud": -33.0418, "longitud": -71.6335 },
+        "poligono": [[-33.05, -71.638], [-33.05, -71.63], [-33.03, -71.63], [-33.03, -71.638]]
+      }
+    ]
+  }
+}
+```
+
+- La geometría inicial es aproximada y se puede reemplazar sin cambiar el contrato.
+- El backend usa este mismo catálogo para calcular el `sector` de un reporte desde sus coordenadas.
+- Si el punto está dentro del área pero fuera de todos los polígonos, se asigna el sector más cercano siempre que no supere `distanciaMaximaKm`.
+- Si el punto está fuera del área o demasiado lejos, el reporte nuevo se rechaza con `400`.
+- `version` y `actualizadoEn` permiten invalidar la caché del frontend cuando cambia el catálogo.
+
+Para los reportes que ya existían antes de este cambio, el sector se recalcula desde sus coordenadas con:
+
+```bash
+cd backend
+npm run db:sectores:check   # muestra los cambios
+npm run db:sectores         # los aplica
+```
+
+El script informa los reportes con coordenadas inválidas y los que quedan lejos del sector más cercano.
+
 ## 6. Evidencia de las pruebas
 
-La colección tiene **87 peticiones en 9 carpetas**. Cada petición revisa el código HTTP y que la respuesta tenga el formato `{ ok, data }` o `{ ok, error }`. Muchas revisan además el contenido, por ejemplo que el login no devuelva la contraseña o que un visitante no vea el correo del vecino. La carpeta **9. Cuentas y contraseña** registra una cuenta propia para probar el perfil, el cambio de contraseña y los errores de recuperación sin modificar a los usuarios de prueba.
+La colección tiene **90 peticiones en 9 carpetas**. Cada petición revisa el código HTTP y que la respuesta tenga el formato `{ ok, data }` o `{ ok, error }`. Muchas revisan además el contenido, por ejemplo que el login no devuelva la contraseña o que un visitante no vea el correo del vecino. La carpeta **9. Cuentas y contraseña** registra una cuenta propia para probar el perfil, el cambio de contraseña y los errores de recuperación sin modificar a los usuarios de prueba.
 
 El camino exitoso de recuperación se prueba a mano: ejecutar “Solicitar código de recuperación”, copiar el código que aparece en la consola del backend y usarlo en “Verificar código” y “Restablecer contraseña”. El código no se devuelve en la respuesta HTTP.
 
 Se probaron los casos que funcionan y también los de error: sin sesión (`401`), rol equivocado (`403`), datos inválidos (`400`), recursos que no existen (`404`) y datos repetidos (`409`).
 
-**Resultado de la última corrida de la colección completa (25/10/2026):**
+**Resultado de la última corrida de la colección completa (22/11/2026):**
 
 | Carpeta | Peticiones | Comprobaciones | Fallas |
 |---|---|---|---|
 | 1. Salud | 4 | 11 | 0 |
 | 2. Autenticación | 14 | 37 | 0 |
-| 3. Reportes | 22 | 54 | 0 |
+| 3. Reportes | 24 | 61 | 0 |
 | 4. Votos | 5 | 12 | 0 |
 | 5. Eliminar reporte | 3 | 6 | 0 |
-| 6. Revisiones | 14 | 34 | 0 |
+| 6. Revisiones | 15 | 37 | 0 |
 | 7. Notificaciones | 6 | 16 | 0 |
 | 8. Estadísticas | 5 | 13 | 0 |
 | 9. Cuentas y contraseña | 14 | 34 | 0 |
-| **Total** | **87** | **217** | **0** |
+| **Total** | **90** | **227** | **0** |
 
 ### 6.1 Pruebas funcionales
 
-Estos son los escenarios principales, con casos exitosos y fallidos. Cada uno es una petición de la colección de Postman ([FocalWare.postman_collection.json](../backend/postman/FocalWare.postman_collection.json)), así que se puede repetir con el Runner. El resultado es de la corrida del 25/10/2026.
+Estos son los escenarios principales, con casos exitosos y fallidos. Cada uno es una petición de la colección de Postman ([FocalWare.postman_collection.json](../backend/postman/FocalWare.postman_collection.json)), así que se puede repetir con el Runner. El resultado es de la corrida del 22/11/2026.
 
 | # | Escenario | Petición | HTTP esperado | Resultado | Evidencia |
 |---|---|---|---|---|---|
@@ -759,14 +809,19 @@ Estos son los escenarios principales, con casos exitosos y fallidos. Cada uno es
 | P21 | Un vecino pide las estadísticas del funcionario | `GET /estadisticas` | `403` | Pasó | "Reportes del año como vecino" |
 | P22 | Cambiar la contraseña con la actual incorrecta | `PUT /auth/password` | `400` | Pasó | "Cambiar contraseña con actual incorrecta" |
 | P23 | Consultar el clima actual | `GET /clima` | `200` | Pasó | "Clima actual" |
+| P24 | Consultar los sectores geográficos | `GET /sectores` | `200` | Pasó | "Sectores disponibles" |
+| P25 | Filtrar los reportes por sector canónico | `GET /reportes?sector=...` | `200` | Pasó | "Listar reportes por sector" |
+| P26 | Crear un reporte fuera de Valparaíso | `POST /reportes` | `400` | Pasó | "Crear reporte fuera de Valparaíso" |
 
-Las 87 peticiones y sus 217 comprobaciones están en la tabla de arriba, por carpeta.
+Las 90 peticiones y sus 227 comprobaciones están en la tabla de arriba, por carpeta.
 
 ### 6.2 Capturas
 
-**Resumen del Runner:** 217 comprobaciones pasadas, 0 fallidas y 0 errores.
+**Resumen del Runner:** 227 comprobaciones pasadas, 0 fallidas y 0 errores.
 
-![Resultado del Collection Runner de Postman con 217 pruebas pasadas, 0 fallidas y 0 errores, y peticiones en verde](img/postman-runner.png)
+![Resultado del Collection Runner de Postman con 227 pruebas pasadas, 0 fallidas y 0 errores, y peticiones en verde](img/postman-runner.png)
+
+La captura corresponde a una corrida anterior; el conteo actual de la colección es 227 comprobaciones.
 
 **Respuesta completa de un login:** `POST /auth/login` responde `200 OK` con el token y los datos del usuario, y pasan sus 3 pruebas.
 

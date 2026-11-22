@@ -7,7 +7,7 @@
 | **RF-01** | Cumple | `CrearReporte.tsx` + backend `reportesController.crear`: guarda GPS, hasta 5 fotos, categoría, volumen, distancia, descripción. |
 | **RF-02** | Cumple | `pendientesService` guarda reportes sin conexión y se envían después. |
 | **RF-03** | Cumple | `Mapa.tsx` + `MapaReportes.tsx` muestran reportes en el mapa. |
-| **RF-04** | Cumple | `filtrosReportes.ts` filtra por estado, categoría, riesgo, sector y fecha. |
+| **RF-04** | Cumple | `filtrosReportes.ts` filtra por estado, categoría, riesgo, sector canónico y fecha. El catálogo de sectores viene de `GET /sectores` y el backend asigna el sector desde las coordenadas. |
 | **RF-05** | Cumple | `backend/src/dominio/riesgo.js` calcula el índice con categoría, volumen, distancia a viviendas, apoyos, antigüedad y clima. El frontend solo lo previsualiza. |
 | **RF-06** | Cumple | Backend ordena la cola por riesgo (listar/cola). |
 | **RF-07** | Cumple | `revisionesRoutes` + cola de atención para funcionarios. |

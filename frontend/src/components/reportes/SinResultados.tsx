@@ -14,7 +14,7 @@ const SinResultados: React.FC<SinResultadosProps> = ({ busqueda, hayFiltros, onR
   if (termino && hayFiltros) {
     detalle = `Ningún reporte coincide con “${termino}” y los filtros aplicados.`;
   } else if (termino) {
-    detalle = `Ningún reporte coincide con “${termino}”. Prueba con otro sector, nombre o categoría.`;
+    detalle = `Ningún reporte coincide con “${termino}”. Prueba con otro sector, dirección, nombre o categoría.`;
   } else if (hayFiltros) {
     detalle = 'Ningún reporte cumple con los filtros aplicados. Prueba quitando alguno.';
   }

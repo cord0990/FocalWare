@@ -3,9 +3,11 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { prisma } = require('../../dist/db/index.js');
 const climaService = require('./climaService');
+const { encriptar, desencriptar } = require('./cryptoService');
 const { calcularRiesgo } = require('../dominio/riesgo');
 const { calcularRiesgoDeReporte } = require('./riesgoService');
 const { metrosDeDistancia, categoriaDeDistancia } = require('../dominio/distancias');
+const { sectorDeCoordenadas, esSectorCanonico } = require('../dominio/sectores');
 const {
   ESTADOS,
   ESTADOS_APROBADOS,
@@ -113,6 +115,7 @@ const aReporte = (reporte, { conVecino = false, idUsuario = null, esVecino = fal
   id: String(reporte.idReporte),
   nombre: reporte.titulo,
   sector: reporte.sector,
+  direccion: desencriptar(reporte.direccion) ?? '',
   categoria: esCategoriaReporte(reporte.categoria) ? reporte.categoria : '',
   estado: estadoDe(reporte),
   // Id de la revisión que lleva este reporte. Solo lo reciben el dueño del
@@ -292,6 +295,12 @@ const errorDeDuplicado = (antecedente) => {
   return error;
 };
 
+const errorFueraDeSector = () => {
+  const error = new Error('La ubicación debe estar dentro de un sector de Valparaíso');
+  error.estado = 400;
+  return error;
+};
+
 // Número fijo que identifica el bloqueo de "crear un reporte". Cualquier número
 // sirve, mientras todas las creaciones usen el mismo.
 const CLAVE_BLOQUEO_CREAR = 7310424;
@@ -314,6 +323,10 @@ const crear = async ({ idVecino, datos, fotos }) => {
     // Revisión rápida: si ya hay uno parecido, se responde sin consultar el clima.
     const antecedenteRapido = await buscarParecido(datos);
     if (antecedenteRapido) throw errorDeDuplicado(antecedenteRapido);
+
+    // El sector canónico sale de las coordenadas, nunca del texto del cliente.
+    const zona = sectorDeCoordenadas(datos.latitud, datos.longitud);
+    if (!zona) throw errorFueraDeSector();
 
     // El clima lo consulta el backend en Open-Meteo, no se toma del formulario.
     // Si Open-Meteo falla, el reporte se guarda igual, sin clima.
@@ -345,7 +358,8 @@ const crear = async ({ idVecino, datos, fotos }) => {
             descripcion: datos.descripcion?.trim() || null,
             categoria: datos.categoria,
             tamano: datos.volumen,
-            sector: datos.sector,
+            sector: zona.nombre,
+            direccion: datos.direccion?.trim() ? encriptar(datos.direccion.trim()) : null,
             latitud: datos.latitud,
             longitud: datos.longitud,
             distanciaACasas: metrosDeDistancia(datos.distanciaViviendas),
@@ -437,6 +451,22 @@ const modificar = async ({ idReporte, idVecino, cambios, fotosNuevas = [], rutas
   });
 
   try {
+    // El sector se recalcula si el vecino mueve el pin o si el valor guardado
+    // no es un sector del catálogo (por ejemplo, un dato histórico).
+    const debeRecalcular =
+      cambios.latitud !== undefined ||
+      cambios.longitud !== undefined ||
+      !esSectorCanonico(reporte.sector);
+    let sector = reporte.sector;
+
+    if (debeRecalcular) {
+      const latitud = cambios.latitud ?? Number(reporte.latitud);
+      const longitud = cambios.longitud ?? Number(reporte.longitud);
+      const zona = sectorDeCoordenadas(latitud, longitud);
+      if (!zona) throw errorFueraDeSector();
+      sector = zona.nombre;
+    }
+
     const _actualizado = await prisma.reporte.update({
       where: { idReporte },
       data: {
@@ -444,7 +474,9 @@ const modificar = async ({ idReporte, idVecino, cambios, fotosNuevas = [], rutas
         ...(cambios.descripcion !== undefined && { descripcion: cambios.descripcion || null }),
         ...(cambios.categoria !== undefined && { categoria: cambios.categoria }),
         ...(cambios.volumen !== undefined && { tamano: cambios.volumen }),
-        ...(cambios.sector !== undefined && { sector: cambios.sector }),
+        ...(cambios.direccion !== undefined && {
+          direccion: cambios.direccion?.trim() ? encriptar(cambios.direccion.trim()) : null,
+        }),
         ...(cambios.latitud !== undefined && { latitud: cambios.latitud }),
         ...(cambios.longitud !== undefined && { longitud: cambios.longitud }),
         ...(cambios.distanciaViviendas !== undefined && {
@@ -452,6 +484,7 @@ const modificar = async ({ idReporte, idVecino, cambios, fotosNuevas = [], rutas
         }),
         indiceRiesgo: riesgo.indice,
         fechaCalculoRiesgo: new Date(),
+        sector,
       },
       include: INCLUIR_DETALLE,
     });

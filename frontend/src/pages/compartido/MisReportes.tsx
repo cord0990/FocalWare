@@ -25,6 +25,7 @@ import TarjetaPendiente from '../../components/reportes/TarjetaPendiente';
 import TarjetaReporte from '../../components/reportes/TarjetaReporte';
 import { useConexion } from '../../hooks/useConexion';
 import { usePendientes } from '../../hooks/usePendientes';
+import { useSectores } from '../../hooks/useSectores';
 import { RUTAS, rutaEditarEnLocal, rutaMiReporte } from '../../routes/rutas';
 import { eliminarPendiente, enviarPendientes, validarYEnviarPendiente } from '../../services/pendientesService';
 import {
@@ -55,6 +56,7 @@ const MisReportes: React.FC = () => {
   const [mostrarAlerta] = useIonAlert();
   const enLinea = useConexion();
   const pendientes = usePendientes();
+  const { sectores: sectoresCatalogo } = useSectores();
 
   const [reportes, setReportes] = useState<Reporte[]>([]);
   const [cargando, setCargando] = useState(true);
@@ -294,7 +296,7 @@ const MisReportes: React.FC = () => {
       <FiltrosReportesModal
         abierto={filtrosAbiertos}
         filtros={filtros}
-        sectores={valoresUnicos(reportes.map((reporte) => reporte.sector))}
+        sectores={sectoresCatalogo.map((sector) => sector.nombre)}
         categorias={valoresUnicos(
           reportes.map((reporte) => reporte.categoria).filter(esCategoriaReporte),
         )}
