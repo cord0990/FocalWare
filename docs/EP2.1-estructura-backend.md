@@ -201,7 +201,7 @@ Todo en español: `crearReporte`, `votosService.js`, `obtenerPerfil`.
 | Token JWT (RNF-05) | Parcial | Dura 15 minutos y guarda solo el id y el rol. Se firma con una clave secreta del `.env` (algoritmo simétrico HS256) y no tiene rotación |
 | Token vencido en la app | Cumple | Al abrir la app se revisa el token con la API. Si la API responde 401, la app cierra la sesión, avisa y lleva al login |
 | Rutas protegidas | Cumple | `verificarToken`, `permitirRoles` y `perteneceACuadrilla` en las rutas. La app también protege sus pantallas por rol |
-| CORS (RNF-06) | Cumple | Solo acepta pedidos de la URL del frontend (`FRONTEND_URL`) |
+| CORS (RNF-06) | Cumple | Lista explícita de orígenes en `FRONTEND_URL`, separados por coma, sin `*`. Responde preflight `204`, permite solo `Content-Type` y `Authorization`, expone `Retry-After` y no usa credenciales |
 | Cabeceras de seguridad | Cumple | nginx envía CSP, `nosniff`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy` y `Cross-Origin-Opener-Policy`; la API no envía `X-Powered-By`. HSTS queda para un despliegue con HTTPS |
 | Anonimato (RNF-07) | Cumple | El mapa y el detalle público no muestran el nombre ni el correo del vecino |
 | Inyección SQL | Cumple | Todas las consultas pasan por Prisma |

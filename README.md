@@ -373,7 +373,7 @@ Estas son las variables que lee `docker-compose.yml`. Se pueden dejar en los val
 |---|---|---|
 | `DB_PASSWORD` | `postgres` | Contraseña de PostgreSQL y de `DATABASE_URL` |
 | `DB_PORT` | `5434` | Puerto publicado en el equipo; dentro de Docker la API usa `db:5432` |
-| `FRONTEND_URL` | `http://localhost:5173` | Origen permitido por CORS |
+| `FRONTEND_URL` | `http://localhost:5173` | Orígenes permitidos por CORS, separados por coma. No se permite `*` |
 | `JWT_SECRETO` | vacío | Clave para firmar los tokens, mínimo 32 caracteres. Si queda vacía, la API genera una y la guarda en el volumen `focalware_appdata` |
 | `JWT_EXPIRACION` | `15m` | Duración del token |
 
@@ -392,7 +392,7 @@ Esta configuración es para ejecutar la API **sin Docker**.
 | `DB_USER` | Usuario de PostgreSQL | `postgres` |
 | `DB_PASSWORD` | Contraseña de PostgreSQL | `postgres` |
 | `DATABASE_URL` | URL que usa Prisma | `postgresql://postgres:postgres@localhost:5434/focalware` |
-| `FRONTEND_URL` | Origen permitido por CORS | `http://localhost:5173` |
+| `FRONTEND_URL` | Orígenes permitidos por CORS, separados por coma. No se permite `*` | `http://localhost:5173` |
 | `JWT_SECRETO` | Clave para firmar los tokens (mínimo 32 caracteres). En Docker se autogenera si está vacía; fuera de Docker es obligatoria | `openssl rand -hex 32` |
 | `JWT_EXPIRACION` | Duración de la sesión | `15m` |
 | `TRUST_PROXY` | `1` si la API está detrás de un proxy inverso, para limitar por la IP real de `X-Forwarded-For` (Docker Compose lo deja en `1` porque nginx está delante) | `0` |
@@ -404,6 +404,14 @@ Esta configuración es para ejecutar la API **sin Docker**.
 | `VITE_API_URL` | URL base de la API | `http://localhost:3000/api` |
 
 Si no se define `VITE_API_URL`, el frontend usa por defecto `http://localhost:3000/api`. En Docker no se usa este archivo: el build recibe `VITE_API_URL=/api` y nginx hace de proxy hacia la API.
+
+`FRONTEND_URL` es una lista explícita de orígenes permitidos, separados por coma. No se permite `*`. Para probar desde otro equipo con el frontend en modo desarrollo:
+
+```env
+FRONTEND_URL=http://localhost:5173,http://192.168.1.122:5173
+```
+
+En Docker no hace falta agregar la IP del celular: el navegador entra por nginx y `/api` es del mismo origen.
 
 ## Base de datos
 
