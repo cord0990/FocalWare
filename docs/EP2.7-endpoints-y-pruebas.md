@@ -28,7 +28,7 @@ Se usa `npm start` y no `npm run dev`, porque el modo de desarrollo reinicia la 
 2. Para la prueba que sube una foto, ir al engranaje > **App settings > General > Working directory** y elegir la carpeta `backend/postman`. Ahí está `foto-prueba.png`.
 3. Abrir la colección **FocalWare API**, apretar **Run** y después **Start run**.
 
-Las pruebas **se corren en orden**: los logins guardan los tokens y los reportes que se crean se usan en las carpetas siguientes. Se pueden correr las veces que se quiera, porque cada corrida usa un correo y una ubicación nuevos. Las pruebas del clima necesitan internet, porque la API lo consulta en Open-Meteo.
+Las pruebas **se corren en orden**: los logins guardan los tokens y cada POST que crea un recurso guarda su id en una variable de colección (`idVecinoNuevo`, `idCuenta`, `idReporte`, `idReporteRevision`, `idRevision`). Las peticiones siguientes usan esas variables, así que la colección no depende de los ids fijos de los datos de prueba. El login de Javiera también guarda el nombre de su primera cuadrilla en `cuadrilla`. Se pueden correr las veces que se quiera, porque cada corrida usa un correo y una ubicación nuevos. Las pruebas del clima necesitan internet, porque la API lo consulta en Open-Meteo.
 
 ### 1.2 Por consola (opcional)
 
@@ -437,16 +437,16 @@ Para cambiar las fotos se manda `imagenesActuales` (la lista en JSON de las foto
 
 #### 9b. `PATCH /reportes/:id/desglose`
 
-**Acceso:** solo funcionarios. Corrige el desglose del reporte (categoría, volumen y distancia a viviendas,el índice de riesgo se ajusta automaticamente). A diferencia de `PUT /reportes/:id`, no exige ser el dueño ni que el reporte esté sin revisar, y no toca las fotos.
+**Acceso:** solo funcionarios. Corrige el desglose del reporte (categoría, volumen y distancia a viviendas). Si se envía `riesgo`, se guarda ese valor y se actualiza la fecha de cálculo. A diferencia de `PUT /reportes/:id`, no exige ser el dueño ni que el reporte esté sin revisar, y no toca las fotos. En la colección de Postman, el caso válido se prueba después de aprobar el reporte de la carpeta 6, porque la API solo permite corregir reportes aprobados o en atención.
 
-*Detalle tecnico*: En el frontend, `categoria` y `volumen` no se escriben libres: vienen normalizados desde las listas `CATEGORIAS` y `VOLUMENES` de `frontend/src/utils/opcionesReporte.ts` (por ejemplo `Microbasural`, `Mediano (un auto)`). La API, en cambio, solo valida su largo máximo (50 y 30 caracteres respectivamente); la normalización efectiva la aporta el formulario. `distanciaViviendas` sí está normalizada en ambos lados con la misma lista cerrada.
+*Detalle tecnico*: En el frontend, `categoria` y `volumen` no se escriben libres: vienen normalizados desde las listas `CATEGORIAS` y `VOLUMENES` de `frontend/src/utils/opcionesReporte.ts` (por ejemplo `Microbasural`, `Mediano (un auto)`). La API también valida que sean opciones permitidas (`CATEGORIAS_REPORTE` y `VOLUMENES_REPORTE` en `backend/src/dominio/opcionesReporte.js`) y que no superen 50 y 30 caracteres respectivamente. `distanciaViviendas` se valida contra la misma lista cerrada en ambos lados.
 
 **Body (JSON):** todos los campos son opcionales, pero tiene que venir al menos uno.
 
 | Campo | Tipo | Regla |
 |---|---|---|
-| `categoria` | texto | Máximo 50 caracteres |
-| `volumen` | texto | Máximo 30 caracteres |
+| `categoria` | texto | Opción válida de `CATEGORIAS_REPORTE` y máximo 50 caracteres |
+| `volumen` | texto | Opción válida de `VOLUMENES_REPORTE` y máximo 30 caracteres |
 | `distanciaViviendas` | texto | `Menos de 10 m`, `Entre 10 y 50 m`, `Entre 50 y 100 m` o `Más de 100 m` |
 | `riesgo` | número | Entre 0 y 100. Si no se manda, el backend deja el índice actual |
 
