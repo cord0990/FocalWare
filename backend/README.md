@@ -48,7 +48,7 @@ backend/
 |---|---|
 | `PORT` | Puerto donde corre la API |
 | `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` | Datos de conexión a PostgreSQL |
-| `FRONTEND_URL` | Dirección del frontend que puede usar la API (CORS) |
+| `FRONTEND_URL` | Orígenes permitidos por CORS, separados por coma. No se permite `*` |
 | `JWT_SECRETO` | Clave para firmar los tokens de sesión (mínimo 32 caracteres). En Docker se autogenera si queda vacía |
 | `JWT_EXPIRACION` | Tiempo que dura la sesión, por ejemplo `15m` |
 
@@ -86,3 +86,14 @@ Todas las respuestas de la API incluyen
 Express no envía `X-Powered-By`.
 El frontend servido por nginx agrega su propia CSP y el resto de cabeceras;
 HSTS se agrega solo en despliegues con HTTPS.
+
+## Pruebas del backend
+
+Además de la colección de Postman, hay pruebas unitarias/integración con el runner nativo de Node:
+
+```bash
+cd backend
+npm run test:backend
+```
+
+Incluyen la validación de `FRONTEND_URL` y el comportamiento del middleware de CORS: orígenes permitidos, preflight, orígenes rechazados y peticiones sin `Origin`.
