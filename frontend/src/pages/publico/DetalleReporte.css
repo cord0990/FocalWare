@@ -118,11 +118,51 @@
   container-type: inline-size;
 }
 
+/* Bloque destacado de Estado y Riesgo (UX-14) */
+.detalle-resumen-superior {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detalle-estado-destacado {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 20px;
+  border: 3px solid;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(31, 31, 31, 0.06);
+}
+
+.detalle-estado-etiqueta {
+  color: #5a4545;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.detalle-estado-destacado strong {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.45rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.detalle-estado-destacado ion-icon {
+  font-size: 1.65rem;
+  flex-shrink: 0;
+}
+
 .detalle-riesgo {
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 200px;
+  min-height: 190px;
   padding: 22px 24px;
   border-radius: 26px;
   background: #5a4545;
@@ -146,6 +186,16 @@
   font-size: 1.15rem;
   font-weight: 600;
   text-align: right;
+}
+
+.detalle-riesgo-nota {
+  margin: 10px 0 0;
+  padding-top: 8px;
+  border-top: 1px solid currentColor;
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.35;
+  opacity: 0.92;
 }
 
 .detalle-desglose,
@@ -282,27 +332,57 @@
   padding-right: 4px;
 }
 
-.detalle-volver {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  align-self: flex-start;
-  min-height: 44px;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: #1f1f1f;
-  font-family: inherit;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
 .detalle-barra {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+}
+
+.detalle-barra-izquierda {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Botón claro de navegación (UX-13) */
+.detalle-volver {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  align-self: flex-start;
+  min-height: 44px;
+  padding: 6px 16px 6px 8px;
+  border: 2px solid #2b2b2b;
+  border-radius: 999px;
+  background: #fff;
+  color: #1f1f1f;
+  font-family: inherit;
+  font-size: 0.98rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.1s ease;
+}
+
+.detalle-volver:hover {
+  background: #f5eded;
+  border-color: #e0283a;
+}
+
+.detalle-volver-secundario {
+  padding-left: 14px;
+  border-color: #d9b8b8;
+  background: #ecdfdf;
+}
+
+.detalle-volver-secundario:hover {
+  background: #e2cece;
+  border-color: #2b2b2b;
 }
 
 .detalle-modificar {
@@ -333,16 +413,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: #2b2b2b;
   color: #fff;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
 }
 
 .detalle-volver-mapa {
-  font-size: 1.4rem;
+  font-size: 1.3rem;
 }
 
 .detalle-titulo {
@@ -359,6 +439,7 @@
 .detalle-etiquetas {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
 }
 
@@ -374,8 +455,11 @@
 }
 
 .detalle-etiquetas .detalle-estado {
-  border: 2px solid;
+  padding: 7px 18px;
+  border: 2.5px solid;
   background: #fff;
+  font-size: 0.98rem;
+  font-weight: 800;
 }
 
 /* Galería de fotos: foto principal y miniaturas a la derecha.
@@ -591,9 +675,8 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
-/* Botón de apoyo: va bajo el clima y ocupa el ancho de la columna.
-   Blanco con borde naranja cuando se puede apoyar; naranja lleno al ya haber apoyado.
-   Las medidas usan cqi para encogerse cuando se arrastra el divisor de la columna. */
+
+/* Botón de apoyo: va bajo el clima y ocupa el ancho de la columna. */
 .detalle-apoyo {
   display: flex;
   align-items: center;
@@ -637,7 +720,6 @@
   border-color: #e8942f;
 }
 
-/* El icono se mide en em: crece y se encoge junto con la letra. */
 .detalle-apoyo-icono {
   flex: 0 0 auto;
   width: 1.4em;
@@ -645,7 +727,6 @@
   object-fit: contain;
 }
 
-/* Siempre en una línea: la letra se achica al angostar la columna. */
 .detalle-apoyo-texto {
   white-space: nowrap;
 }

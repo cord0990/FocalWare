@@ -115,17 +115,6 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
 
   useEffect(() => {
     let vigente = true;
-    // obtenerReportes() trae la lista completa del mapa (hasta 300 reportes)
-    // y aquí solo se usa para la columna "otros". Ya venía así desde antes de
-    // conectar la API, no es una regresión: por ahora no es un problema porque
-    // son pocos registros y la respuesta pesa poco.
-    //
-    // REVISAR: como obtenerReportes() no incluye idRevision (el mapa es público
-    // y ese dato solo se manda al dueño y a los funcionarios), los reportes de
-    // la columna "otros" traen idRevision en null. Hoy no molesta porque el modal
-    // de gestión solo se abre sobre `reporte`, que sí viene de obtenerReportePorId
-    // y lo trae completo. Si algún día se abre la gestión desde esa columna,
-    // faltaría el id para llamar a PUT /api/revisiones/:id.
     const cargar = () =>
       Promise.all([obtenerReportePorId(id), obtenerReportes()]).then(([encontrado, todos]) => {
         if (!vigente) return;
@@ -139,9 +128,7 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
     setReporte(undefined);
     setFotoActiva(0);
     cargar();
-    // Si el autor modifica el reporte, se vuelve a cargar con los datos nuevos.
     window.addEventListener(EVENTO_REPORTES, recargar);
-    // Evita mostrar datos de un reporte anterior si el usuario cambia rápido de reporte.
     return () => {
       vigente = false;
       window.removeEventListener(EVENTO_REPORTES, recargar);
@@ -227,6 +214,10 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
     clima: reporte.clima,
   });
   const riesgo = desgloseIndice.indice ?? reporte.riesgo;
+  const riesgoMapa = Math.round(reporte.riesgo);
+  const riesgoDetalle = Math.round(riesgo);
+  const riesgoCambioPorClima =
+    !modificando && !reporte.riesgoEnCalculo && riesgoDetalle !== riesgoMapa;
   const nivel = obtenerNivelRiesgo(riesgo);
   const estado = estiloDeEstado(reporte.estado);
 
@@ -250,11 +241,8 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
       });
       setModificando(false);
       setMensaje('Desglose actualizado.');
-      // Avisa al resto de la app (y recarga el detalle) con los datos nuevos.
       window.dispatchEvent(new Event(EVENTO_REPORTES));
     } catch (error) {
-      // Antes esto guardaba en localStorage y siempre confirmaba. Ahora pega a la
-      // API, así que el backend puede rechazar el cambio y hay que decirlo.
       setMensaje(
         error instanceof ErrorApi
           ? `No se pudo guardar el desglose: ${error.message}`
@@ -264,8 +252,7 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
       setGuardandoDesglose(false);
     }
   };
-  // Las fotos llegan como rutas del servidor; acá se convierten a direcciones para
-  // poder mostrarlas.
+
   const fotos = reporte.imagenes.map(urlDeImagen);
 
   const desglose = [
@@ -280,7 +267,6 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
     <AppLayout>
       <div
         ref={(elemento) => {
-          // Los dos divisores miden sobre la misma grilla.
           divisor.contenedor.current = elemento;
           divisorLateral.contenedor.current = elemento;
         }}
@@ -299,24 +285,42 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
         }
       >
         <aside ref={divisorLateral.panel} className="detalle-lateral">
-          <div
-            className="detalle-riesgo"
-            style={reporte.riesgoEnCalculo ? undefined : { background: nivel.color, color: nivel.texto }}
-          >
-            <button
-              type="button"
-              className="boton-ayuda-riesgo"
-              onClick={() => setExplicacionAbierta(true)}
-              aria-label="¿Cómo se calcula el riesgo?"
-              title="¿Cómo se calcula el riesgo?"
+          <div className="detalle-resumen-superior">
+            <div
+              className="detalle-estado-destacado"
+              style={{ borderColor: estado.color, color: estado.color }}
             >
-              <IonIcon icon={helpCircleOutline} aria-hidden="true" />
-            </button>
-            <span className="detalle-riesgo-titulo">Riesgo</span>
-            <strong>{reporte.riesgoEnCalculo ? 'En cálculo' : `${riesgo} %`}</strong>
-            <span className="detalle-riesgo-tipo">
-              {reporte.riesgoEnCalculo ? 'Pendiente de revisión' : `Riesgo ${nivel.etiqueta.toLowerCase()}`}
-            </span>
+              <span className="detalle-estado-etiqueta">Estado del reporte</span>
+              <strong>
+                <IonIcon icon={estado.icono} aria-hidden="true" />
+                {reporte.estado}
+              </strong>
+            </div>
+
+            <div
+              className="detalle-riesgo"
+              style={reporte.riesgoEnCalculo ? undefined : { background: nivel.color, color: nivel.texto }}
+            >
+              <button
+                type="button"
+                className="boton-ayuda-riesgo"
+                onClick={() => setExplicacionAbierta(true)}
+                aria-label="¿Cómo se calcula el riesgo?"
+                title="¿Cómo se calcula el riesgo?"
+              >
+                <IonIcon icon={helpCircleOutline} aria-hidden="true" />
+              </button>
+              <span className="detalle-riesgo-titulo">Riesgo</span>
+              <strong>{reporte.riesgoEnCalculo ? 'En cálculo' : `${riesgo} %`}</strong>
+              <span className="detalle-riesgo-tipo">
+                {reporte.riesgoEnCalculo ? 'Pendiente de revisión' : `Riesgo ${nivel.etiqueta.toLowerCase()}`}
+              </span>
+              {riesgoCambioPorClima && (
+                <p className="detalle-riesgo-nota">
+                  En el mapa figura como {riesgoMapa} %; aquí varía según el clima del momento.
+                </p>
+              )}
+            </div>
           </div>
 
           {esGestion && (
@@ -435,17 +439,29 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
 
         <div className="detalle-principal">
           <div className="detalle-barra">
-            <button type="button" className="detalle-volver" onClick={volver}>
-              <span>
-                <IonIcon icon={arrowBackOutline} aria-hidden="true" />
-              </span>
-              <IonIcon
-                icon={origen === 'mis-reportes' ? folderOpenOutline : mapOutline}
-                aria-hidden="true"
-                className="detalle-volver-mapa"
-              />
-              {origen === 'mis-reportes' ? 'Volver a Mis reportes' : 'Volver al mapa'}
-            </button>
+            <div className="detalle-barra-izquierda">
+              <button type="button" className="detalle-volver" onClick={volver}>
+                <span>
+                  <IonIcon icon={arrowBackOutline} aria-hidden="true" />
+                </span>
+                <IonIcon
+                  icon={origen === 'mis-reportes' ? folderOpenOutline : mapOutline}
+                  aria-hidden="true"
+                  className="detalle-volver-mapa"
+                />
+                {origen === 'mis-reportes' ? 'Volver a Mis reportes' : 'Volver al mapa'}
+              </button>
+              {origen === 'mis-reportes' && (
+                <button
+                  type="button"
+                  className="detalle-volver detalle-volver-secundario"
+                  onClick={() => router.push(rutaDetalleMapa(reporte.id), 'forward')}
+                >
+                  <IonIcon icon={mapOutline} aria-hidden="true" className="detalle-volver-mapa" />
+                  Volver al mapa
+                </button>
+              )}
+            </div>
             {usuario?.rol === 'vecino' && origen === 'mis-reportes' && puedeModificar(reporte) && (
               <button
                 type="button"
@@ -512,7 +528,12 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
               <p>{reporte.descripcion || 'El vecino no agregó una descripción.'}</p>
               <p className="detalle-sector">Sector: {reporte.sector}</p>
             </section>
-            <MiniMapa latitud={reporte.latitud} longitud={reporte.longitud} nivel={nivel} />
+            <MiniMapa
+              latitud={reporte.latitud}
+              longitud={reporte.longitud}
+              nivel={nivel}
+              onClick={() => router.push(rutaDetalleMapa(reporte.id), 'forward')}
+            />
           </div>
         </div>
 
