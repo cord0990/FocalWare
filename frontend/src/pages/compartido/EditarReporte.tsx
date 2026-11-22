@@ -487,7 +487,7 @@ const EditarReporte: React.FC<EditarReporteProps> = ({ origen }) => {
           </div>
 
           <div className="formulario-etiquetas">
-            <span>ID {reporte.id}</span>
+            <span>Reporte N° {reporte.id}</span>
             <span>{formatearFecha(reporte.fecha)}</span>
             <span>{categoria || reporte.categoria}</span>
             {reporte.editadoEn && <span>Modificado {formatearFecha(reporte.editadoEn)}</span>}

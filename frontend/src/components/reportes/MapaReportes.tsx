@@ -167,9 +167,18 @@ const MapaReportes: React.FC<MapaReportesProps> = ({
                         onClick={() => onVotar(reporte.id)}
                         disabled={puedeVotar ? !puedeVotar(reporte) : false}
                         aria-pressed={reporte.miVoto}
-                        aria-label={`Votar a favor, ${reporte.votos} votos`}
+                        aria-label={`Apoyar este reporte, ${reporte.votos} apoyos`}
+                        title={reporte.esMio ? 'No puedes apoyar tu propio reporte' : undefined}
                       >
-                        <IonIcon icon={caretUp} aria-hidden="true" /> {reporte.votos}
+                        <IonIcon icon={caretUp} aria-hidden="true" />{' '}
+                        {reporte.esMio
+                          ? 'Tu reporte'
+                          : puedeVotar && !puedeVotar(reporte)
+                            ? 'Apoyos'
+                            : reporte.miVoto
+                              ? 'Apoyado'
+                              : 'Apoyar'}{' '}
+                        · {reporte.votos}
                       </button>
                     ) : (
                       <span className="popup-votos">

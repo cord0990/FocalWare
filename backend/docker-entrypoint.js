@@ -24,6 +24,36 @@ if (!process.env.JWT_SECRETO) {
   process.env.JWT_SECRETO = secret;
 }
 
+// Clave de cifrado de datos sensibles. Se genera y persiste igual que el JWT.
+// También se guarda en archivo para que `docker exec` pueda ejecutar el script
+// de migración sin depender de las variables exportadas por este entrypoint.
+const dataKeyFile =
+  process.env.DATA_ENCRYPTION_KEY_FILE || '/app/data/data_encryption_key';
+
+if (process.env.DATA_ENCRYPTION_KEY) {
+  fs.mkdirSync(path.dirname(dataKeyFile), { recursive: true });
+  process.umask(0o077);
+  fs.writeFileSync(dataKeyFile, process.env.DATA_ENCRYPTION_KEY, { mode: 0o600 });
+  try { fs.chmodSync(dataKeyFile, 0o600); } catch {}
+} else {
+  fs.mkdirSync(path.dirname(dataKeyFile), { recursive: true });
+
+  let dataKey;
+  if (fs.existsSync(dataKeyFile) && fs.statSync(dataKeyFile).size > 0) {
+    dataKey = fs.readFileSync(dataKeyFile, 'utf8').trim();
+  } else {
+    process.umask(0o077);
+    dataKey = crypto.randomBytes(32).toString('hex');
+    fs.writeFileSync(dataKeyFile, dataKey, { mode: 0o600 });
+    try { fs.chmodSync(dataKeyFile, 0o600); } catch {}
+    console.log(
+      `[SEGURIDAD] Se generó DATA_ENCRYPTION_KEY aleatoria en ${dataKeyFile}`,
+    );
+  }
+
+  process.env.DATA_ENCRYPTION_KEY = dataKey;
+}
+
 // Aplica las migraciones pendientes y después ejecuta el comando del contenedor.
 // Si falla la migración, el contenedor no arranca.
 // Se resuelve el CLI de Prisma y se ejecuta con el propio Node para no depender

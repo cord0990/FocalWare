@@ -201,7 +201,7 @@ Todo en español: `crearReporte`, `votosService.js`, `obtenerPerfil`.
 | Token JWT (RNF-05) | Parcial | Dura 15 minutos y guarda solo el id y el rol. Se firma con una clave secreta del `.env` (algoritmo simétrico HS256) y no tiene rotación |
 | Token vencido en la app | Cumple | Al abrir la app se revisa el token con la API. Si la API responde 401, la app cierra la sesión, avisa y lleva al login |
 | Rutas protegidas | Cumple | `verificarToken`, `permitirRoles` y `perteneceACuadrilla` en las rutas. La app también protege sus pantallas por rol |
-| CORS (RNF-06) | Cumple | Solo acepta pedidos de la URL del frontend (`FRONTEND_URL`) |
+| CORS (RNF-06) | Cumple | Lista explícita de orígenes en `FRONTEND_URL`, separados por coma, sin `*`. Responde preflight `204`, permite solo `Content-Type` y `Authorization`, expone `Retry-After` y no usa credenciales |
 | Cabeceras de seguridad | Cumple | nginx envía CSP, `nosniff`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy` y `Cross-Origin-Opener-Policy`; la API no envía `X-Powered-By`. HSTS queda para un despliegue con HTTPS |
 | Anonimato (RNF-07) | Cumple | El mapa y el detalle público no muestran el nombre ni el correo del vecino |
 | Inyección SQL | Cumple | Todas las consultas pasan por Prisma |
@@ -209,9 +209,10 @@ Todo en español: `crearReporte`, `votosService.js`, `obtenerPerfil`.
 | Estados y categorías | Cumple | Listas cerradas en `backend/src/dominio/opcionesReporte.js` para estados, categorías, volúmenes y distancias. El frontend deriva sus tipos de las mismas opciones y valida con guards. `Controlado` no se acepta al crear una revisión |
 | Errores | Cumple | Los errores internos responden "Error interno del servidor", sin mostrar detalles |
 | Fotos | Cumple | El tipo se detecta por el contenido real (`file-type`), no por el nombre ni el MIME. Solo JPG, PNG o WEBP reales, máximo 5 fotos de 5 MB. `/uploads` solo entrega esas extensiones y con cabeceras seguras |
+| Datos sensibles | Cumple | Teléfonos y direcciones exactas se cifran con AES-256-GCM. La clave se persiste en `focalware_appdata` o se define en `.env`; los datos antiguos se migran con un script idempotente |
 | Recuperación de contraseña | Solo para desarrollo | El código se guarda hasheado, vence en 10 minutos y permite 5 intentos, pero se muestra en la consola en vez de enviarse por correo |
 | Límite de intentos | Cumple | Login: 10 fallos por correo y 30 por IP cada 15 minutos; un login exitoso libera el correo. Recuperación: 3 solicitudes de código por correo y 10 por IP, y 10 intentos de código por correo. Responde `429` con `Retry-After`. El conteo vive en memoria y se reinicia con la API; detrás de un proxy hay que definir `TRUST_PROXY=1` |
-| Secretos | Cumple | El `.env` no se sube al repositorio. Solo se sube `.env.example`. En Docker, `JWT_SECRETO` se genera aleatoriamente y se guarda en el volumen `focalware_appdata` |
+| Secretos | Cumple | El `.env` no se sube al repositorio. Solo se sube `.env.example`. En Docker, `JWT_SECRETO` y `DATA_ENCRYPTION_KEY` se generan aleatoriamente y se guardan en el volumen `focalware_appdata` |
 
 ### 7.2 Correcciones necesarias (Entrega Final)
 

@@ -28,7 +28,7 @@ Se usa `npm start` y no `npm run dev`, porque el modo de desarrollo reinicia la 
 2. Para la prueba que sube una foto, ir al engranaje > **App settings > General > Working directory** y elegir la carpeta `backend/postman`. Ahí está `foto-prueba.png`.
 3. Abrir la colección **FocalWare API**, apretar **Run** y después **Start run**.
 
-Las pruebas **se corren en orden**: los logins guardan los tokens y los reportes que se crean se usan en las carpetas siguientes. Se pueden correr las veces que se quiera, porque cada corrida usa un correo y una ubicación nuevos. Las pruebas del clima necesitan internet, porque la API lo consulta en Open-Meteo.
+Las pruebas **se corren en orden**: los logins guardan los tokens y cada POST que crea un recurso guarda su id en una variable de colección (`idVecinoNuevo`, `idCuenta`, `idReporte`, `idReporteRevision`, `idRevision`). Las peticiones siguientes usan esas variables, así que la colección no depende de los ids fijos de los datos de prueba. El login de Javiera también guarda el nombre de su primera cuadrilla en `cuadrilla`. Se pueden correr las veces que se quiera, porque cada corrida usa un correo y una ubicación nuevos. Las pruebas del clima necesitan internet, porque la API lo consulta en Open-Meteo.
 
 ### 1.2 Por consola (opcional)
 

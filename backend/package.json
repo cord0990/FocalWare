@@ -19,6 +19,8 @@
     "db:sql": "node scripts/generarSql.js",
     "db:sql:check": "node scripts/generarSql.js --check",
     "db:check": "npm run db:sql:check && prisma validate",
+    "db:encrypt": "node src/scripts/encriptarDatos.js",
+    "db:encrypt:check": "node src/scripts/encriptarDatos.js --check",
     "db:studio": "prisma studio"
   },
   "dependencies": {

@@ -457,7 +457,7 @@ const CrearReporte: React.FC = () => {
             <div className="resumen-creado-datos">
               <strong>{creado.nombre}</strong>
               <span>
-                ID {creado.id} · {creado.sector}
+                Reporte N° {creado.id} · {creado.sector}
               </span>
               <div className="resumen-creado-etiquetas">
                 <span>{creado.categoria}</span>

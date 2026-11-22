@@ -3,6 +3,7 @@ import { pedir, ErrorApi, urlDeImagen } from './api';
 import type { Clima } from './climaService';
 import { MAXIMO_FOTOS } from '../utils/validacionReporte';
 import {
+  calcularIndice,
   esCategoriaReporte,
   esDistanciaReporte,
   esVolumenReporte,
@@ -219,13 +220,32 @@ const aReporte = (dato: ReporteApi): Reporte => {
     };
   }
 
+  const categoria = esCategoriaReporte(resto.categoria) ? resto.categoria : '';
+  const volumen = esVolumenReporte(resto.volumen) ? resto.volumen : '';
+  const distanciaViviendas = esDistanciaReporte(resto.distanciaViviendas) ? resto.distanciaViviendas : '';
+
+  // El riesgo guardado no cambia con los apoyos, la antigüedad ni el clima, pero el
+  // detalle sí los considera. Se recalcula acá para que la lista, el mapa y el
+  // detalle muestren el mismo porcentaje.
+  const riesgoActual =
+    riesgo === null
+      ? null
+      : calcularIndice({
+        categoria,
+        volumen,
+        distancia: distanciaViviendas,
+        votos: resto.votos ?? 0,
+        fecha: resto.fecha,
+        clima: resto.clima,
+      }).indice ?? riesgo;
+
   return {
     ...resto,
     estado: esEstadoReporte(resto.estado) ? resto.estado : 'Pendiente',
-    categoria: esCategoriaReporte(resto.categoria) ? resto.categoria : '',
-    volumen: esVolumenReporte(resto.volumen) ? resto.volumen : '',
-    distanciaViviendas: esDistanciaReporte(resto.distanciaViviendas) ? resto.distanciaViviendas : '',
-    riesgo: riesgo ?? 0,
+    categoria,
+    volumen,
+    distanciaViviendas,
+    riesgo: riesgoActual ?? 0,
     riesgoEnCalculo: riesgo === null,
     imagenes: imagenes ?? [],
     // El backend manda null cuando el reporte no tiene revisión, y omite el campo
