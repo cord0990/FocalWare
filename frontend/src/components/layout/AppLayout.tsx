@@ -15,6 +15,7 @@ import { useAnchoRedimensionable } from '../../hooks/useAnchoRedimensionable';
 import { useMenu } from '../../hooks/useMenu';
 import { RUTAS } from '../../routes/rutas';
 import { useIrAlLogin } from '../../hooks/useIrAlLogin';
+import { useNotificacionesNoLeidas } from '../../hooks/useNotificacionesNoLeidas';
 import { useSesion } from '../../hooks/useSesion';
 import { useTecladoAbierto } from '../../hooks/useTecladoAbierto';
 import { NOMBRE_ROL, obtenerIniciales } from '../../services/sesionService';
@@ -28,6 +29,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const router = useIonRouter();
   const menu = useMenu();
   const { usuario } = useSesion();
+  const notificacionesNoLeidas = useNotificacionesNoLeidas();
   const irAlLogin = useIrAlLogin();
   const tecladoAbierto = useTecladoAbierto();
   const divisorMenu = useAnchoRedimensionable({
@@ -61,8 +63,30 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                   <strong>Mi cuenta</strong>
                   <small>{NOMBRE_ROL[usuario.rol]}</small>
                 </span>
-                <span className="app-avatar" aria-hidden="true">
-                  {obtenerIniciales(usuario.nombre)}
+                <span className="app-avatar-contenedor" aria-hidden="true">
+                  <span className="app-avatar">
+                    {obtenerIniciales(usuario.nombre)}
+                  </span>
+                  {notificacionesNoLeidas > 0 && (
+                    <span
+                      className="app-avatar-badge"
+                      aria-label={`${notificacionesNoLeidas} notificaciones sin leer`}
+                    >
+                      <svg
+                        className="app-avatar-badge-llama"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M12 1.5 C12 1.5 13.5 5 14.5 7.5 C16 10 18 12 18 15 C18 18.9 15.3 22 12 22 C8.7 22 6 18.9 6 15 C6 12 8 10 9.5 7.5 C10.5 5 12 1.5 12 1.5 Z"
+                          fill="#E72441"
+                        />
+                      </svg>
+                      <span className="app-avatar-badge-numero">
+                        {notificacionesNoLeidas}
+                      </span>
+                    </span>
+                  )}
                 </span>
                 <IonIcon icon={chevronDownOutline} className="app-cuenta-flecha" aria-hidden="true" />
               </button>

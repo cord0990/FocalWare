@@ -118,6 +118,49 @@
   font-size: 1.1rem;
 }
 
+/* Contenedor del avatar para posicionar el badge de notificaciones */
+.app-avatar-contenedor {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+/* Badge de "llamita" con contador de notificaciones sin leer (solo Vecino).
+   La llama (color #E72441) ocupa ~la mitad del avatar y el número va dentro. */
+.app-avatar-badge {
+  position: absolute;
+  bottom: -6px;
+  left: -6px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.app-avatar-badge-llama {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 1px 2px rgba(87, 12, 8, 0.45));
+}
+
+.app-avatar-badge-numero {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -35%);
+  z-index: 1;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
 .app-contenido {
   --background: #fdeeee;
 }
@@ -356,6 +399,18 @@
   .app-avatar {
     width: 44px;
     height: 44px;
+  }
+
+  .app-avatar-badge {
+    bottom: -4px;
+    left: -4px;
+    width: 28px;
+    height: 28px;
+  }
+
+  .app-avatar-badge-numero {
+    font-size: 0.7rem;
+    transform: translate(-50%, -30%);
   }
 
   /* En celular el botón para entrar es solo el ícono, en un círculo como el avatar */
