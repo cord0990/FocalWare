@@ -126,7 +126,7 @@ Todas las rutas empiezan con `http://localhost:3000/api`.
 | 24 | `GET` | `/estadisticas` | Funcionario | Reportes de los últimos 12 meses para el panel de estadísticas |
 | 25 | `GET` | `/estadisticas/mi-actividad` | Vecino | Reportes creados, votos dados y apoyos recibidos del vecino |
 | 26 | `GET` | `/clima` | Público | Clima actual de Valparaíso, consultado en Open-Meteo |
-| 27 | `PATCH` | `/reportes/:id/desglose` | Funcionario | Corrige categoría, volumen, distancia a viviendas y riesgo de un reporte |
+| 27 | `PATCH` | `/reportes/:id/desglose` | Funcionario | Corrige categoría, volumen y distancia a viviendas; el backend recalcula el riesgo |
 En las rutas, `:id` es el número del reporte, de la revisión o de la notificación. Si no es un número entero, la API responde `400`.
 
 ## 5. Detalle de cada endpoint
@@ -402,10 +402,9 @@ Detalle de un reporte, con fotos, clima y el avance de su gestión. El correo y 
 | `latitud` | número | Sí | Entre -90 y 90 |
 | `longitud` | número | Sí | Entre -180 y 180 |
 | `distanciaViviendas` | texto | No | `Menos de 10 m`, `Entre 10 y 50 m`, `Entre 50 y 100 m` o `Más de 100 m` |
-| `riesgo` | número | No | Entre 0 y 100 |
 | `fotos` | archivos | No | Hasta 5 fotos JPG, PNG o WEBP de máximo 5 MB cada una |
 
-El clima **no** se manda en el formulario: el backend lo consulta en Open-Meteo para la ubicación del reporte y lo guarda junto a él. Si Open-Meteo no responde, el reporte se guarda igual, sin clima.
+El clima **no** se manda en el formulario: el backend lo consulta en Open-Meteo para la ubicación del reporte y lo guarda junto a él. Si Open-Meteo no responde, el reporte se guarda igual, sin clima. El índice de riesgo tampoco se manda: el backend lo calcula con el desglose, los apoyos, la antigüedad y el clima.
 
 **Respuesta `201`:** `{ "ok": true, "data": { "reporte": { ... } } }`, con el reporte en estado `Pendiente`.
 
@@ -437,7 +436,7 @@ Para cambiar las fotos se manda `imagenesActuales` (la lista en JSON de las foto
 
 #### 9b. `PATCH /reportes/:id/desglose`
 
-**Acceso:** solo funcionarios. Corrige el desglose del reporte (categoría, volumen y distancia a viviendas). Si se envía `riesgo`, se guarda ese valor y se actualiza la fecha de cálculo. A diferencia de `PUT /reportes/:id`, no exige ser el dueño ni que el reporte esté sin revisar, y no toca las fotos. En la colección de Postman, el caso válido se prueba después de aprobar el reporte de la carpeta 6, porque la API solo permite corregir reportes aprobados o en atención.
+**Acceso:** solo funcionarios. Corrige el desglose del reporte (categoría, volumen y distancia a viviendas); el backend recalcula el índice de riesgo con los valores nuevos, los apoyos, la antigüedad y el clima guardado. A diferencia de `PUT /reportes/:id`, no exige ser el dueño ni que el reporte esté sin revisar, y no toca las fotos.
 
 *Detalle tecnico*: En el frontend, `categoria` y `volumen` no se escriben libres: vienen normalizados desde las listas `CATEGORIAS` y `VOLUMENES` de `frontend/src/utils/opcionesReporte.ts` (por ejemplo `Microbasural`, `Mediano (un auto)`). La API también valida que sean opciones permitidas (`CATEGORIAS_REPORTE` y `VOLUMENES_REPORTE` en `backend/src/dominio/opcionesReporte.js`) y que no superen 50 y 30 caracteres respectivamente. `distanciaViviendas` se valida contra la misma lista cerrada en ambos lados.
 
@@ -448,10 +447,9 @@ Para cambiar las fotos se manda `imagenesActuales` (la lista en JSON de las foto
 | `categoria` | texto | Opción válida de `CATEGORIAS_REPORTE` y máximo 50 caracteres |
 | `volumen` | texto | Opción válida de `VOLUMENES_REPORTE` y máximo 30 caracteres |
 | `distanciaViviendas` | texto | `Menos de 10 m`, `Entre 10 y 50 m`, `Entre 50 y 100 m` o `Más de 100 m` |
-| `riesgo` | número | Entre 0 y 100. Si no se manda, el backend deja el índice actual |
 
 ```json
-{ "categoria": "Microbasural", "volumen": "Mediano (un auto)", "distanciaViviendas": "Entre 10 y 50 m", "riesgo": 72 }
+{ "categoria": "Microbasural", "volumen": "Mediano (un auto)", "distanciaViviendas": "Entre 10 y 50 m" }
 ```
 
 **Respuesta `200`:** `{ "ok": true, "data": { "reporte": { ... } } }`, con el reporte actualizado (incluye los datos del vecino, porque quien consulta es funcionario).
@@ -460,7 +458,7 @@ Para cambiar las fotos se manda `imagenesActuales` (la lista en JSON de las foto
 
 | Código | Cuándo |
 |---|---|
-| `400` | El id no es un número, no viene ningún campo válido, un texto excede su límite, la distancia no es válida o el riesgo no está entre 0 y 100 |
+| `400` | El id no es un número, no viene ningún campo válido, un texto excede su límite, la categoría o el volumen no son válidos, o la distancia no es válida |
 | `401` | No hay sesión |
 | `403` | Es un vecino |
 | `404` | El reporte no existe |
@@ -673,9 +671,9 @@ Un reporte cuenta como **resuelto** cuando su revisión llegó a `Controlado`. `
 
 #### 21. `GET /clima`
 
-**Acceso:** público. Entrega el clima actual de Valparaíso, que la API consulta en [Open-Meteo](https://open-meteo.com/), un servicio gratuito que no pide clave. Lo usa el formulario de crear reporte para mostrar el clima y calcular el riesgo (regla 30-30-30).
+**Acceso:** público. Entrega el clima actual de Valparaíso, que la API consulta en [Open-Meteo](https://open-meteo.com/), un servicio gratuito que no pide clave. Lo usa el formulario de crear reporte para mostrar el clima y previsualizar el riesgo; el backend usa ese mismo clima para calcular y guardar el índice (regla 30-30-30).
 
-**Filtros opcionales (query):** `latitud` y `longitud`, para pedir el clima de la zona de ese punto. Si no vienen, se usa el centro de Valparaíso. El formulario de crear reporte manda el punto elegido en el mapa, así el riesgo se calcula con el mismo clima que se guarda con el reporte.
+**Filtros opcionales (query):** `latitud` y `longitud`, para pedir el clima de la zona de ese punto. Si no vienen, se usa el centro de Valparaíso. El formulario de crear reporte manda el punto elegido en el mapa, así la previsualización usa el mismo clima que el backend guarda y usa para calcular el riesgo.
 
 **Respuesta `200`:**
 

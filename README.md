@@ -202,7 +202,7 @@ frontend/
 ├── services/           # Datos y consumo de la API
 ├── hooks/              # Lógica reutilizable
 ├── context/            # Estado compartido (sesión y menú)
-└── utils/              # Cálculo del riesgo, validaciones y filtros
+└── utils/              # Previsualización del riesgo, validaciones y filtros
 ```
 
 La arquitectura de navegación, con las rutas, el acceso por rol y los flujos de tareas, está en [docs/EP1.4-arquitectura-navegacion.md](docs/EP1.4-arquitectura-navegacion.md).

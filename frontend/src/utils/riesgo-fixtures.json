@@ -1,0 +1,82 @@
+[
+  {
+    "nombre": "base completa sin condiciones de clima",
+    "categoria": "Vegetación seca",
+    "volumen": "Muy grande (un camión)",
+    "distancia": "Menos de 10 m",
+    "votos": 0,
+    "clima": {
+      "temperatura": 20,
+      "humedad": 50,
+      "viento": 10,
+      "condicion": "Despejado"
+    },
+    "indice": 60
+  },
+  {
+    "nombre": "base completa con una condición de clima",
+    "categoria": "Vegetación seca",
+    "volumen": "Muy grande (un camión)",
+    "distancia": "Menos de 10 m",
+    "votos": 0,
+    "clima": {
+      "temperatura": 31,
+      "humedad": 50,
+      "viento": 10,
+      "condicion": "Despejado"
+    },
+    "indice": 69
+  },
+  {
+    "nombre": "base completa con dos condiciones de clima",
+    "categoria": "Vegetación seca",
+    "volumen": "Muy grande (un camión)",
+    "distancia": "Menos de 10 m",
+    "votos": 0,
+    "clima": {
+      "temperatura": 31,
+      "humedad": 20,
+      "viento": 10,
+      "condicion": "Despejado"
+    },
+    "indice": 78
+  },
+  {
+    "nombre": "base completa con tres condiciones de clima",
+    "categoria": "Vegetación seca",
+    "volumen": "Muy grande (un camión)",
+    "distancia": "Menos de 10 m",
+    "votos": 0,
+    "clima": {
+      "temperatura": 31,
+      "humedad": 20,
+      "viento": 40,
+      "condicion": "Despejado"
+    },
+    "indice": 90
+  },
+  {
+    "nombre": "base baja sin clima",
+    "categoria": "Escombros",
+    "volumen": "Pequeño (una bolsa)",
+    "distancia": "Más de 100 m",
+    "votos": 0,
+    "indice": 11
+  },
+  {
+    "nombre": "apoyos con tope",
+    "categoria": "Escombros",
+    "volumen": "Pequeño (una bolsa)",
+    "distancia": "Más de 100 m",
+    "votos": 25,
+    "indice": 31
+  },
+  {
+    "nombre": "desglose incompleto",
+    "categoria": "",
+    "volumen": "Pequeño (una bolsa)",
+    "distancia": "Más de 100 m",
+    "votos": 0,
+    "indice": null
+  }
+]

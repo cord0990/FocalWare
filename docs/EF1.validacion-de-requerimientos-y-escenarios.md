@@ -8,7 +8,7 @@
 | **RF-02** | Cumple | `pendientesService` guarda reportes sin conexión y se envían después. |
 | **RF-03** | Cumple | `Mapa.tsx` + `MapaReportes.tsx` muestran reportes en el mapa. |
 | **RF-04** | Cumple | `filtrosReportes.ts` filtra por estado, categoría, riesgo, sector y fecha. |
-| **RF-05** | Cumple | `opcionesReporte.ts` (`calcularIndice`) considera categoría, volumen, reportes cercanos, antigüedad y clima. |
+| **RF-05** | Cumple | `backend/src/dominio/riesgo.js` calcula el índice con categoría, volumen, distancia a viviendas, apoyos, antigüedad y clima. El frontend solo lo previsualiza. |
 | **RF-06** | Cumple | Backend ordena la cola por riesgo (listar/cola). |
 | **RF-07** | Cumple | `revisionesRoutes` + cola de atención para funcionarios. |
 | **RF-08** | Cumple | `notificacionesService` genera notificaciones por cambios de estado. |
@@ -25,7 +25,7 @@
 | **RF-19** | Cumple | Backend registra cada transición en la tabla log de la base de datos. |
 | **RF-20** | Cumple | `revisionService.procesarRevision` actualiza el estado del reporte y lo persiste en la base de datos. |
 | **RF-21** | Cumple | Funcionario puede rechazar reporte pendiente. |
-| **RF-22** | Cumple | Funcionario corrige desglose (categoría/volumen/distancia/riesgo) solo en reportes Aprobados o En atención; notifica al vecino dueño. |
+| **RF-22** | Cumple | Funcionario corrige desglose (categoría/volumen/distancia) solo en reportes Aprobados o En atención; el backend recalcula el riesgo y notifica al vecino dueño. |
 | **RF-23** | Cumple | Reporte de control con fotos de evidencia. |
 | **RF-24** | Cumple | Programación de fecha de atención. |
 

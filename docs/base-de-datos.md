@@ -234,8 +234,8 @@ La llave primaria son las dos columnas juntas, así un funcionario no queda dos 
 | `latitud` | NUMERIC(9,6) | | Coordenada GPS. |
 | `longitud` | NUMERIC(9,6) | | Coordenada GPS. |
 | `distancia_a_casas` | NUMERIC(8,2) | | Distancia en metros a las viviendas más cercanas *(opcional)*. |
-| `indice_riesgo` | NUMERIC(5,2) | | Riesgo calculado por la app. Con este número se ordena la lista *(opcional)*. |
-| `fecha_calculo_riesgo` | TIMESTAMP | | Cuándo se calculó el riesgo *(opcional)*. |
+| `indice_riesgo` | NUMERIC(5,2) | | Riesgo calculado por el backend. Con este número se ordena la lista *(opcional)*. |
+| `fecha_calculo_riesgo` | TIMESTAMP | | Cuándo lo calculó el backend *(opcional)*. |
 | `fecha_creacion` | TIMESTAMP | | Cuándo se creó el reporte. Se llena sola. |
 | `clima_temperatura` | NUMERIC(4,1) | | Temperatura al momento de reportar *(opcional)*. |
 | `clima_condicion` | VARCHAR(100) | | Condición del clima, por ejemplo "Despejado" *(opcional)*. |

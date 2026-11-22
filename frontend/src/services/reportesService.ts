@@ -106,6 +106,8 @@ export interface DatosNuevoReporte {
   latitud: number;
   longitud: number;
   imagenes: string[];
+  // Solo para la previsualización y los borradores sin conexión. El backend
+  // recalcula el índice y ese es el valor autoritativo.
   riesgo: number | null;
   clima?: Clima;
 }
@@ -133,11 +135,9 @@ const aFormulario = async (datos: DatosNuevoReporte): Promise<FormData> => {
   formulario.append('longitud', String(datos.longitud));
 
   if (datos.distanciaViviendas) formulario.append('distanciaViviendas', datos.distanciaViviendas);
-  if (datos.riesgo !== null && datos.riesgo !== undefined) {
-    formulario.append('riesgo', String(datos.riesgo));
-  }
 
-  // El clima no se manda: el backend lo consulta en Open-Meteo al guardar el reporte.
+  // El clima y el riesgo no se mandan: el backend consulta Open-Meteo y calcula
+  // el índice al guardar el reporte.
   const fotos = datos.imagenes.filter((foto) => typeof foto === 'string' && foto.startsWith('data:'));
   for (const [indice, foto] of fotos.slice(0, MAXIMO_FOTOS).entries()) {
     const blob = await dataUrlABlob(foto);
@@ -350,7 +350,7 @@ export const fechaHoraActual = () => {
 // volumen, distancia y riesgo con las mismas reglas que al crear.
 export const corregirDesglose = async (
   id: string,
-  datos: Pick<Reporte, 'categoria' | 'volumen' | 'distanciaViviendas'> & { riesgo?: number | null },
+  datos: Pick<Reporte, 'categoria' | 'volumen' | 'distanciaViviendas'>,
 ) => {
   await pedir(`/reportes/${id}/desglose`, {
     metodo: 'PATCH',
@@ -360,9 +360,6 @@ export const corregirDesglose = async (
       // El backend valida la distancia contra una lista cerrada.
       // Si no viene, se omite para no enviar una cadena vacía.
       ...(datos.distanciaViviendas ? { distanciaViviendas: datos.distanciaViviendas } : {}),
-      // El riesgo se manda solo si se pudo calcular. Si es null, el backend lo
-      // ignora y deja el índice actual.
-      ...(datos.riesgo !== undefined && datos.riesgo !== null ? { riesgo: datos.riesgo } : {}),
     },
   });
 

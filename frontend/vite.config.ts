@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     legacy()
@@ -13,7 +13,11 @@ export default defineConfig({
   // Solo para "npm run tunel": la app compilada se comparte con un link de Cloudflare.
   // La API y las fotos se piden a la misma dirección del link y Vite las reenvía
   // al backend local, así otro dispositivo no intenta llamar a su propio localhost.
+  // Se define acá para no necesitar un archivo .env.tunel en el repositorio.
   // "npm run dev" no usa nada de esto.
+  define: mode === 'tunel'
+    ? { 'import.meta.env.VITE_API_URL': JSON.stringify('/api') }
+    : {},
   preview: {
     allowedHosts: ['.trycloudflare.com'],
     proxy: {
@@ -26,4 +30,4 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/setupTests.ts',
   }
-})
+}))

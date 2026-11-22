@@ -10,6 +10,7 @@
     "predev": "npm run build",
     "build": "prisma generate && tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.check.json",
+    "test": "npm run test:backend",
     "test:backend": "node --test",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
