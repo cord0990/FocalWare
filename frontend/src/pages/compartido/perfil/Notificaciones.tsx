@@ -146,11 +146,14 @@ const Notificaciones: React.FC<Props> = ({ onVerDetalles }) => {
               <IonCardContent className="notificacion-content">
                 <div className="notificacion-badge-id">
                   <span>Reporte</span>
-                  <span>ID: {notif.reporteId}</span>
+                  <span>N° {notif.reporteId}</span>
                 </div>
 
                 <div className="notificacion-body">
                   {!notif.leida && <span className="notificacion-nueva">Nueva</span>}
+                  {notif.tituloReporte && (
+                    <p className="notificacion-titulo">{notif.tituloReporte}</p>
+                  )}
                   <p className="notificacion-mensaje">{notif.mensaje}</p>
 
                   <div className="notificacion-accion">

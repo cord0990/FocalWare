@@ -154,13 +154,14 @@ const Mapa: React.FC = () => {
         <div className="inicio-barra">
           <IonButton
             fill="clear"
-            className="inicio-boton-icono"
+            className="inicio-boton-icono inicio-boton-filtros"
             aria-label={
               filtrosActivos ? `Filtrar reportes, ${filtrosActivos} filtros activos` : 'Filtrar reportes'
             }
             onClick={() => setFiltrosAbiertos(true)}
           >
-            <IonIcon slot="icon-only" icon={funnelOutline} />
+            <IonIcon slot="start" icon={funnelOutline} />
+            Filtros
             {filtrosActivos > 0 && <IonBadge className="inicio-filtros-activos">{filtrosActivos}</IonBadge>}
           </IonButton>
           <IonSearchbar

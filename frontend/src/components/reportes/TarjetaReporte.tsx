@@ -86,10 +86,17 @@ const TarjetaReporte: React.FC<TarjetaReporteProps> = ({
             onClick={onVotar}
             disabled={!puedeVotar}
             aria-pressed={votado}
-            aria-label={puedeVotar ? `Votar a favor, ${votos} votos` : `${votos} votos`}
-            title={puedeVotar ? undefined : 'Votos que ha recibido el reporte'}
+            aria-label={puedeVotar ? `Apoyar este reporte, ${votos} apoyos` : `${votos} apoyos`}
+            title={
+              puedeVotar
+                ? undefined
+                : reporte.esMio
+                  ? 'No puedes apoyar tu propio reporte'
+                  : 'Apoyos que ha recibido el reporte'
+            }
           >
             <IonIcon icon={caretUp} aria-hidden="true" />
+            {puedeVotar ? (votado ? 'Apoyado' : 'Apoyar') : reporte.esMio ? 'Tu reporte' : 'Apoyos'} ·{' '}
             {votos}
           </button>
         </div>
