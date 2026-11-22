@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   IonButton,
@@ -27,7 +27,7 @@ import AppLayout from '../../components/layout/AppLayout';
 import CamposDesglose from '../../components/reportes/CamposDesglose';
 import ExplicacionRiesgo from '../../components/reportes/ExplicacionRiesgo';
 import GaleriaEditable from '../../components/reportes/GaleriaEditable';
-import SelectorUbicacion, { type Ubicacion } from '../../components/reportes/SelectorUbicacion';
+import SelectorUbicacion from '../../components/reportes/SelectorUbicacion';
 import { useConexion } from '../../hooks/useConexion';
 import { useUbicacionActual } from '../../hooks/useUbicacionActual';
 import { useGeocodificacion } from '../../hooks/useGeocodificacion';
@@ -40,11 +40,6 @@ import {
   type ReportePendiente,
 } from '../../services/pendientesService';
 import { ErrorApi } from '../../services/api';
-import {
-  buscarDirecciones,
-  obtenerDireccionDesdePunto,
-  type SugerenciaDireccion,
-} from '../../services/geocodificacionService';
 import {
   actualizarReporte,
   eliminarReporte,
@@ -63,7 +58,7 @@ import {
   type VolumenReporte,
 } from '../../utils/opcionesReporte';
 import { obtenerNivelRiesgo } from '../../utils/riesgo';
-import { MAXIMO_TITULO, validarReporte } from '../../utils/validacionReporte';
+import { MAXIMO_TITULO, irAlPrimerError, validarReporte } from '../../utils/validacionReporte';
 import './FormularioReporte.css';
 
 interface Aviso {
@@ -108,7 +103,7 @@ const EditarReporte: React.FC<EditarReporteProps> = ({ origen }) => {
   const [descripcion, setDescripcion] = useState('');
   const [mensaje, setMensaje] = useState('');
   const geo = useGeocodificacion('', null, setMensaje);
-  const { sector, ubicacion, enfocar, sugerencias, buscandoSugerencias, cambiarUbicacion, onSectorChange, seleccionarSugerencia, setSector, setUbicacion, setEnfocar, limpiar: limpiarGeo } = geo;
+  const { sector, ubicacion, enfocar, sugerencias, buscandoSugerencias, cambiarUbicacion, onSectorChange, seleccionarSugerencia, setSector, setUbicacion, setEnfocar } = geo;
   const [imagenes, setImagenes] = useState<string[]>([]);
   const [intentoGuardar, setIntentoGuardar] = useState(false);
   const [guardando, setGuardando] = useState(false);
@@ -230,6 +225,7 @@ const EditarReporte: React.FC<EditarReporteProps> = ({ origen }) => {
     setIntentoGuardar(true);
     if (Object.values(errores).some(Boolean)) {
       setMensaje('Revisa los campos marcados en rojo.');
+      irAlPrimerError();
       return;
     }
     if (!hayCambios) {

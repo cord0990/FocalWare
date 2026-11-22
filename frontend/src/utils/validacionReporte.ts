@@ -43,3 +43,13 @@ export const validarReporte = (datos: DatosFormulario) => ({
 });
 
 export type ErroresReporte = ReturnType<typeof validarReporte>;
+
+// Lleva la pantalla al primer campo con error, para que el vecino vea qué le falta.
+// Se espera un momento para que React alcance a marcar los campos en rojo.
+export const irAlPrimerError = () => {
+  setTimeout(() => {
+    document
+      .querySelector('.formulario-reporte .campo-invalido, .formulario-reporte .invalido')
+      ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 50);
+};
