@@ -48,9 +48,10 @@ backend/
 |---|---|
 | `PORT` | Puerto donde corre la API |
 | `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` | Datos de conexión a PostgreSQL |
-| `FRONTEND_URL` | Dirección del frontend que puede usar la API (CORS) |
+| `FRONTEND_URL` | Orígenes permitidos por CORS, separados por coma. No se permite `*` |
 | `JWT_SECRETO` | Clave para firmar los tokens de sesión (mínimo 32 caracteres). En Docker se autogenera si queda vacía |
 | `JWT_EXPIRACION` | Tiempo que dura la sesión, por ejemplo `15m` |
+| `DATA_ENCRYPTION_KEY` | Clave AES-256-GCM para cifrar datos sensibles (64 caracteres hexadecimales). En Docker se autogenera |
 
 ## Ejecución
 
@@ -72,6 +73,24 @@ El tipo se detecta por el contenido real con `file-type`, no por el nombre ni po
 
 Las imágenes se sirven en `/uploads` solo si tienen extensión `.jpg`, `.jpeg`, `.png` o `.webp`, con las cabeceras `X-Content-Type-Options: nosniff`, `Content-Security-Policy: default-src 'none'; sandbox` y `Cross-Origin-Resource-Policy: same-origin`.
 
+## Cálculo del riesgo
+
+El backend calcula el índice de riesgo al crear un reporte, al editarlo, al corregir el desglose y al registrar o quitar apoyos. La fórmula está en `src/dominio/riesgo.js`; el frontend solo la usa para previsualizar mientras se completa el formulario. El cliente no puede imponer el riesgo: si manda un valor, se ignora.
+
+## Límite de intentos
+
+Login y recuperación de contraseña limitan los intentos por correo y por IP. Al superar el tope responden `429` con la cabecera `Retry-After`. Los valores están en `src/routes/authRoutes.js` y el detalle en `docs/EP2.7-endpoints-y-pruebas.md`.
+
+## Pruebas
+
+Las pruebas unitarias usan el runner nativo de Node:
+
+```bash
+npm run test:backend
+```
+
+Cubren la fórmula del riesgo, la detección de imágenes por magic bytes, el límite de intentos y las guardas de seguridad: `.env` trackeados, clave por defecto vieja y consultas raw sin parámetros.
+
 ## Formato de respuestas
 
 Todas las respuestas son JSON:
@@ -86,3 +105,25 @@ Todas las respuestas de la API incluyen
 Express no envía `X-Powered-By`.
 El frontend servido por nginx agrega su propia CSP y el resto de cabeceras;
 HSTS se agrega solo en despliegues con HTTPS.
+
+## Datos sensibles
+
+Los teléfonos de vecinos y funcionarios y la dirección exacta de los reportes se cifran con **AES-256-GCM** en `src/services/cryptoService.js`.
+
+- En Docker, `DATA_ENCRYPTION_KEY` se genera y persiste en el volumen `focalware_appdata`.
+- Fuera de Docker hay que definirla en `backend/.env` (64 caracteres hexadecimales).
+- Los valores existentes en texto plano se migran con `npm run db:encrypt`.
+- `npm run db:encrypt:check` falla si queda algún valor sin cifrar o si la clave no puede descifrarlo.
+
+La misma clave debe conservarse entre reinicios y despliegues.
+
+## Pruebas del backend
+
+Además de la colección de Postman, hay pruebas unitarias/integración con el runner nativo de Node:
+
+```bash
+cd backend
+npm run test:backend
+```
+
+Incluyen la validación de `FRONTEND_URL` y el comportamiento del middleware de CORS: orígenes permitidos, preflight, orígenes rechazados y peticiones sin `Origin`.

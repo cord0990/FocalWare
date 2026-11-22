@@ -87,14 +87,14 @@ erDiagram
         varchar nombre
         varchar email UK
         varchar password_hash
-        varchar telefono
+        text telefono
     }
     FUNCIONARIO {
         int idfuncionario PK
         varchar nombre
         varchar email UK
         varchar password_hash
-        varchar telefono
+        text telefono
     }
     CUADRILLA {
         int idcuadrilla PK
@@ -185,7 +185,7 @@ Las tablas se agrupan en tres partes: **las personas**, **los reportes del vecin
 | `nombre` | VARCHAR(100) | | Nombre completo. |
 | `email` | VARCHAR(150) | **UQ** | Correo para iniciar sesión. No se puede repetir. |
 | `password_hash` | VARCHAR(255) | | Contraseña encriptada con bcrypt. Nunca se guarda la contraseña real. |
-| `telefono` | VARCHAR(20) | | Número de contacto *(opcional)*. |
+| `telefono` | TEXT | | Número de contacto *(opcional, cifrado con AES-256-GCM)*. |
 
 #### Funcionario
 > Trabajador municipal que revisa los reportes, forma parte de cuadrillas y registra los controles en terreno.
@@ -196,7 +196,7 @@ Las tablas se agrupan en tres partes: **las personas**, **los reportes del vecin
 | `nombre` | VARCHAR(100) | | Nombre completo. |
 | `email` | VARCHAR(150) | **UQ** | Correo institucional para iniciar sesión. No se puede repetir. |
 | `password_hash` | VARCHAR(255) | | Contraseña encriptada con bcrypt. |
-| `telefono` | VARCHAR(20) | | Número de contacto *(opcional)*. |
+| `telefono` | TEXT | | Número de contacto *(opcional, cifrado con AES-256-GCM)*. |
 
 #### Cuadrilla
 > Equipo de trabajo en terreno que atiende los reportes aprobados.
@@ -230,12 +230,12 @@ La llave primaria son las dos columnas juntas, así un funcionario no queda dos 
 | `categoria` | VARCHAR(50) | | Tipo de problema, por ejemplo basural o maleza. |
 | `tamano` | VARCHAR(30) | | Volumen estimado del foco. |
 | `sector` | VARCHAR(100) | | Cerro o zona donde está. |
-| `direccion` | VARCHAR(200) | | Calle o punto de referencia *(opcional)*. |
+| `direccion` | TEXT | | Calle o punto de referencia *(opcional, cifrado con AES-256-GCM)*. |
 | `latitud` | NUMERIC(9,6) | | Coordenada GPS. |
 | `longitud` | NUMERIC(9,6) | | Coordenada GPS. |
 | `distancia_a_casas` | NUMERIC(8,2) | | Distancia en metros a las viviendas más cercanas *(opcional)*. |
-| `indice_riesgo` | NUMERIC(5,2) | | Riesgo calculado por la app. Con este número se ordena la lista *(opcional)*. |
-| `fecha_calculo_riesgo` | TIMESTAMP | | Cuándo se calculó el riesgo *(opcional)*. |
+| `indice_riesgo` | NUMERIC(5,2) | | Riesgo calculado por el backend. Con este número se ordena la lista *(opcional)*. |
+| `fecha_calculo_riesgo` | TIMESTAMP | | Cuándo lo calculó el backend *(opcional)*. |
 | `fecha_creacion` | TIMESTAMP | | Cuándo se creó el reporte. Se llena sola. |
 | `clima_temperatura` | NUMERIC(4,1) | | Temperatura al momento de reportar *(opcional)*. |
 | `clima_condicion` | VARCHAR(100) | | Condición del clima, por ejemplo "Despejado" *(opcional)*. |

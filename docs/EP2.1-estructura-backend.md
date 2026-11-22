@@ -103,7 +103,7 @@ Todas las rutas empiezan con `http://localhost:3000/api`.
 | F12 | Crear reporte | Guarda el reporte con hasta 5 fotos y el clima real. Rechaza los repetidos (misma categoría a menos de 50 m) | `POST /reportes` | [reportesController.js](../backend/src/controllers/reportesController.js) | Probada · Postman carpeta 3 |
 | F13 | Mis reportes | Los reportes del vecino que inició sesión | `GET /reportes/mios` | [reportesService.js](../backend/src/services/reportesService.js) | Probada · Postman carpeta 3 |
 | F14 | Modificar y eliminar el reporte propio | Solo el dueño, y solo mientras nadie lo ha revisado | `PUT` y `DELETE /reportes/:id` | [reportesService.js](../backend/src/services/reportesService.js) | Probada · Postman carpetas 3 y 5 |
-| F15 | Corregir el desglose | El funcionario corrige categoría, volumen, distancia y riesgo | `PATCH /reportes/:id/desglose` | [reportesController.js](../backend/src/controllers/reportesController.js) | Probada · Postman carpeta 3 |
+| F15 | Corregir el desglose | El funcionario corrige categoría, volumen y distancia; el backend recalcula el riesgo | `PATCH /reportes/:id/desglose` | [reportesController.js](../backend/src/controllers/reportesController.js) | Probada · Postman carpetas 3 y 6 |
 | F16 | Apoyos de vecinos | Apoyar y quitar el apoyo. Uno por vecino, no el propio, no en rechazados | `POST` y `DELETE /reportes/:id/votos` | [votosService.js](../backend/src/services/votosService.js) | Probada · Postman carpeta 4 |
 | F17 | Cola priorizada | Reportes sin revisión, del más riesgoso al menos | `GET /revisiones/cola` | [revisionService.js](../backend/src/services/revisionService.js) | Probada · Postman carpeta 6 |
 | F18 | Revisar un reporte | Aprobar, rechazar (con motivo obligatorio) o dejar en atención, con cuadrilla y fecha. Guarda el historial y avisa al vecino en la misma operación | `POST /reportes/:id/revision` | [revisionService.js](../backend/src/services/revisionService.js) | Probada · Postman carpeta 6 y [captura](img/postman-revisiones.png) |
@@ -125,7 +125,7 @@ Estos son los requerimientos funcionales de [EP1.1](EP1.1.%20Requerimientos%20de
 | RF-02 | Almacenamiento local offline | Implementado | La app guarda el reporte en el teléfono si no hay conexión y lo envía a la API cuando vuelve |
 | RF-03 | Mapa interactivo | Implementado | GET /reportes alimenta el mapa de la app, hecho con Leaflet y React Leaflet. Usa el mapa base de Esri World Street Map (vista simple) y OpenStreetMap (vista detallada), y leaflet.heat para el mapa de calor |
 | RF-04 | Filtrado del mapa | Implementado | La API filtra por estado, sector y categoría. La app agrega riesgo, fechas y orden |
-| RF-05 | Índice ponderado | Parcial | El índice usa categoría, volumen, distancia a viviendas, apoyos, antigüedad y el clima real de Open-Meteo. Se calcula en la app y la API lo valida (0 a 100) y lo guarda. Falta recalcularlo en la API cuando llegan apoyos |
+| RF-05 | Índice ponderado | Implementado | El backend calcula el índice con categoría, volumen, distancia a viviendas, apoyos, antigüedad y el clima real de Open-Meteo. Se recalcula al crear, editar, corregir el desglose y registrar o quitar apoyos |
 | RF-06 | Uso del índice para priorizar | Implementado | `GET /revisiones/cola` ordena por índice de mayor a menor |
 | RF-07 | Gestión municipal | Implementado | Revisar, asignar cuadrilla y fecha, cambiar estado y registrar el control con fotos |
 | RF-08 | Notificación y trazabilidad | Implementado | Cada cambio de estado guarda una fila en `log` y una notificación para el autor. La app muestra la línea de tiempo |
@@ -201,7 +201,7 @@ Todo en español: `crearReporte`, `votosService.js`, `obtenerPerfil`.
 | Token JWT (RNF-05) | Parcial | Dura 15 minutos y guarda solo el id y el rol. Se firma con una clave secreta del `.env` (algoritmo simétrico HS256) y no tiene rotación |
 | Token vencido en la app | Cumple | Al abrir la app se revisa el token con la API. Si la API responde 401, la app cierra la sesión, avisa y lleva al login |
 | Rutas protegidas | Cumple | `verificarToken`, `permitirRoles` y `perteneceACuadrilla` en las rutas. La app también protege sus pantallas por rol |
-| CORS (RNF-06) | Cumple | Solo acepta pedidos de la URL del frontend (`FRONTEND_URL`) |
+| CORS (RNF-06) | Cumple | Lista explícita de orígenes en `FRONTEND_URL`, separados por coma, sin `*`. Responde preflight `204`, permite solo `Content-Type` y `Authorization`, expone `Retry-After` y no usa credenciales |
 | Cabeceras de seguridad | Cumple | nginx envía CSP, `nosniff`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy` y `Cross-Origin-Opener-Policy`; la API no envía `X-Powered-By`. HSTS queda para un despliegue con HTTPS |
 | Anonimato (RNF-07) | Cumple | El mapa y el detalle público no muestran el nombre ni el correo del vecino |
 | Inyección SQL | Cumple | Todas las consultas pasan por Prisma |
@@ -209,9 +209,10 @@ Todo en español: `crearReporte`, `votosService.js`, `obtenerPerfil`.
 | Estados y categorías | Cumple | Listas cerradas en `backend/src/dominio/opcionesReporte.js` para estados, categorías, volúmenes y distancias. El frontend deriva sus tipos de las mismas opciones y valida con guards. `Controlado` no se acepta al crear una revisión |
 | Errores | Cumple | Los errores internos responden "Error interno del servidor", sin mostrar detalles |
 | Fotos | Cumple | El tipo se detecta por el contenido real (`file-type`), no por el nombre ni el MIME. Solo JPG, PNG o WEBP reales, máximo 5 fotos de 5 MB. `/uploads` solo entrega esas extensiones y con cabeceras seguras |
+| Datos sensibles | Cumple | Teléfonos y direcciones exactas se cifran con AES-256-GCM. La clave se persiste en `focalware_appdata` o se define en `.env`; los datos antiguos se migran con un script idempotente |
 | Recuperación de contraseña | Solo para desarrollo | El código se guarda hasheado, vence en 10 minutos y permite 5 intentos, pero se muestra en la consola en vez de enviarse por correo |
 | Límite de intentos | Cumple | Login: 10 fallos por correo y 30 por IP cada 15 minutos; un login exitoso libera el correo. Recuperación: 3 solicitudes de código por correo y 10 por IP, y 10 intentos de código por correo. Responde `429` con `Retry-After`. El conteo vive en memoria y se reinicia con la API; detrás de un proxy hay que definir `TRUST_PROXY=1` |
-| Secretos | Cumple | El `.env` no se sube al repositorio. Solo se sube `.env.example`. En Docker, `JWT_SECRETO` se genera aleatoriamente y se guarda en el volumen `focalware_appdata` |
+| Secretos | Cumple | El `.env` no se sube al repositorio. Solo se sube `.env.example`. En Docker, `JWT_SECRETO` y `DATA_ENCRYPTION_KEY` se generan aleatoriamente y se guardan en el volumen `focalware_appdata` |
 
 ### 7.2 Correcciones necesarias (Entrega Final)
 

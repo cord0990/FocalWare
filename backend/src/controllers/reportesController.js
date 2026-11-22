@@ -6,8 +6,6 @@ const {
   esDistanciaReporte,
 } = require('../dominio/opcionesReporte');
 
-const numero = (valor) => (valor === undefined || valor === null || valor === '' ? null : Number(valor));
-
 // Tope de las columnas en la base.
 const MAXIMO_TITULO = 150;
 const MAXIMO_SECTOR = 100;
@@ -16,7 +14,7 @@ const MAXIMO_VOLUMEN = 30;
 
 // Revisa que el reporte tenga sentido antes de guardarlo.
 const problemaDelReporte = (datos) => {
-  const { nombre, categoria, volumen, sector, latitud, longitud, distanciaViviendas, riesgo } = datos;
+  const { nombre, categoria, volumen, sector, latitud, longitud, distanciaViviendas } = datos;
 
   const texto = (valor) => String(valor ?? '').trim();
 
@@ -46,10 +44,6 @@ const problemaDelReporte = (datos) => {
 
   if (distanciaViviendas && !esDistanciaReporte(distanciaViviendas)) {
     return 'La distancia a las viviendas no es válida.';
-  }
-
-  if (riesgo !== null && riesgo !== undefined && (!Number.isFinite(riesgo) || riesgo < 0 || riesgo > 100)) {
-    return 'El índice de riesgo debe estar entre 0 y 100.';
   }
 
   return null;
@@ -122,7 +116,6 @@ const crear = async (req, res, next) => {
       latitud,
       longitud,
       distanciaViviendas,
-      riesgo,
     } = req.body;
 
     // multer deja los archivos en req.files y su nombre ya es la ruta relativa.
@@ -139,7 +132,6 @@ const crear = async (req, res, next) => {
       latitud: Number(latitud),
       longitud: Number(longitud),
       distanciaViviendas,
-      riesgo: numero(riesgo),
     };
 
     const problema = problemaDelReporte(datos);
@@ -168,7 +160,7 @@ const modificar = async (req, res, next) => {
       return res.status(400).json({ ok: false, error: 'El número de reporte no es válido' });
     }
 
-    const { nombre, categoria, volumen, sector, latitud, longitud, distanciaViviendas, riesgo } =
+    const { nombre, categoria, volumen, sector, latitud, longitud, distanciaViviendas } =
       req.body;
 
     const problemas = [];
@@ -228,15 +220,6 @@ const modificar = async (req, res, next) => {
       problemas.push('La distancia a las viviendas no es válida.');
     }
 
-    if (
-      riesgo !== undefined &&
-      riesgo !== null &&
-      riesgo !== '' &&
-      (!Number.isFinite(Number(riesgo)) || Number(riesgo) < 0 || Number(riesgo) > 100)
-    ) {
-      problemas.push('El índice de riesgo debe estar entre 0 y 100.');
-    }
-
     if (problemas.length > 0) {
       return res.status(400).json({ ok: false, error: problemas.join(' ') });
     }
@@ -281,8 +264,7 @@ const modificar = async (req, res, next) => {
 
 // PATCH /api/reportes/:id/desglose: un funcionario corrige la categoría, el volumen
 // y la distancia a las viviendas de un reporte. Todos los campos son opcionales,
-// pero tiene que venir al menos uno. Si el frontend recalculó el riesgo con los
-// datos nuevos, puede mandarlo también en `riesgo`.
+// pero tiene que venir al menos uno. El índice de riesgo lo recalcula el backend.
 const corregirDesglose = async (req, res, next) => {
   try {
     const idReporte = Number(req.params.id);
@@ -291,7 +273,7 @@ const corregirDesglose = async (req, res, next) => {
       return res.status(400).json({ ok: false, error: 'El número de reporte no es válido' });
     }
 
-    const { categoria, volumen, distanciaViviendas, riesgo } = req.body ?? {};
+    const { categoria, volumen, distanciaViviendas } = req.body ?? {};
 
     // Tipo y largo de los textos, solo de los campos que llegaron.
     const reglas = {};
@@ -314,16 +296,10 @@ const corregirDesglose = async (req, res, next) => {
       return res.status(400).json({ ok: false, error: 'La distancia a las viviendas no es válida.' });
     }
 
-    const hayRiesgo = riesgo !== undefined && riesgo !== null && riesgo !== '';
-    if (hayRiesgo && (!Number.isFinite(Number(riesgo)) || Number(riesgo) < 0 || Number(riesgo) > 100)) {
-      return res.status(400).json({ ok: false, error: 'El índice de riesgo debe estar entre 0 y 100.' });
-    }
-
     const cambios = {
       ...(categoria !== undefined && { categoria: categoria.trim() }),
       ...(volumen !== undefined && { volumen: volumen.trim() }),
       ...(distanciaViviendas !== undefined && { distanciaViviendas }),
-      ...(hayRiesgo && { riesgo: Number(riesgo) }),
     };
 
     if (Object.keys(cambios).length === 0) {

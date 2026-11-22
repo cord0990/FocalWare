@@ -10,6 +10,8 @@
     "predev": "npm run build",
     "build": "prisma generate && tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.check.json",
+    "test": "npm run test:backend",
+    "test:backend": "node --test",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
@@ -17,6 +19,8 @@
     "db:sql": "node scripts/generarSql.js",
     "db:sql:check": "node scripts/generarSql.js --check",
     "db:check": "npm run db:sql:check && prisma validate",
+    "db:encrypt": "node src/scripts/encriptarDatos.js",
+    "db:encrypt:check": "node src/scripts/encriptarDatos.js --check",
     "db:studio": "prisma studio"
   },
   "dependencies": {

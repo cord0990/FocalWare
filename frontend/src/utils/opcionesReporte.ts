@@ -1,14 +1,14 @@
 import { condicionesRegla303030, type Clima } from '../services/climaService';
 import { diasDesde } from './fechas';
 
-// Índice de riesgo de un reporte (RF-05), con la estructura definida en el proyecto:
+// Previsualización del índice de riesgo de un reporte (RF-05).
 //
 //   base   = categoría + volumen + cercanía a viviendas + apoyos vecinales + antigüedad
 //   índice = base × factor climático   (con tope en 100)
 //
-// Cada factor aporta de 0 a 20 puntos, así que la base va de 0 a 100. Los puntajes son valores
-// de ejemplo para la Entrega 1; los definitivos se ajustarán en la Entrega 2, cuando el cálculo
-// se haga en el backend con el clima real de Open-Meteo.
+// El cálculo autoritativo vive en `backend/src/dominio/riesgo.js`. Esta copia
+// permite mostrar el valor mientras se completa el formulario. Si cambian los
+// puntajes, hay que actualizar los dos archivos y sus tests.
 
 export const PUNTAJE_MAXIMO_FACTOR = 20;
 

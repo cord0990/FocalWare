@@ -160,6 +160,22 @@
   background: #fdebed;
 }
 
+/* El botón de filtros lleva la palabra "Filtros" para que se encuentre fácil */
+.inicio-boton-filtros {
+  --border-color: #e0283a;
+  --border-radius: 24px;
+  --border-style: solid;
+  --border-width: 2px;
+  --background: #fff;
+  --padding-start: 14px;
+  --padding-end: 16px;
+  width: auto;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
 .inicio-mapa {
   grid-area: mapa;
   min-height: 0;
@@ -256,6 +272,17 @@
 
   .inicio-divisor {
     display: none;
+  }
+
+  /* Arriba van Filtros y Actualizar; el buscador baja a su propia fila con todo el ancho */
+  .inicio-barra {
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .inicio-buscador {
+    order: 3;
+    flex-basis: 100%;
   }
 
   .inicio-mapa {

@@ -132,6 +132,8 @@
   gap: 4px;
   min-width: 64px;
   min-height: 46px;
+  padding: 0 12px;
+  white-space: nowrap;
   /* Amarillo dorado: color propio de los votos, distinto del rojo de riesgo y de Detalles */
   border: 2px solid #d4a017;
   border-radius: 8px;
