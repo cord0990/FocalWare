@@ -50,7 +50,7 @@ interface Aviso {
 }
 
 // Tiempo que el vecino ve el aviso verde antes de abrir el reporte creado.
-const ESPERA_REDIRECCION_MS = 1800;
+const ESPERA_REDIRECCION_MS = 2200;
 
 const CrearReporte: React.FC = () => {
   const router = useIonRouter();
@@ -331,6 +331,13 @@ const CrearReporte: React.FC = () => {
         </aside>
 
         <div className="formulario-principal">
+          {exitoCreado && (
+            <div className="formulario-exito" role="status" aria-live="polite">
+              <IonIcon icon={checkmarkCircleOutline} aria-hidden="true" />
+              <span>¡Reporte creado con éxito! Te llevamos a tu reporte…</span>
+            </div>
+          )}
+
           <button
             type="button"
             className="formulario-volver"
@@ -494,16 +501,6 @@ const CrearReporte: React.FC = () => {
         duration={3000}
         position="top"
         onDidDismiss={() => setMensaje('')}
-      />
-
-      <IonToast
-        isOpen={exitoCreado}
-        color="success"
-        icon={checkmarkCircleOutline}
-        message="¡Reporte creado con éxito! Te llevamos a tu reporte…"
-        duration={ESPERA_REDIRECCION_MS}
-        position="top"
-        onDidDismiss={() => setExitoCreado(false)}
       />
     </AppLayout>
   );
