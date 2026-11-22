@@ -18,7 +18,7 @@ model Vecino {
   nombre        String         @db.VarChar(100)
   email         String         @unique @db.VarChar(150)
   passwordHash  String         @map("password_hash") @db.VarChar(255)
-  telefono      String?        @db.VarChar(20)
+  telefono      String?
   reportes      Reporte[]
   votos         Voto[]
   notificaciones Notificacion[]
@@ -30,7 +30,7 @@ model Funcionario {
   nombre          String           @db.VarChar(100)
   email           String           @unique @db.VarChar(150)
   passwordHash    String           @map("password_hash") @db.VarChar(255)
-  telefono        String?          @db.VarChar(20)
+  telefono        String?
   pertenencias    PuedePertenecer[]
   revisiones      Revision[]
   logs            Log[]
@@ -82,7 +82,7 @@ model Reporte {
   categoria          String         @db.VarChar(50)
   tamano             String         @db.VarChar(30)
   sector             String         @db.VarChar(100)
-  direccion          String?        @db.VarChar(200)
+  direccion          String?
   latitud            Decimal        @db.Decimal(9, 6)
   longitud           Decimal        @db.Decimal(9, 6)
   distanciaACasas    Decimal?       @map("distancia_a_casas") @db.Decimal(8, 2)

@@ -16,6 +16,7 @@ const REGLAS_REGISTRO = {
   nombre: { max: 100 },
   email: { max: 150 },
   password: { max: 72, recortar: false },
+  telefono: { max: 20, obligatorio: false },
 };
 
 const REGLAS_LOGIN = {
@@ -58,10 +59,14 @@ const registro = async (req, res, next) => {
       return res.status(400).json({ ok: false, error: errorDeTextos });
     }
 
-    const { nombre, email, password } = req.body;
+    const { nombre, email, password, telefono } = req.body;
 
     if (!esEmailValido(email)) {
       return res.status(400).json({ ok: false, error: 'El correo no tiene un formato válido' });
+    }
+
+    if (telefono && !/^\+?\d{8,12}$/.test(String(telefono))) {
+      return res.status(400).json({ ok: false, error: 'El teléfono no tiene un formato válido' });
     }
 
     if (!esPasswordValida(password)) {
@@ -70,7 +75,7 @@ const registro = async (req, res, next) => {
         .json({ ok: false, error: 'La contraseña necesita mínimo 8 caracteres, una mayúscula, una minúscula y un número' });
     }
 
-    const resultado = await registrarVecino({ nombre, email, password });
+    const resultado = await registrarVecino({ nombre, email, password, telefono });
 
     res.status(201).json({ ok: true, data: resultado });
   } catch (error) {

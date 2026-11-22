@@ -2,6 +2,7 @@
 const crypto = require('crypto');
 const { vecinos, funcionarios } = require('../../dist/db/index.js');
 const { hashearPassword, compararPassword, generarToken } = require('./seguridadService');
+const { encriptar, desencriptar } = require('./cryptoService');
 
 // Los funcionarios los crea la plataforma con el dominio institucional.
 const DOMINIO_INSTITUCIONAL = 'focalware.cl';
@@ -30,14 +31,15 @@ const datosUsuario = (persona, rol, cuadrillas = []) => ({
   id: persona.idVecino ?? persona.idFuncionario,
   nombre: persona.nombre,
   email: persona.email,
-  telefono: persona.telefono ?? undefined,
+  telefono: desencriptar(persona.telefono) ?? undefined,
   rol,
   ...(rol === 'funcionario' ? { cuadrillas } : {}),
   //Logica: Si el usuario es funcionario, se agregan las cuadrillas a las que pertenece. Si es vecino, no se agrega nada.
 });
 
-// Crea una cuenta de vecino. La contraseña se guarda hasheada.
-const registrarVecino = async ({ nombre, email, password }) => {
+// Crea una cuenta de vecino. La contraseña se guarda hasheada y el teléfono,
+// si viene, se guarda cifrado.
+const registrarVecino = async ({ nombre, email, password, telefono }) => {
   const correo = email.trim().toLowerCase();
 
   if (esCorreoInstitucional(correo)) {
@@ -65,6 +67,7 @@ const registrarVecino = async ({ nombre, email, password }) => {
     nombre: nombre.trim(),
     email: correo,
     passwordHash: await hashearPassword(password),
+    telefono: telefono ? encriptar(String(telefono).trim()) : null,
   });
 
   return {

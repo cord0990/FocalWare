@@ -10,6 +10,16 @@ if (!process.env.JWT_SECRETO || process.env.JWT_SECRETO.length < 32) {
   process.exit(1);
 }
 
+// La clave de cifrado de datos sensibles también se valida al arrancar.
+const { validarConfiguracion } = require('./services/cryptoService');
+
+try {
+  validarConfiguracion();
+} catch (error) {
+  console.error(error.message);
+  process.exit(1);
+}
+
 const path = require('path');
 const express = require('express');
 const rutas = require('./routes');

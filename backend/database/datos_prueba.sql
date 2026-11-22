@@ -6,6 +6,10 @@
 --
 -- La contraseña de todos los usuarios de prueba es: Clave123
 -- Los funcionarios usan correo @focalware.cl, igual que en el frontend.
+--
+-- Los teléfonos quedan en texto plano después de cargar este archivo. Para
+-- dejarlos cifrados, ejecutar después:
+--   npm run db:encrypt
 
 -- Este archivo está escrito en UTF-8. Sin esta línea, la terminal de Windows guarda
 -- mal las tildes y la ñ (por ejemplo "Muñoz" queda como "MuÃ±oz").
