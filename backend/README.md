@@ -75,7 +75,7 @@ Las imágenes se sirven en `/uploads` solo si tienen extensión `.jpg`, `.jpeg`,
 
 ## Cálculo del riesgo
 
-El backend calcula el índice de riesgo al crear un reporte, al editarlo, al corregir el desglose y al registrar o quitar apoyos. La fórmula está en `src/dominio/riesgo.js`; el frontend solo la usa para previsualizar mientras se completa el formulario. El cliente no puede imponer el riesgo: si manda un valor, se ignora.
+El backend calcula el índice de riesgo al crear un reporte, al editarlo, al corregir el desglose y al registrar o quitar apoyos. La fórmula está en `src/dominio/riesgo.js`; el frontend solo la usa para previsualizar mientras se completa el formulario. El cliente no puede imponer el riesgo: si manda un valor, se ignora. La categoría y el volumen también se validan contra las listas cerradas `CATEGORIAS_REPORTE` y `VOLUMENES_REPORTE` de `src/dominio/opcionesReporte.js`.
 
 ## Límite de intentos
 

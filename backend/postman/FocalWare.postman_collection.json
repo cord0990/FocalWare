@@ -1213,6 +1213,158 @@
           "response": []
         },
         {
+          "name": "Crear reporte con categoría inválida",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Explica que la categoría no es válida\", () => {",
+                  "  pm.expect(pm.response.json().error).to.include(\"categoría\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenVecino}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reportes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reportes"
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Categoría inválida",
+                  "type": "text"
+                },
+                {
+                  "key": "categoria",
+                  "value": "Basura",
+                  "type": "text"
+                },
+                {
+                  "key": "volumen",
+                  "value": "Mediano (un auto)",
+                  "type": "text"
+                },
+                {
+                  "key": "latitud",
+                  "value": "-33.040000",
+                  "type": "text"
+                },
+                {
+                  "key": "longitud",
+                  "value": "-71.620000",
+                  "type": "text"
+                },
+                {
+                  "key": "distanciaViviendas",
+                  "value": "Entre 10 y 50 m",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear reporte con volumen inválido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Explica que el volumen no es válido\", () => {",
+                  "  pm.expect(pm.response.json().error).to.include(\"volumen\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenVecino}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reportes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reportes"
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Volumen inválido",
+                  "type": "text"
+                },
+                {
+                  "key": "categoria",
+                  "value": "Microbasural",
+                  "type": "text"
+                },
+                {
+                  "key": "volumen",
+                  "value": "Enorme",
+                  "type": "text"
+                },
+                {
+                  "key": "latitud",
+                  "value": "-33.040000",
+                  "type": "text"
+                },
+                {
+                  "key": "longitud",
+                  "value": "-71.620000",
+                  "type": "text"
+                },
+                {
+                  "key": "distanciaViviendas",
+                  "value": "Entre 10 y 50 m",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Crear reporte fuera de Valparaíso",
           "description": "La API rechaza ubicaciones fuera del área de los sectores.",
           "event": [
@@ -1330,6 +1482,7 @@
                   "  pm.expect(reporte.categoria).to.eql(\"Microbasural\");",
                   "  pm.expect(reporte.riesgo).to.be.a(\"number\");",
                   "  pm.expect(reporte.riesgo).to.be.at.least(0).and.at.most(100);",
+                  "  pm.expect(reporte.riesgo).to.not.eql(100);",
                   "  pm.expect(reporte.sector).to.be.a(\"string\").and.not.empty;",
                   "  pm.expect(reporte.direccion).to.eql(\"Escalera Fischer, Cerro Cordillera\");",
                   "});",
@@ -1406,6 +1559,11 @@
                 {
                   "key": "distanciaViviendas",
                   "value": "Entre 10 y 50 m",
+                  "type": "text"
+                },
+                {
+                  "key": "riesgo",
+                  "value": "100",
                   "type": "text"
                 }
               ]
@@ -1740,6 +1898,9 @@
                   "  const reporte = pm.response.json().data.reporte;",
                   "  pm.expect(reporte.nombre).to.eql(\"Basura en escalera (editado)\");",
                   "  pm.expect(reporte.volumen).to.eql(\"Grande (una camioneta)\");",
+                  "  pm.expect(reporte.riesgo).to.be.a(\"number\");",
+                  "  pm.expect(reporte.riesgo).to.be.at.least(0).and.at.most(100);",
+                  "  pm.expect(reporte.riesgo).to.not.eql(100);",
                   "});"
                 ]
               }
@@ -1779,6 +1940,115 @@
                 {
                   "key": "volumen",
                   "value": "Grande (una camioneta)",
+                  "type": "text"
+                },
+                {
+                  "key": "riesgo",
+                  "value": "100",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Modificar reporte con categoría inválida",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Explica que la categoría no es válida\", () => {",
+                  "  pm.expect(pm.response.json().error).to.include(\"categoría\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenVecino}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reportes/{{idReporte}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reportes",
+                "{{idReporte}}"
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "categoria",
+                  "value": "Basura",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Modificar reporte con volumen inválido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Explica que el volumen no es válido\", () => {",
+                  "  pm.expect(pm.response.json().error).to.include(\"volumen\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenVecino}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reportes/{{idReporte}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reportes",
+                "{{idReporte}}"
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "volumen",
+                  "value": "Enorme",
                   "type": "text"
                 }
               ]
@@ -2130,6 +2400,120 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"categoria\": \"Esta categoria es demasiado larga para el limite de cincuenta caracteres\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenFuncionario}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Corregir desglose con categoría fuera de lista",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Explica que la categoría no es válida\", () => {",
+                  "  pm.expect(pm.response.json().error).to.include(\"categoría\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/{{idReporte}}/desglose",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reportes",
+                "{{idReporte}}",
+                "desglose"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categoria\": \"Basura\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenFuncionario}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Corregir desglose con volumen fuera de lista",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Explica que el volumen no es válido\", () => {",
+                  "  pm.expect(pm.response.json().error).to.include(\"volumen\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/{{idReporte}}/desglose",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reportes",
+                "{{idReporte}}",
+                "desglose"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"volumen\": \"Enorme\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2943,67 +3327,6 @@
                   "language": "json"
                 }
               }
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Corregir desglose (funcionario)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
-                  "pm.test(\"Guarda el desglose\", () => {",
-                  "  const reporte = pm.response.json().data.reporte;",
-                  "  pm.expect(reporte.categoria).to.eql(\"Microbasural\");",
-                  "  pm.expect(reporte.volumen).to.eql(\"Mediano (un auto)\");",
-                  "  pm.expect(reporte.distanciaViviendas).to.eql(\"Entre 10 y 50 m\");",
-                  "  pm.expect(reporte.riesgo).to.eql(72);",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/reportes/{{idReporteRevision}}/desglose",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "reportes",
-                "{{idReporteRevision}}",
-                "desglose"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"categoria\": \"Microbasural\",\n  \"volumen\": \"Mediano (un auto)\",\n  \"distanciaViviendas\": \"Entre 10 y 50 m\",\n  \"riesgo\": 72\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenFuncionario}}",
-                  "type": "string"
-                }
-              ]
             }
           },
           "response": []

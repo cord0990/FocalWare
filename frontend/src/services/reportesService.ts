@@ -126,7 +126,11 @@ const dataUrlABlob = async (dataUrl: string): Promise<Blob> => {
   return respuesta.blob();
 };
 
-const aFormulario = async (datos: DatosNuevoReporte): Promise<FormData> => {
+// Construye el formulario con una lista blanca de campos. El riesgo y el clima
+// se calculan en el backend; aunque vengan en los datos locales, no se envían.
+export const construirFormularioReporte = async (
+  datos: DatosNuevoReporte,
+): Promise<FormData> => {
   const formulario = new FormData();
 
   formulario.append('nombre', datos.nombre);
@@ -287,7 +291,7 @@ export const obtenerReportePorId = async (id: string): Promise<Reporte | undefin
 export const crearReporte = async (datos: DatosNuevoReporte): Promise<Reporte> => {
   const respuesta = await pedir<{ reporte: ReporteApi }>('/reportes', {
     metodo: 'POST',
-    cuerpo: await aFormulario(datos),
+    cuerpo: await construirFormularioReporte(datos),
     esFormulario: true,
   });
 

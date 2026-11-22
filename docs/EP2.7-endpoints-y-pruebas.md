@@ -408,7 +408,7 @@ Detalle de un reporte, con fotos, clima y el avance de su gestión. El correo y 
 | `distanciaViviendas` | texto | No | `Menos de 10 m`, `Entre 10 y 50 m`, `Entre 50 y 100 m` o `Más de 100 m` |
 | `fotos` | archivos | No | Hasta 5 fotos JPG, PNG o WEBP de máximo 5 MB cada una |
 
-El clima **no** se manda en el formulario: el backend lo consulta en Open-Meteo para la ubicación del reporte y lo guarda junto a él. Si Open-Meteo no responde, el reporte se guarda igual, sin clima. El índice de riesgo tampoco se manda: el backend lo calcula con el desglose, los apoyos, la antigüedad y el clima.
+El clima **no** se manda en el formulario: el backend lo consulta en Open-Meteo para la ubicación del reporte y lo guarda junto a él. Si Open-Meteo no responde, el reporte se guarda igual, sin clima. El índice de riesgo tampoco se manda: el backend lo calcula con el desglose, los apoyos, la antigüedad y el clima. Si un cliente envía igual los campos `riesgo` o `clima`, se ignoran; el backend solo usa los valores que calcula.
 
 El **sector tampoco se manda**: el backend lo calcula desde las coordenadas usando el catálogo de `/sectores`. Si la ubicación está fuera de Valparaíso o demasiado lejos de los sectores, responde `400`.
 
@@ -427,7 +427,7 @@ El **sector tampoco se manda**: el backend lo calcula desde las coordenadas usan
 
 **Acceso:** solo el vecino que creó el reporte, y solo mientras el municipio no lo haya revisado. Se manda como **form-data** y solo con los campos que se quieren cambiar (los mismos del punto 8).
 
-Para cambiar las fotos se manda `imagenesActuales` (la lista en JSON de las fotos que se quedan) y las fotos nuevas en `fotos`. El reporte tiene que quedar con al menos una foto.
+Para cambiar las fotos se manda `imagenesActuales` (la lista en JSON de las fotos que se quedan) y las fotos nuevas en `fotos`. El reporte tiene que quedar con al menos una foto. El `riesgo` y el `sector` no se pueden cambiar desde este endpoint: se recalculan en el backend con los datos nuevos.
 
 **Respuesta `200`:** el reporte actualizado.
 
@@ -444,7 +444,7 @@ Para cambiar las fotos se manda `imagenesActuales` (la lista en JSON de las foto
 
 **Acceso:** solo funcionarios. Corrige el desglose del reporte (categoría, volumen y distancia a viviendas); el backend recalcula el índice de riesgo con los valores nuevos, los apoyos, la antigüedad y el clima guardado. A diferencia de `PUT /reportes/:id`, no exige ser el dueño ni que el reporte esté sin revisar, y no toca las fotos.
 
-*Detalle tecnico*: En el frontend, `categoria` y `volumen` no se escriben libres: vienen normalizados desde las listas `CATEGORIAS` y `VOLUMENES` de `frontend/src/utils/opcionesReporte.ts` (por ejemplo `Microbasural`, `Mediano (un auto)`). La API también valida que sean opciones permitidas (`CATEGORIAS_REPORTE` y `VOLUMENES_REPORTE` en `backend/src/dominio/opcionesReporte.js`) y que no superen 50 y 30 caracteres respectivamente. `distanciaViviendas` se valida contra la misma lista cerrada en ambos lados.
+*Detalle tecnico*: En el frontend, `categoria` y `volumen` no se escriben libres: vienen normalizados desde las listas `CATEGORIAS` y `VOLUMENES` de `frontend/src/utils/opcionesReporte.ts` (por ejemplo `Microbasural`, `Mediano (un auto)`). La API también valida que sean opciones permitidas (`CATEGORIAS_REPORTE` y `VOLUMENES_REPORTE` en `backend/src/dominio/opcionesReporte.js`) y que no superen 50 y 30 caracteres respectivamente. `distanciaViviendas` se valida contra la misma lista cerrada en ambos lados. Si el body incluye `riesgo`, se ignora: el backend siempre recalcula el índice.
 
 **Body (JSON):** todos los campos son opcionales, pero tiene que venir al menos uno.
 
@@ -759,7 +759,7 @@ El script informa los reportes con coordenadas inválidas y los que quedan lejos
 
 ## 6. Evidencia de las pruebas
 
-La colección tiene **90 peticiones en 9 carpetas**. Cada petición revisa el código HTTP y que la respuesta tenga el formato `{ ok, data }` o `{ ok, error }`. Muchas revisan además el contenido, por ejemplo que el login no devuelva la contraseña o que un visitante no vea el correo del vecino. La carpeta **9. Cuentas y contraseña** registra una cuenta propia para probar el perfil, el cambio de contraseña y los errores de recuperación sin modificar a los usuarios de prueba.
+La colección tiene **96 peticiones en 9 carpetas**. Cada petición revisa el código HTTP y que la respuesta tenga el formato `{ ok, data }` o `{ ok, error }`. Muchas revisan además el contenido, por ejemplo que el login no devuelva la contraseña o que un visitante no vea el correo del vecino. La carpeta **9. Cuentas y contraseña** registra una cuenta propia para probar el perfil, el cambio de contraseña y los errores de recuperación sin modificar a los usuarios de prueba.
 
 El camino exitoso de recuperación se prueba a mano: ejecutar “Solicitar código de recuperación”, copiar el código que aparece en la consola del backend y usarlo en “Verificar código” y “Restablecer contraseña”. El código no se devuelve en la respuesta HTTP.
 
@@ -771,14 +771,14 @@ Se probaron los casos que funcionan y también los de error: sin sesión (`401`)
 |---|---|---|---|
 | 1. Salud | 4 | 11 | 0 |
 | 2. Autenticación | 14 | 37 | 0 |
-| 3. Reportes | 24 | 61 | 0 |
+| 3. Reportes | 29 | 77 | 0 |
 | 4. Votos | 5 | 12 | 0 |
 | 5. Eliminar reporte | 3 | 6 | 0 |
-| 6. Revisiones | 15 | 37 | 0 |
+| 6. Revisiones | 16 | 39 | 0 |
 | 7. Notificaciones | 6 | 16 | 0 |
 | 8. Estadísticas | 5 | 13 | 0 |
 | 9. Cuentas y contraseña | 14 | 34 | 0 |
-| **Total** | **90** | **227** | **0** |
+| **Total** | **96** | **245** | **0** |
 
 ### 6.1 Pruebas funcionales
 
@@ -812,16 +812,19 @@ Estos son los escenarios principales, con casos exitosos y fallidos. Cada uno es
 | P24 | Consultar los sectores geográficos | `GET /sectores` | `200` | Pasó | "Sectores disponibles" |
 | P25 | Filtrar los reportes por sector canónico | `GET /reportes?sector=...` | `200` | Pasó | "Listar reportes por sector" |
 | P26 | Crear un reporte fuera de Valparaíso | `POST /reportes` | `400` | Pasó | "Crear reporte fuera de Valparaíso" |
+| P27 | Enviar `riesgo=100` al crear o editar y comprobar que el backend lo ignora | `POST /reportes` y `PUT /reportes/:id` | `201` / `200` | Pasó | "Crear reporte" y "Modificar reporte" |
+| P28 | Crear o modificar con categoría/volumen fuera de la lista cerrada | `POST /reportes` y `PUT /reportes/:id` | `400` | Pasó | "Crear reporte con categoría inválida", "Crear reporte con volumen inválido", "Modificar reporte con categoría inválida", "Modificar reporte con volumen inválido" |
+| P29 | Corregir el desglose con `riesgo=150` y comprobar que se ignora | `PATCH /reportes/:id/desglose` | `200` | Pasó | "Corregir desglose ignora el riesgo del cliente" |
 
-Las 90 peticiones y sus 227 comprobaciones están en la tabla de arriba, por carpeta.
+Las 96 peticiones y sus 245 comprobaciones están en la tabla de arriba, por carpeta.
 
 ### 6.2 Capturas
 
-**Resumen del Runner:** 227 comprobaciones pasadas, 0 fallidas y 0 errores.
+**Resumen del Runner:** 245 comprobaciones pasadas, 0 fallidas y 0 errores.
 
 ![Resultado del Collection Runner de Postman con 227 pruebas pasadas, 0 fallidas y 0 errores, y peticiones en verde](img/postman-runner.png)
 
-La captura corresponde a una corrida anterior; el conteo actual de la colección es 227 comprobaciones.
+La captura corresponde a una corrida anterior; el conteo actual de la colección es 245 comprobaciones.
 
 **Respuesta completa de un login:** `POST /auth/login` responde `200 OK` con el token y los datos del usuario, y pasan sus 3 pruebas.
 

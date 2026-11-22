@@ -55,6 +55,11 @@ Se reemplazó el Cypress heredado y se agregaron pruebas del cliente (frontend),
 ### 15. Actualización de la rama `frontend` desde `main` y corrección de textos
 Se actualizó la rama `frontend` desde `main` y se corrigieron los textos que aún anunciaban el cálculo del riesgo como trabajo futuro.
 
+### 16. Riesgo calculado en el servidor y listas cerradas de categoría y volumen
+El índice de riesgo se calcula exclusivamente en el backend al crear un reporte, al editarlo, al corregir el desglose y al registrar o quitar apoyos. Si el cuerpo de la petición incluye un campo `riesgo`, se ignora: el cliente no puede imponer el valor que se guarda. La fórmula vive en `backend/src/dominio/riesgo.js` y el frontend solo la usa para previsualizar mientras se completa el formulario.
+
+Además, `categoria` y `volumen` se validan contra las listas cerradas `CATEGORIAS_REPORTE` y `VOLUMENES_REPORTE` de `backend/src/dominio/opcionesReporte.js`. Un valor inventado, vacío o de otro tipo responde `400` al crear, editar o corregir el desglose.
+
 ---
 
 ## Resumen
@@ -76,4 +81,5 @@ Se actualizó la rama `frontend` desde `main` y se corrigieron los textos que a�
 | EP2 | Limitación de intentos de login | Aplicado |
 | EP2 | Reemplazo de Cypress y tests cliente | Aplicado |
 | EP2 | Actualización rama `frontend` y textos | Aplicado |
+| EP2 | Riesgo del cliente ignorado y listas cerradas | Aplicado |
 
