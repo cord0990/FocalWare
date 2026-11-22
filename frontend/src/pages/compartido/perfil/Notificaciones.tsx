@@ -68,7 +68,9 @@ const Notificaciones: React.FC<Props> = ({ onVerDetalles }) => {
       !termino ||
       normalizarTexto(n.mensaje).includes(termino) ||
       normalizarTexto(n.tituloReporte).includes(termino) ||
-      normalizarTexto(n.reporteId).includes(termino);
+      normalizarTexto(n.reporteId).includes(termino) ||
+      // "N° 82" o "#82" también encuentra el reporte 82
+      normalizarTexto(n.reporteId) === termino.replace(/\D/g, '');
 
     if (!coincideTexto) return false;
 
@@ -114,7 +116,7 @@ const Notificaciones: React.FC<Props> = ({ onVerDetalles }) => {
         <IonSearchbar
           value={busqueda}
           onIonInput={(e) => setBusqueda(e.detail.value ?? '')}
-          placeholder="Buscar notificación o ID..."
+          placeholder="Buscar por título, mensaje o N° de reporte"
           className="searchbar-perfil"
           debounce={200}
         />

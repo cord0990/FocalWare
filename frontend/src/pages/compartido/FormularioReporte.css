@@ -21,15 +21,19 @@
   font-size: 1.05rem;
 }
 
+/* Campo con error: borde rojo más grueso y fondo rosado para que se note */
 .formulario-reporte .campo-invalido {
   --border-color: #c62828;
+  --border-width: 2px;
+  --background: #fff3f3;
 }
 
-.formulario-error {
-  margin: 4px 4px 0;
+.formulario-error,
+.formulario-reporte .campo-invalido .error-text {
+  margin: 6px 4px 0;
   color: #c62828;
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-size: 0.92rem;
+  font-weight: 700;
 }
 
 /* Columna izquierda */

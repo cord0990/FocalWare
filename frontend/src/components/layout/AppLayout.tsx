@@ -13,6 +13,7 @@ import { ID_MENU_CUENTA } from './MenuCuenta';
 import { CLAVE_ANCHO_MENU } from '../../context/MenuProvider';
 import { useAnchoRedimensionable } from '../../hooks/useAnchoRedimensionable';
 import { useMenu } from '../../hooks/useMenu';
+import { useNotificacionesNoLeidas } from '../../hooks/useNotificacionesNoLeidas';
 import { RUTAS } from '../../routes/rutas';
 import { useIrAlLogin } from '../../hooks/useIrAlLogin';
 import { useSesion } from '../../hooks/useSesion';
@@ -30,6 +31,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const { usuario } = useSesion();
   const irAlLogin = useIrAlLogin();
   const tecladoAbierto = useTecladoAbierto();
+  const noLeidas = useNotificacionesNoLeidas();
   const divisorMenu = useAnchoRedimensionable({
     clave: CLAVE_ANCHO_MENU,
     minimo: 180,
@@ -56,13 +58,25 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           </a>
           {usuario ? (
             <IonMenuToggle slot="end" menu={ID_MENU_CUENTA} autoHide={false}>
-              <button type="button" className="app-cuenta" aria-label="Abrir menú de mi cuenta">
+              <button
+                type="button"
+                className="app-cuenta"
+                aria-label={
+                  noLeidas > 0
+                    ? `Abrir menú de mi cuenta, ${noLeidas} notificaciones sin leer`
+                    : 'Abrir menú de mi cuenta'
+                }
+              >
                 <span className="app-cuenta-texto">
                   <strong>Mi cuenta</strong>
                   <small>{NOMBRE_ROL[usuario.rol]}</small>
                 </span>
                 <span className="app-avatar" aria-hidden="true">
                   {obtenerIniciales(usuario.nombre)}
+                  {/* Globito rojo con las notificaciones sin leer, para que se vean sin abrir el menú */}
+                  {noLeidas > 0 && (
+                    <span className="app-avatar-globito">{noLeidas > 9 ? '9+' : noLeidas}</span>
+                  )}
                 </span>
                 <IonIcon icon={chevronDownOutline} className="app-cuenta-flecha" aria-hidden="true" />
               </button>

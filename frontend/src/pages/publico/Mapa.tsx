@@ -8,7 +8,8 @@ import {
   IonSpinner,
   useIonRouter,
 } from '@ionic/react';
-import { funnelOutline, refreshOutline } from 'ionicons/icons';
+import { funnelOutline, helpCircleOutline, refreshOutline } from 'ionicons/icons';
+import AyudaMapa from '../../components/reportes/AyudaMapa';
 import AppLayout from '../../components/layout/AppLayout';
 import FiltrosActivos from '../../components/reportes/FiltrosActivos';
 import FiltrosReportesModal from '../../components/reportes/FiltrosReportesModal';
@@ -54,6 +55,7 @@ const Mapa: React.FC = () => {
   const [busqueda, setBusqueda] = useState('');
   const [filtros, setFiltros] = useState<FiltrosReportes>(FILTROS_INICIALES);
   const [filtrosAbiertos, setFiltrosAbiertos] = useState(false);
+  const [ayudaAbierta, setAyudaAbierta] = useState(false);
   const [seleccionadoId, setSeleccionadoId] = useState<string>();
   // El calor usa todos los reportes visibles de los últimos 12 meses,
   // sin la búsqueda ni los filtros de la lista: así representa el historial del mapa.
@@ -174,6 +176,15 @@ const Mapa: React.FC = () => {
           <IonButton
             fill="clear"
             className="inicio-boton-icono"
+            aria-label="Cómo leer el mapa"
+            title="Cómo leer el mapa"
+            onClick={() => setAyudaAbierta(true)}
+          >
+            <IonIcon slot="icon-only" icon={helpCircleOutline} />
+          </IonButton>
+          <IonButton
+            fill="clear"
+            className="inicio-boton-icono"
             aria-label="Actualizar reportes"
             onClick={cargarReportes}
             disabled={cargando}
@@ -273,6 +284,8 @@ const Mapa: React.FC = () => {
         onCerrar={() => setFiltrosAbiertos(false)}
         onAplicar={aplicarNuevosFiltros}
       />
+
+      <AyudaMapa abierto={ayudaAbierta} onCerrar={() => setAyudaAbierta(false)} />
     </AppLayout>
   );
 };

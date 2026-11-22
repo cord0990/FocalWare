@@ -81,6 +81,25 @@
   background: #2b2b2b;
   color: #fff;
   font-size: 1.1rem;
+  position: relative;
+}
+
+.app-avatar-globito {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 5px;
+  border: 2px solid #fff;
+  border-radius: 11px;
+  background: #e0283a;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
 }
 
 .app-contenido {

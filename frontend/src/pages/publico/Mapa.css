@@ -197,7 +197,11 @@
   /* Arriba van Filtros y Actualizar; el buscador baja a su propia fila con todo el ancho */
   .inicio-barra {
     flex-wrap: wrap;
-    justify-content: space-between;
+  }
+
+  /* Filtros a la izquierda; Ayuda y Actualizar juntos a la derecha */
+  .inicio-boton-filtros {
+    margin-right: auto;
   }
 
   .inicio-buscador {

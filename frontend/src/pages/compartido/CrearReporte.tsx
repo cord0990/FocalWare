@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   IonButton,
   IonIcon,
@@ -27,7 +27,7 @@ import AppLayout from '../../components/layout/AppLayout';
 import CamposDesglose from '../../components/reportes/CamposDesglose';
 import ExplicacionRiesgo from '../../components/reportes/ExplicacionRiesgo';
 import GaleriaEditable from '../../components/reportes/GaleriaEditable';
-import SelectorUbicacion, { type Ubicacion } from '../../components/reportes/SelectorUbicacion';
+import SelectorUbicacion from '../../components/reportes/SelectorUbicacion';
 import { useConexion } from '../../hooks/useConexion';
 import { useUbicacionActual } from '../../hooks/useUbicacionActual';
 import { useGeocodificacion } from '../../hooks/useGeocodificacion';
@@ -37,18 +37,13 @@ import { esClimaDeRiesgo, obtenerClimaActual, type Clima } from '../../services/
 import { guardarPendiente } from '../../services/pendientesService';
 import { crearReporte, type DatosNuevoReporte, type Reporte } from '../../services/reportesService';
 import {
-  buscarDirecciones,
-  obtenerDireccionDesdePunto,
-  type SugerenciaDireccion,
-} from '../../services/geocodificacionService';
-import {
   calcularIndice,
   type CategoriaReporte,
   type DistanciaReporte,
   type VolumenReporte,
 } from '../../utils/opcionesReporte';
 import { obtenerNivelRiesgo } from '../../utils/riesgo';
-import { MAXIMO_TITULO, validarReporte } from '../../utils/validacionReporte';
+import { MAXIMO_TITULO, irAlPrimerError, validarReporte } from '../../utils/validacionReporte';
 import './FormularioReporte.css';
 
 interface Aviso {
@@ -150,6 +145,7 @@ const CrearReporte: React.FC = () => {
     setIntentoEnviar(true);
     if (Object.values(errores).some(Boolean) || !ubicacion) {
       setMensaje('Revisa los campos marcados en rojo.');
+      irAlPrimerError();
       return;
     }
 
