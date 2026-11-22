@@ -3,7 +3,8 @@ import { useParams } from 'react-router-dom';
 import { IonButton, IonIcon, IonSpinner, IonToast, useIonRouter } from '@ionic/react';
 import {
   arrowBackOutline,
-  caretUp,
+  chevronBack,
+  chevronForward,
   createOutline,
   folderOpenOutline,
   helpCircleOutline,
@@ -21,8 +22,10 @@ import CamposDesglose from '../../components/reportes/CamposDesglose';
 import SeguimientoReporte from '../../components/reportes/SeguimientoReporte';
 import ExplicacionRiesgo from '../../components/reportes/ExplicacionRiesgo';
 import MiniMapa from '../../components/reportes/MiniMapa';
+import votoDisponible from '../../assets/icons/voto-disponible.svg';
+import votoVotado from '../../assets/icons/voto-votado.svg';
 import TarjetaReporte from '../../components/reportes/TarjetaReporte';
-import { useAnchoRedimensionable } from '../../hooks/useAnchoRedimensionable';
+import { leerAnchoGuardado, useAnchoRedimensionable } from '../../hooks/useAnchoRedimensionable';
 import { useIrAlLogin } from '../../hooks/useIrAlLogin';
 import { useSesion } from '../../hooks/useSesion';
 import { RUTAS, rutaDetalleMapa, rutaEditarReporte, rutaMunicipalReporte } from '../../routes/rutas';
@@ -79,11 +82,29 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
   const [otros, setOtros] = useState<Reporte[]>([]);
   const [fotoActiva, setFotoActiva] = useState(0);
   const [explicacionAbierta, setExplicacionAbierta] = useState(false);
+  // Columna derecha (otros reportes): un clic la oculta y otro la vuelve a mostrar.
+  const [anchoOtros, setAnchoOtros] = useState<number | null>(() =>
+    leerAnchoGuardado('focalware-ancho-otros'),
+  );
+  const [anchoOtrosPrevio, setAnchoOtrosPrevio] = useState<number | null>(null);
+  const alternarOtros = () => {
+    if (anchoOtros === 0) {
+      setAnchoOtros(anchoOtrosPrevio);
+    } else {
+      setAnchoOtrosPrevio(anchoOtros);
+      setAnchoOtros(0);
+    }
+  };
+
   const divisor = useAnchoRedimensionable({
     clave: 'focalware-ancho-otros',
     minimo: 300,
     maximoProporcion: 0.5,
+    estado: [anchoOtros, setAnchoOtros],
+    onClic: alternarOtros,
   });
+  const otrosCerrado = divisor.ancho === 0;
+
   // La columna izquierda (riesgo, desglose y opciones) también se puede ensanchar.
   const divisorLateral = useAnchoRedimensionable({
     clave: 'focalware-ancho-lateral-detalle',
@@ -94,17 +115,6 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
 
   useEffect(() => {
     let vigente = true;
-    // obtenerReportes() trae la lista completa del mapa (hasta 300 reportes)
-    // y aquí solo se usa para la columna "otros". Ya venía así desde antes de
-    // conectar la API, no es una regresión: por ahora no es un problema porque
-    // son pocos registros y la respuesta pesa poco.
-    //
-    // REVISAR: como obtenerReportes() no incluye idRevision (el mapa es público
-    // y ese dato solo se manda al dueño y a los funcionarios), los reportes de
-    // la columna "otros" traen idRevision en null. Hoy no molesta porque el modal
-    // de gestión solo se abre sobre `reporte`, que sí viene de obtenerReportePorId
-    // y lo trae completo. Si algún día se abre la gestión desde esa columna,
-    // faltaría el id para llamar a PUT /api/revisiones/:id.
     const cargar = () =>
       Promise.all([obtenerReportePorId(id), obtenerReportes()]).then(([encontrado, todos]) => {
         if (!vigente) return;
@@ -118,9 +128,7 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
     setReporte(undefined);
     setFotoActiva(0);
     cargar();
-    // Si el autor modifica el reporte, se vuelve a cargar con los datos nuevos.
     window.addEventListener(EVENTO_REPORTES, recargar);
-    // Evita mostrar datos de un reporte anterior si el usuario cambia rápido de reporte.
     return () => {
       vigente = false;
       window.removeEventListener(EVENTO_REPORTES, recargar);
@@ -206,6 +214,10 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
     clima: reporte.clima,
   });
   const riesgo = desgloseIndice.indice ?? reporte.riesgo;
+  const riesgoMapa = Math.round(reporte.riesgo);
+  const riesgoDetalle = Math.round(riesgo);
+  const riesgoCambioPorClima =
+    !modificando && !reporte.riesgoEnCalculo && riesgoDetalle !== riesgoMapa;
   const nivel = obtenerNivelRiesgo(riesgo);
   const estado = estiloDeEstado(reporte.estado);
 
@@ -228,11 +240,8 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
       });
       setModificando(false);
       setMensaje('Desglose actualizado.');
-      // Avisa al resto de la app (y recarga el detalle) con los datos nuevos.
       window.dispatchEvent(new Event(EVENTO_REPORTES));
     } catch (error) {
-      // Antes esto guardaba en localStorage y siempre confirmaba. Ahora pega a la
-      // API, así que el backend puede rechazar el cambio y hay que decirlo.
       setMensaje(
         error instanceof ErrorApi
           ? `No se pudo guardar el desglose: ${error.message}`
@@ -242,8 +251,7 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
       setGuardandoDesglose(false);
     }
   };
-  // Las fotos llegan como rutas del servidor; acá se convierten a direcciones para
-  // poder mostrarlas.
+
   const fotos = reporte.imagenes.map(urlDeImagen);
 
   const desglose = [
@@ -258,39 +266,60 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
     <AppLayout>
       <div
         ref={(elemento) => {
-          // Los dos divisores miden sobre la misma grilla.
           divisor.contenedor.current = elemento;
           divisorLateral.contenedor.current = elemento;
         }}
-        className={
-          divisor.arrastrando || divisorLateral.arrastrando ? 'detalle-reporte arrastrando' : 'detalle-reporte'
-        }
+        className={[
+          'detalle-reporte',
+          divisor.arrastrando || divisorLateral.arrastrando ? 'arrastrando' : '',
+          otrosCerrado ? 'otros-cerrado' : '',
+        ]
+          .filter(Boolean)
+          .join(' ')}
         style={
           {
-            ...(divisor.ancho ? { '--ancho-otros': `${divisor.ancho}px` } : {}),
-            ...(divisorLateral.ancho ? { '--ancho-lateral': `${divisorLateral.ancho}px` } : {}),
+            ...(divisor.ancho !== null ? { '--ancho-otros': `${divisor.ancho}px` } : {}),
+            ...(divisorLateral.ancho !== null ? { '--ancho-lateral': `${divisorLateral.ancho}px` } : {}),
           } as React.CSSProperties
         }
       >
         <aside ref={divisorLateral.panel} className="detalle-lateral">
-          <div
-            className="detalle-riesgo"
-            style={reporte.riesgoEnCalculo ? undefined : { background: nivel.color, color: nivel.texto }}
-          >
-            <button
-              type="button"
-              className="boton-ayuda-riesgo"
-              onClick={() => setExplicacionAbierta(true)}
-              aria-label="¿Cómo se calcula el riesgo?"
-              title="¿Cómo se calcula el riesgo?"
+          <div className="detalle-resumen-superior">
+            <div
+              className="detalle-estado-destacado"
+              style={{ borderColor: estado.color, color: estado.color }}
             >
-              <IonIcon icon={helpCircleOutline} aria-hidden="true" />
-            </button>
-            <span className="detalle-riesgo-titulo">Riesgo</span>
-            <strong>{reporte.riesgoEnCalculo ? 'En cálculo' : `${riesgo} %`}</strong>
-            <span className="detalle-riesgo-tipo">
-              {reporte.riesgoEnCalculo ? 'Pendiente de revisión' : `Riesgo ${nivel.etiqueta.toLowerCase()}`}
-            </span>
+              <span className="detalle-estado-etiqueta">Estado del reporte</span>
+              <strong>
+                <IonIcon icon={estado.icono} aria-hidden="true" />
+                {reporte.estado}
+              </strong>
+            </div>
+
+            <div
+              className="detalle-riesgo"
+              style={reporte.riesgoEnCalculo ? undefined : { background: nivel.color, color: nivel.texto }}
+            >
+              <button
+                type="button"
+                className="boton-ayuda-riesgo"
+                onClick={() => setExplicacionAbierta(true)}
+                aria-label="¿Cómo se calcula el riesgo?"
+                title="¿Cómo se calcula el riesgo?"
+              >
+                <IonIcon icon={helpCircleOutline} aria-hidden="true" />
+              </button>
+              <span className="detalle-riesgo-titulo">Riesgo</span>
+              <strong>{reporte.riesgoEnCalculo ? 'En cálculo' : `${riesgo} %`}</strong>
+              <span className="detalle-riesgo-tipo">
+                {reporte.riesgoEnCalculo ? 'Pendiente de revisión' : `Riesgo ${nivel.etiqueta.toLowerCase()}`}
+              </span>
+              {riesgoCambioPorClima && (
+                <p className="detalle-riesgo-nota">
+                  En el mapa figura como {riesgoMapa} %; aquí varía según el clima del momento.
+                </p>
+              )}
+            </div>
           </div>
 
           {esGestion && (
@@ -368,6 +397,29 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
               <p className="detalle-sin-datos">Sin información del clima.</p>
             )}
           </section>
+
+          {puedeVotarPrincipal() && (
+            <button
+              type="button"
+              className={reporte.miVoto ? 'detalle-apoyo votado' : 'detalle-apoyo'}
+              onClick={alternarVotoPrincipal}
+              aria-pressed={reporte.miVoto}
+              aria-label={
+                reporte.miVoto
+                  ? `Quitar apoyo, ${reporte.votos} votos`
+                  : `Apoyar reporte, ${reporte.votos} votos`
+              }
+            >
+              <img
+                src={reporte.miVoto ? votoVotado : votoDisponible}
+                className="detalle-apoyo-icono"
+                alt=""
+              />
+              <span className="detalle-apoyo-texto">
+                {reporte.miVoto ? 'Quitar apoyo' : 'Apoyar reporte'}
+              </span>
+            </button>
+          )}
         </aside>
 
         {/* Solo se muestra en PC: se arrastra para cambiar el ancho de la columna izquierda */}
@@ -377,27 +429,38 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
           aria-orientation="vertical"
           aria-label="Cambiar el ancho de la columna de riesgo y desglose"
           tabIndex={0}
-          title="Arrastra para cambiar el ancho. Doble clic para restablecer."
+          title="Arrastra para cambiar el ancho."
           onPointerDown={divisorLateral.alPresionar}
           onKeyDown={divisorLateral.alTeclado}
-          onDoubleClick={divisorLateral.restablecer}
         >
           <span aria-hidden="true" />
         </div>
 
         <div className="detalle-principal">
           <div className="detalle-barra">
-            <button type="button" className="detalle-volver" onClick={volver}>
-              <span>
-                <IonIcon icon={arrowBackOutline} aria-hidden="true" />
-              </span>
-              <IonIcon
-                icon={origen === 'mis-reportes' ? folderOpenOutline : mapOutline}
-                aria-hidden="true"
-                className="detalle-volver-mapa"
-              />
-              {origen === 'mis-reportes' ? 'Volver a Mis reportes' : 'Volver al mapa'}
-            </button>
+            <div className="detalle-barra-izquierda">
+              <button type="button" className="detalle-volver" onClick={volver}>
+                <span>
+                  <IonIcon icon={arrowBackOutline} aria-hidden="true" />
+                </span>
+                <IonIcon
+                  icon={origen === 'mis-reportes' ? folderOpenOutline : mapOutline}
+                  aria-hidden="true"
+                  className="detalle-volver-mapa"
+                />
+                {origen === 'mis-reportes' ? 'Volver a Mis reportes' : 'Volver al mapa'}
+              </button>
+              {origen === 'mis-reportes' && (
+                <button
+                  type="button"
+                  className="detalle-volver detalle-volver-secundario"
+                  onClick={() => router.push(rutaDetalleMapa(reporte.id), 'forward')}
+                >
+                  <IonIcon icon={mapOutline} aria-hidden="true" className="detalle-volver-mapa" />
+                  Volver al mapa
+                </button>
+              )}
+            </div>
             {usuario?.rol === 'vecino' && origen === 'mis-reportes' && puedeModificar(reporte) && (
               <button
                 type="button"
@@ -408,24 +471,16 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
                 Modificar reporte
               </button>
             )}
-            {puedeVotarPrincipal() && (
-              <button
-                type="button"
-                className={reporte.miVoto ? 'btn-voto votado' : 'btn-voto'}
-                onClick={alternarVotoPrincipal}
-                aria-pressed={reporte.miVoto}
-                aria-label={`Votar a favor, ${reporte.votos} votos`}
-              >
-                <IonIcon icon={caretUp} aria-hidden="true" />
-                {reporte.miVoto ? 'Apoyado' : 'Apoyar'} · {reporte.votos}
-              </button>
-            )}
           </div>
 
           <h1 className="detalle-titulo">{reporte.nombre}</h1>
 
           <div className="detalle-etiquetas">
-            <span>Reporte N° {reporte.id}</span>
+            <span>
+              {esGestion || usuario?.rol === 'funcionario'
+                ? `ID ${reporte.id}`
+                : `Reporte N° ${reporte.id}`}
+            </span>
             <span>{formatearFecha(reporte.fecha)}</span>
             <span>{reporte.categoria}</span>
             {reporte.editadoEn && <span>Modificado {formatearFecha(reporte.editadoEn)}</span>}
@@ -472,23 +527,43 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
               <p>{reporte.descripcion || 'El vecino no agregó una descripción.'}</p>
               <p className="detalle-sector">Sector: {reporte.sector}</p>
             </section>
-            <MiniMapa latitud={reporte.latitud} longitud={reporte.longitud} nivel={nivel} />
+            <MiniMapa
+              latitud={reporte.latitud}
+              longitud={reporte.longitud}
+              nivel={nivel}
+              onClick={() => router.push(rutaDetalleMapa(reporte.id), 'forward')}
+            />
           </div>
         </div>
 
-        {/* Solo se muestra en PC: se arrastra para cambiar el ancho de otros reportes */}
+        {/* Solo se muestra en PC: un clic oculta o muestra otros reportes; arrastrar los ajusta */}
         <div
           className="detalle-divisor"
           role="separator"
           aria-orientation="vertical"
-          aria-label="Cambiar el ancho de otros reportes"
+          aria-label={otrosCerrado ? 'Mostrar otros reportes' : 'Ocultar otros reportes'}
           tabIndex={0}
-          title="Arrastra para cambiar el ancho. Doble clic para restablecer."
+          title={
+            otrosCerrado
+              ? 'Clic para mostrar otros reportes. Mantén presionado y arrastra para ajustar el ancho.'
+              : 'Clic para ocultar otros reportes. Mantén presionado y arrastra para ajustar el ancho.'
+          }
           onPointerDown={divisor.alPresionar}
-          onKeyDown={divisor.alTeclado}
-          onDoubleClick={divisor.restablecer}
+          onKeyDown={(evento) => {
+            if (evento.key === 'Enter' || evento.key === ' ') {
+              evento.preventDefault();
+              alternarOtros();
+              return;
+            }
+            divisor.alTeclado(evento);
+          }}
         >
           <span aria-hidden="true" />
+          <IonIcon
+            className="detalle-divisor-icono"
+            icon={otrosCerrado ? chevronBack : chevronForward}
+            aria-hidden="true"
+          />
         </div>
 
         <section ref={divisor.panel} className="detalle-otros" aria-label="Otros reportes">

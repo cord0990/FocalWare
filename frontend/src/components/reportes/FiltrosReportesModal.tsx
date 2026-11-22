@@ -71,122 +71,132 @@ const FiltrosReportesModal: React.FC<FiltrosReportesModalProps> = ({
 
           <div className="filtros-panel">
             <div className="filtros-columna">
-              <IonSelect
-                label="Estado"
-                labelPlacement="stacked"
-                fill="outline"
-                interface="popover"
-                placeholder="Todos"
-                value={borrador.estado}
-                onIonChange={(e) => {
-                  const estado = e.detail.value;
-                  if (estado === '' || esEstadoReporte(estado)) {
-                    actualizar({ estado });
-                  }
-                }}
-              >
-                <IonSelectOption value="">Todos</IonSelectOption>
-                {ESTADOS_REPORTE.map((estado) => (
-                  <IonSelectOption key={estado} value={estado}>
-                    {estado}
-                  </IonSelectOption>
-                ))}
-              </IonSelect>
-
-              <fieldset className="filtros-fechas">
-                <legend>Lapso de tiempo</legend>
-                <SelectorFecha
-                  etiqueta="Fecha de inicio"
-                  valor={borrador.desde}
-                  max={borrador.hasta || undefined}
-                  onCambiar={(desde) => actualizar({ desde })}
-                />
-                <SelectorFecha
-                  etiqueta="Fecha de término"
-                  valor={borrador.hasta}
-                  min={borrador.desde || undefined}
-                  onCambiar={(hasta) => actualizar({ hasta })}
-                />
-              </fieldset>
-              {errorFechas && <p className="filtros-error">{errorFechas}</p>}
-
-              <IonSelect
-                label="Sector"
-                labelPlacement="stacked"
-                fill="outline"
-                interface="popover"
-                placeholder="Todos"
-                value={borrador.sector}
-                onIonChange={(e) => actualizar({ sector: e.detail.value })}
-              >
-                <IonSelectOption value="">Todos</IonSelectOption>
-                {sectores.map((sector) => (
-                  <IonSelectOption key={sector} value={sector}>
-                    {sector}
-                  </IonSelectOption>
-                ))}
-              </IonSelect>
-            </div>
-
-            <div className="filtros-columna">
-              <div className="filtros-orden">
-                <IonSelect
-                  label="Ordenar por"
-                  labelPlacement="stacked"
-                  fill="outline"
-                  interface="popover"
-                  value={borrador.orden}
-                  onIonChange={(e) => actualizar({ orden: e.detail.value as CriterioOrden })}
-                >
-                  <IonSelectOption value="riesgo">Riesgo</IonSelectOption>
-                  <IonSelectOption value="votos">Votos</IonSelectOption>
-                  <IonSelectOption value="fecha">Fecha</IonSelectOption>
-                </IonSelect>
-                <div className="filtros-direccion" role="group" aria-label="Dirección del orden">
-                  <button
-                    type="button"
-                    className={borrador.descendente ? '' : 'activo'}
-                    aria-pressed={!borrador.descendente}
-                    aria-label="Ascendente"
-                    title="Ascendente"
-                    onClick={() => actualizar({ descendente: false })}
+              <div className="filtros-campo">
+                <span className="filtros-etiqueta">Ordenar por:</span>
+                <div className="filtros-orden">
+                  <div className="filtros-direccion" role="group" aria-label="Dirección del orden">
+                    <button
+                      type="button"
+                      className={borrador.descendente ? '' : 'activo'}
+                      aria-pressed={!borrador.descendente}
+                      aria-label="Ascendente"
+                      title="Ascendente"
+                      onClick={() => actualizar({ descendente: false })}
+                    >
+                      <IonIcon icon={arrowUpOutline} aria-hidden="true" />
+                    </button>
+                    <button
+                      type="button"
+                      className={borrador.descendente ? 'activo' : ''}
+                      aria-pressed={borrador.descendente}
+                      aria-label="Descendente"
+                      title="Descendente"
+                      onClick={() => actualizar({ descendente: true })}
+                    >
+                      <IonIcon icon={arrowDownOutline} aria-hidden="true" />
+                    </button>
+                  </div>
+                  <IonSelect
+                    aria-label="Ordenar por"
+                    fill="outline"
+                    interface="popover"
+                    value={borrador.orden}
+                    onIonChange={(e) => actualizar({ orden: e.detail.value as CriterioOrden })}
                   >
-                    <IonIcon icon={arrowUpOutline} aria-hidden="true" />
-                  </button>
-                  <button
-                    type="button"
-                    className={borrador.descendente ? 'activo' : ''}
-                    aria-pressed={borrador.descendente}
-                    aria-label="Descendente"
-                    title="Descendente"
-                    onClick={() => actualizar({ descendente: true })}
-                  >
-                    <IonIcon icon={arrowDownOutline} aria-hidden="true" />
-                  </button>
+                    <IonSelectOption value="riesgo">Riesgo</IonSelectOption>
+                    <IonSelectOption value="votos">Votos</IonSelectOption>
+                    <IonSelectOption value="fecha">Fecha</IonSelectOption>
+                  </IonSelect>
                 </div>
               </div>
 
-              <IonSelect
-                label="Categoría(s)"
-                labelPlacement="stacked"
-                fill="outline"
-                interface="popover"
-                multiple
-                placeholder="Todas"
-                value={borrador.categorias}
-                onIonChange={(e) => {
-                  const valor = e.detail.value;
-                  if (Array.isArray(valor)) {
-                    actualizar({ categorias: valor.filter(esCategoriaReporte) });
-                  }
-                }}
-              >
-                {categorias.map((categoria) => (
-                  <IonSelectOption key={categoria} value={categoria}>
-                    {categoria}
-                  </IonSelectOption>
-                ))}
-              </IonSelect>
+              <div className="filtros-campo">
+                <span className="filtros-etiqueta">Sector:</span>
+                <IonSelect
+                  aria-label="Sector"
+                  fill="outline"
+                  interface="popover"
+                  placeholder="Todos"
+                  value={borrador.sector}
+                  onIonChange={(e) => actualizar({ sector: e.detail.value })}
+                >
+                  <IonSelectOption value="">Todos</IonSelectOption>
+                  {sectores.map((sector) => (
+                    <IonSelectOption key={sector} value={sector}>
+                      {sector}
+                    </IonSelectOption>
+                  ))}
+                </IonSelect>
+              </div>
+
+              <div className="filtros-campo">
+                <span className="filtros-etiqueta">Categoría(s):</span>
+                <IonSelect
+                  aria-label="Categorías"
+                  fill="outline"
+                  interface="popover"
+                  multiple
+                  placeholder="Todas"
+                  value={borrador.categorias}
+                  onIonChange={(e) => {
+                    const valor = e.detail.value;
+                    if (Array.isArray(valor)) {
+                      actualizar({ categorias: valor.filter(esCategoriaReporte) });
+                    }
+                  }}
+                >
+                  {categorias.map((categoria) => (
+                    <IonSelectOption key={categoria} value={categoria}>
+                      {categoria}
+                    </IonSelectOption>
+                  ))}
+                </IonSelect>
+              </div>
+
+              <div className="filtros-campo">
+                <span className="filtros-etiqueta">Estado:</span>
+                <IonSelect
+                  aria-label="Estado"
+                  fill="outline"
+                  interface="popover"
+                  placeholder="Todos"
+                  value={borrador.estado}
+                  onIonChange={(e) => {
+                    const estado = e.detail.value;
+                    if (estado === '' || esEstadoReporte(estado)) {
+                      actualizar({ estado });
+                    }
+                  }}
+                >
+                  <IonSelectOption value="">Todos</IonSelectOption>
+                  {ESTADOS_REPORTE.map((estado) => (
+                    <IonSelectOption key={estado} value={estado}>
+                      {estado}
+                    </IonSelectOption>
+                  ))}
+                </IonSelect>
+              </div>
+            </div>
+
+            <div className="filtros-columna">
+              <div className="filtros-fechas">
+                <span className="filtros-etiqueta filtros-etiqueta-titulo">Lapso de tiempo</span>
+                <div className="filtros-fechas-campos">
+                  <SelectorFecha
+                    etiqueta="Fecha de inicio"
+                    valor={borrador.desde}
+                    max={borrador.hasta || undefined}
+                    onCambiar={(desde) => actualizar({ desde })}
+                  />
+                  <SelectorFecha
+                    etiqueta="Fecha de término"
+                    valor={borrador.hasta}
+                    min={borrador.desde || undefined}
+                    onCambiar={(hasta) => actualizar({ hasta })}
+                  />
+                </div>
+                {errorFechas && <p className="filtros-error">{errorFechas}</p>}
+              </div>
             </div>
           </div>
 

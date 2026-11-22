@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import {
   IonButton,
+  IonIcon,
   IonInputPasswordToggle,
   IonRouterLink,
   IonSpinner,
 } from '@ionic/react';
+import { personAddOutline } from 'ionicons/icons';
 import AuthLayout from '../../components/layout/AuthLayout';
 import CampoFormulario from '../../components/CampoFormulario';
 import { useCamposTocados } from '../../hooks/useCamposTocados';
@@ -38,13 +40,14 @@ const Login: React.FC = () => {
     setEnviando(true);
     setErrorServidor('');
     try {
-      const { token, usuario } = await iniciarSesion({ email: correo, password: contrasena });
+      const { usuario, token } = await iniciarSesion({ email: correo, password: contrasena });
       // Con la sesión iniciada, RutaPublica lleva al mapa o a la página que se quería abrir.
       sesion.iniciarSesion(usuario, token);
     } catch (error) {
       setErrorServidor(
         error instanceof Error ? error.message : 'No se pudo iniciar sesión. Intenta de nuevo.',
       );
+    } finally {
       setEnviando(false);
     }
   };
@@ -54,12 +57,6 @@ const Login: React.FC = () => {
       <form onSubmit={enviar} noValidate>
         <h2>Bienvenido de vuelta</h2>
         <p>Ingresa con tu correo y contraseña.</p>
-
-        {errorServidor && (
-          <p role="alert" style={{ color: 'var(--ion-color-danger)', marginBottom: '12px' }}>
-            {errorServidor}
-          </p>
-        )}
 
         <CampoFormulario
           etiqueta="Correo"
@@ -88,17 +85,56 @@ const Login: React.FC = () => {
           <IonInputPasswordToggle slot="end" color="medium" />
         </CampoFormulario>
 
+        <div className="auth-enlaces" style={{ justifyContent: 'flex-end', marginBottom: '12px' }}>
+          <IonRouterLink routerLink={RUTAS.recuperar} className="auth-enlace">
+            ¿Olvidaste tu contraseña?
+          </IonRouterLink>
+        </div>
+
+        {errorServidor && (
+          <p role="alert" style={{ color: 'var(--ion-color-danger)', marginBottom: '12px' }}>
+            {errorServidor}
+          </p>
+        )}
+
         <IonButton type="submit" expand="block" className="btn-principal" disabled={enviando}>
           {enviando ? <IonSpinner name="crescent" /> : 'Iniciar sesión'}
         </IonButton>
 
-        <div className="auth-enlaces">
-          <IonRouterLink routerLink={RUTAS.recuperar} className="auth-enlace">
-            ¿Olvidaste tu contraseña?
-          </IonRouterLink>
-          <IonRouterLink routerLink={RUTAS.registro} className="auth-enlace">
-            Crear cuenta
-          </IonRouterLink>
+        <div
+          className="auth-registro-bloque"
+          style={{
+            marginTop: '20px',
+            paddingTop: '16px',
+            borderTop: '1px solid #eadfd3',
+            textAlign: 'center',
+          }}
+        >
+          <p style={{ margin: '0 0 10px', fontSize: '0.95rem', color: '#5c5352' }}>
+            ¿Primera vez en FocalWare?
+          </p>
+          <IonButton
+            routerLink={RUTAS.registro}
+            expand="block"
+            fill="outline"
+            style={{
+              '--color': '#b8421b',
+              '--border-color': '#e06d3b',
+              '--border-width': '1.5px',
+              '--border-radius': '8px',
+              '--background': '#fdf2e9',
+              '--background-hover': '#fae3d2',
+              '--background-activated': '#f5d2b8',
+              textTransform: 'none',
+              fontWeight: 600,
+              fontSize: '16px',
+              letterSpacing: '0',
+              height: '44px',
+            }}
+          >
+            <IonIcon slot="start" icon={personAddOutline} />
+            Crear cuenta nueva
+          </IonButton>
         </div>
       </form>
     </AuthLayout>

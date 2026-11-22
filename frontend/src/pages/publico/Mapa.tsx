@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useLocation } from 'react-router-dom';
 import {
   IonBadge,
@@ -8,14 +9,26 @@ import {
   IonSpinner,
   useIonRouter,
 } from '@ionic/react';
-import { funnelOutline, refreshOutline } from 'ionicons/icons';
+import {
+  chevronBack,
+  chevronForward,
+  closeOutline,
+  flameOutline,
+  funnelOutline,
+  helpOutline,
+  listOutline,
+  locateOutline,
+  locationOutline,
+  refreshOutline,
+  searchOutline,
+} from 'ionicons/icons';
 import AppLayout from '../../components/layout/AppLayout';
 import FiltrosActivos from '../../components/reportes/FiltrosActivos';
 import FiltrosReportesModal from '../../components/reportes/FiltrosReportesModal';
 import MapaReportes from '../../components/reportes/MapaReportes';
 import SinResultados from '../../components/reportes/SinResultados';
 import TarjetaReporte from '../../components/reportes/TarjetaReporte';
-import { useAnchoRedimensionable } from '../../hooks/useAnchoRedimensionable';
+import { leerAnchoGuardado, useAnchoRedimensionable } from '../../hooks/useAnchoRedimensionable';
 import { useIrAlLogin } from '../../hooks/useIrAlLogin';
 import { useSesion } from '../../hooks/useSesion';
 import { NIVELES_RIESGO, rangoNivel } from '../../utils/riesgo';
@@ -54,6 +67,7 @@ const Mapa: React.FC = () => {
   const [busqueda, setBusqueda] = useState('');
   const [filtros, setFiltros] = useState<FiltrosReportes>(FILTROS_INICIALES);
   const [filtrosAbiertos, setFiltrosAbiertos] = useState(false);
+  const [ayudaAbierta, setAyudaAbierta] = useState(false);
   const [seleccionadoId, setSeleccionadoId] = useState<string>();
   // El calor usa todos los reportes visibles de los últimos 12 meses,
   // sin la búsqueda ni los filtros de la lista: así representa el historial del mapa.
@@ -61,11 +75,30 @@ const Mapa: React.FC = () => {
     () => reportes.filter((reporte) => reporte.fecha >= fechaHace12Meses()),
     [reportes],
   );
+  const [anchoLista, setAnchoLista] = useState<number | null>(() =>
+    leerAnchoGuardado('focalware-ancho-lista'),
+  );
+  // Ancho que tenía la lista antes de cerrarla, para devolverlo al abrirla.
+  const [anchoListaPrevio, setAnchoListaPrevio] = useState<number | null>(null);
+
+  // Un clic en el divisor oculta o muestra la lista completa; arrastrar la ajusta a mano.
+  const alternarLista = () => {
+    if (anchoLista === 0) {
+      setAnchoLista(anchoListaPrevio);
+    } else {
+      setAnchoListaPrevio(anchoLista);
+      setAnchoLista(0);
+    }
+  };
+
   const divisor = useAnchoRedimensionable({
     clave: 'focalware-ancho-lista',
     minimo: 320,
     maximoProporcion: 0.6,
+    estado: [anchoLista, setAnchoLista],
+    onClic: alternarLista,
   });
+  const listaCerrada = divisor.ancho === 0;
 
   const cargarReportes = async () => {
     setCargando(true);
@@ -75,11 +108,19 @@ const Mapa: React.FC = () => {
 
   useEffect(() => {
     cargarReportes();
-    // Cuando se crea o modifica un reporte, la lista se actualiza sin mostrar la carga.
     const actualizar = async () => setReportes(await obtenerReportes());
     window.addEventListener(EVENTO_REPORTES, actualizar);
     return () => window.removeEventListener(EVENTO_REPORTES, actualizar);
   }, []);
+
+  useEffect(() => {
+    if (!ayudaAbierta) return;
+    const alPresionarTecla = (evento: KeyboardEvent) => {
+      if (evento.key === 'Escape') setAyudaAbierta(false);
+    };
+    window.addEventListener('keydown', alPresionarTecla);
+    return () => window.removeEventListener('keydown', alPresionarTecla);
+  }, [ayudaAbierta]);
 
   // Desde "Mis reportes" se llega con /inicio?reporte=ID para ver ese reporte en el mapa.
   const { search } = useLocation();
@@ -90,7 +131,6 @@ const Mapa: React.FC = () => {
     setBusqueda('');
     setFiltros(FILTROS_INICIALES);
     setSeleccionadoId(reporteSolicitado);
-    // Espera a que termine la animación de entrada antes de desplazar la lista.
     const espera = setTimeout(
       () =>
         document
@@ -146,24 +186,20 @@ const Mapa: React.FC = () => {
     <AppLayout>
       <div
         ref={divisor.contenedor}
-        className={divisor.arrastrando ? 'inicio arrastrando' : 'inicio'}
+        className={[
+          'inicio',
+          divisor.arrastrando ? 'arrastrando' : '',
+          listaCerrada ? 'cerrado' : '',
+        ]
+          .filter(Boolean)
+          .join(' ')}
         style={
-          divisor.ancho ? ({ '--ancho-lista': `${divisor.ancho}px` } as React.CSSProperties) : undefined
+          divisor.ancho !== null
+            ? ({ '--ancho-lista': `${divisor.ancho}px` } as React.CSSProperties)
+            : undefined
         }
       >
         <div className="inicio-barra">
-          <IonButton
-            fill="clear"
-            className="inicio-boton-icono inicio-boton-filtros"
-            aria-label={
-              filtrosActivos ? `Filtrar reportes, ${filtrosActivos} filtros activos` : 'Filtrar reportes'
-            }
-            onClick={() => setFiltrosAbiertos(true)}
-          >
-            <IonIcon slot="start" icon={funnelOutline} />
-            Filtros
-            {filtrosActivos > 0 && <IonBadge className="inicio-filtros-activos">{filtrosActivos}</IonBadge>}
-          </IonButton>
           <IonSearchbar
             className="inicio-buscador"
             placeholder="Buscar por sector, nombre o categoría"
@@ -171,19 +207,43 @@ const Mapa: React.FC = () => {
             debounce={250}
             onIonInput={(e) => setBusqueda(e.detail.value ?? '')}
           />
-          <IonButton
-            fill="clear"
-            className="inicio-boton-icono"
-            aria-label="Actualizar reportes"
-            onClick={cargarReportes}
-            disabled={cargando}
-          >
-            {cargando ? (
-              <IonSpinner name="crescent" />
-            ) : (
-              <IonIcon slot="icon-only" icon={refreshOutline} />
-            )}
-          </IonButton>
+          <div className="inicio-acciones">
+            <IonButton
+              fill="solid"
+              className="inicio-boton-icono inicio-boton-principal"
+              aria-label={
+                filtrosActivos ? `Filtrar reportes, ${filtrosActivos} filtros activos` : 'Filtrar reportes'
+              }
+              onClick={() => setFiltrosAbiertos(true)}
+            >
+              <IonIcon slot="icon-only" icon={funnelOutline} />
+              {filtrosActivos > 0 && (
+                <IonBadge className="inicio-filtros-activos">{filtrosActivos}</IonBadge>
+              )}
+            </IonButton>
+            <IonButton
+              fill="solid"
+              className="inicio-boton-icono inicio-boton-principal"
+              aria-label="Actualizar reportes"
+              onClick={cargarReportes}
+              disabled={cargando}
+            >
+              {cargando ? (
+                <IonSpinner name="crescent" color="light" />
+              ) : (
+                <IonIcon slot="icon-only" icon={refreshOutline} />
+              )}
+            </IonButton>
+            <button
+              type="button"
+              className="inicio-boton-icono inicio-boton-ayuda"
+              aria-label="Ayuda sobre esta vista"
+              aria-expanded={ayudaAbierta}
+              onClick={() => setAyudaAbierta(true)}
+            >
+              <IonIcon icon={helpOutline} aria-hidden="true" />
+            </button>
+          </div>
         </div>
 
         <section className="inicio-mapa" aria-label="Mapa de reportes">
@@ -198,19 +258,36 @@ const Mapa: React.FC = () => {
           />
         </section>
 
-        {/* Solo se muestra en PC: se arrastra para cambiar el ancho de la lista */}
+        {/* Solo se muestra en PC: un clic oculta o muestra la lista; arrastrar la ajusta a mano */}
         <div
-          className="inicio-divisor"
+          className={listaCerrada ? 'inicio-divisor cerrado' : 'inicio-divisor'}
           role="separator"
           aria-orientation="vertical"
-          aria-label="Cambiar el ancho de la lista de reportes"
+          aria-label={
+            listaCerrada ? 'Mostrar la lista de reportes' : 'Ocultar la lista de reportes'
+          }
           tabIndex={0}
-          title="Arrastra para cambiar el ancho. Doble clic para restablecer."
+          title={
+            listaCerrada
+              ? 'Clic para mostrar la lista. Mantén presionado y arrastra para ajustar el ancho.'
+              : 'Clic para ocultar la lista. Mantén presionado y arrastra para ajustar el ancho.'
+          }
           onPointerDown={divisor.alPresionar}
-          onKeyDown={divisor.alTeclado}
-          onDoubleClick={divisor.restablecer}
+          onKeyDown={(evento) => {
+            if (evento.key === 'Enter' || evento.key === ' ') {
+              evento.preventDefault();
+              alternarLista();
+              return;
+            }
+            divisor.alTeclado(evento);
+          }}
         >
           <span aria-hidden="true" />
+          <IonIcon
+            className="inicio-divisor-icono"
+            icon={listaCerrada ? chevronBack : chevronForward}
+            aria-hidden="true"
+          />
         </div>
 
         <section ref={divisor.panel} className="inicio-lista" aria-label="Lista de reportes">
@@ -273,6 +350,106 @@ const Mapa: React.FC = () => {
         onCerrar={() => setFiltrosAbiertos(false)}
         onAplicar={aplicarNuevosFiltros}
       />
+
+      {ayudaAbierta &&
+        createPortal(
+          <div
+            className="ayuda-mapa-fondo"
+            onClick={(evento) => {
+              if (evento.target === evento.currentTarget) setAyudaAbierta(false);
+            }}
+          >
+            <div
+              className="ayuda-mapa-contenido"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="ayuda-mapa-titulo"
+            >
+              <div className="ayuda-mapa-encabezado">
+                <div className="ayuda-mapa-titulo">
+                  <span className="ayuda-mapa-insignia" aria-hidden="true">
+                    <IonIcon icon={helpOutline} />
+                  </span>
+                  <h2 id="ayuda-mapa-titulo">Guía rápida del mapa</h2>
+                </div>
+                <button
+                  type="button"
+                  className="ayuda-mapa-btn-x"
+                  onClick={() => setAyudaAbierta(false)}
+                  aria-label="Cerrar guía del mapa"
+                >
+                  <IonIcon icon={closeOutline} aria-hidden="true" />
+                </button>
+              </div>
+
+              <ul className="ayuda-mapa-lista">
+                <li>
+                  <span className="ayuda-mapa-item-icono" aria-hidden="true">
+                    <IonIcon icon={searchOutline} />
+                  </span>
+                  <div>
+                    <strong>Buscador</strong>
+                    <p>Escribe un sector, cerro, título o tipo de residuo para encontrar reportes al instante.</p>
+                  </div>
+                </li>
+                <li>
+                  <span className="ayuda-mapa-item-icono" aria-hidden="true">
+                    <IonIcon icon={funnelOutline} />
+                  </span>
+                  <div>
+                    <strong>Filtros y actualizar</strong>
+                    <p>Filtra los reportes por estado, nivel de riesgo o sector, y actualiza el mapa para ver los reportes más recientes.</p>
+                  </div>
+                </li>
+                <li>
+                  <span className="ayuda-mapa-item-icono" aria-hidden="true">
+                    <IonIcon icon={locationOutline} />
+                  </span>
+                  <div>
+                    <strong>Marcadores de riesgo</strong>
+                    <p>Cada marcador señala un microbasural y su color indica el nivel de riesgo. Tócalo para resaltarlo.</p>
+                  </div>
+                </li>
+                <li>
+                  <span className="ayuda-mapa-item-icono" aria-hidden="true">
+                    <IonIcon icon={locateOutline} />
+                  </span>
+                  <div>
+                    <strong>Mi ubicación y vista del mapa</strong>
+                    <p>Centra el mapa en tu posición actual o cambia entre mapa simple y mapa detallado.</p>
+                  </div>
+                </li>
+                <li>
+                  <span className="ayuda-mapa-item-icono" aria-hidden="true">
+                    <IonIcon icon={flameOutline} />
+                  </span>
+                  <div>
+                    <strong>Mapa de calor</strong>
+                    <p>Resalta las zonas con mayor acumulación de reportes en los últimos 12 meses.</p>
+                  </div>
+                </li>
+                <li>
+                  <span className="ayuda-mapa-item-icono" aria-hidden="true">
+                    <IonIcon icon={listOutline} />
+                  </span>
+                  <div>
+                    <strong>Lista de reportes y apoyos</strong>
+                    <p>Revisa cada ficha, apoya un reporte para darle prioridad o entra a Detalles.</p>
+                  </div>
+                </li>
+              </ul>
+
+              <button
+                type="button"
+                className="ayuda-mapa-cerrar"
+                onClick={() => setAyudaAbierta(false)}
+              >
+                Entendido
+              </button>
+            </div>
+          </div>,
+          document.body,
+        )}
     </AppLayout>
   );
 };

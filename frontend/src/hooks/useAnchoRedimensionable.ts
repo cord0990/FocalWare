@@ -28,6 +28,8 @@ interface Opciones {
   lado?: 'izquierda' | 'derecha';
   // Permite compartir el ancho entre pantallas (por ejemplo, desde un contexto).
   estado?: [number | null, (ancho: number | null) => void];
+  // Se ejecuta al soltar sin haber arrastrado: un clic sobre el divisor.
+  onClic?: () => void;
 }
 
 // Permite cambiar el ancho de un panel arrastrando un divisor (o con las flechas del teclado).
@@ -38,6 +40,7 @@ export const useAnchoRedimensionable = ({
   maximoProporcion,
   lado = 'derecha',
   estado,
+  onClic,
 }: Opciones) => {
   const contenedor = useRef<HTMLDivElement>(null);
   const panel = useRef<HTMLElement>(null);
@@ -55,10 +58,14 @@ export const useAnchoRedimensionable = ({
     evento.preventDefault();
     const borde = contenedor.current.getBoundingClientRect();
     let ultimo = ancho;
+    // Un clic es un pointerdown/up sin movimiento: sirve para abrir o cerrar el panel.
+    let movido = false;
+    const inicioX = evento.clientX;
 
     setArrastrando(true);
 
     const mover = (e: PointerEvent) => {
+      if (Math.abs(e.clientX - inicioX) > 4) movido = true;
       ultimo = limitar(lado === 'derecha' ? borde.right - e.clientX : e.clientX - borde.left);
       setAncho(ultimo);
     };
@@ -67,7 +74,8 @@ export const useAnchoRedimensionable = ({
       window.removeEventListener('pointerup', soltar);
       window.removeEventListener('pointercancel', soltar);
       setArrastrando(false);
-      guardar(clave, ultimo);
+      if (movido) guardar(clave, ultimo);
+      else onClic?.();
     };
 
     // Se escucha en toda la ventana para que el arrastre no se corte si el puntero sale del divisor.
@@ -95,5 +103,5 @@ export const useAnchoRedimensionable = ({
     guardar(clave, null);
   };
 
-  return { contenedor, panel, ancho, arrastrando, alPresionar, alTeclado, restablecer };
+  return { contenedor, panel, ancho, setAncho, arrastrando, alPresionar, alTeclado, restablecer };
 };

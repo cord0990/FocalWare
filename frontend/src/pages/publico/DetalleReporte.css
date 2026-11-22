@@ -22,6 +22,8 @@
 }
 
 .detalle-divisor {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -53,6 +55,41 @@
   outline-offset: 2px;
 }
 
+/* Botón redondo del centro: un clic oculta o muestra la columna.
+   No recibe el puntero para que el arrastre lo siga manejando el divisor. */
+.detalle-divisor-icono {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 2px solid #d9b8b8;
+  border-radius: 50%;
+  background: #fff;
+  color: #6b5a5a;
+  font-size: 0.8rem;
+  pointer-events: none;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.detalle-divisor:hover .detalle-divisor-icono,
+.detalle-divisor:focus-visible .detalle-divisor-icono,
+.detalle-reporte.arrastrando .detalle-divisor-icono {
+  border-color: #e0283a;
+  color: #e0283a;
+}
+
+/* Columna oculta con el botón del divisor */
+.detalle-reporte.otros-cerrado .detalle-otros {
+  display: none;
+}
+
 .detalle-cargando,
 .detalle-no-encontrado {
   display: flex;
@@ -77,13 +114,55 @@
   gap: 16px;
   min-height: 0;
   overflow-y: auto;
+  /* La columna se puede ensanchar/angostar: el botón de apoyo se adapta a su ancho. */
+  container-type: inline-size;
+}
+
+/* Bloque destacado de Estado y Riesgo (UX-14) */
+.detalle-resumen-superior {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detalle-estado-destacado {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 20px;
+  border: 3px solid;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(31, 31, 31, 0.06);
+}
+
+.detalle-estado-etiqueta {
+  color: #5a4545;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.detalle-estado-destacado strong {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.45rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.detalle-estado-destacado ion-icon {
+  font-size: 1.65rem;
+  flex-shrink: 0;
 }
 
 .detalle-riesgo {
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 200px;
+  min-height: 190px;
   padding: 22px 24px;
   border-radius: 26px;
   background: #5a4545;
@@ -107,6 +186,16 @@
   font-size: 1.15rem;
   font-weight: 600;
   text-align: right;
+}
+
+.detalle-riesgo-nota {
+  margin: 10px 0 0;
+  padding-top: 8px;
+  border-top: 1px solid currentColor;
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.35;
+  opacity: 0.92;
 }
 
 .detalle-desglose,
@@ -243,28 +332,57 @@
   padding-right: 4px;
 }
 
-.detalle-volver {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  align-self: flex-start;
-  min-height: 44px;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: #1f1f1f;
-  font-family: inherit;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
 .detalle-barra {
   display: flex;
-  align-items: center;
   flex-wrap: wrap;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
+}
+
+.detalle-barra-izquierda {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Botón claro de navegación (UX-13) */
+.detalle-volver {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  align-self: flex-start;
+  min-height: 44px;
+  padding: 6px 16px 6px 8px;
+  border: 2px solid #2b2b2b;
+  border-radius: 999px;
+  background: #fff;
+  color: #1f1f1f;
+  font-family: inherit;
+  font-size: 0.98rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.1s ease;
+}
+
+.detalle-volver:hover {
+  background: #f5eded;
+  border-color: #e0283a;
+}
+
+.detalle-volver-secundario {
+  padding-left: 14px;
+  border-color: #d9b8b8;
+  background: #ecdfdf;
+}
+
+.detalle-volver-secundario:hover {
+  background: #e2cece;
+  border-color: #2b2b2b;
 }
 
 /* "Apoyar · 3" va en una sola línea; si no cabe, el botón baja */
@@ -302,16 +420,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: #2b2b2b;
   color: #fff;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
 }
 
 .detalle-volver-mapa {
-  font-size: 1.4rem;
+  font-size: 1.3rem;
 }
 
 .detalle-titulo {
@@ -328,6 +446,7 @@
 .detalle-etiquetas {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
 }
 
@@ -343,8 +462,11 @@
 }
 
 .detalle-etiquetas .detalle-estado {
-  border: 2px solid;
+  padding: 7px 18px;
+  border: 2.5px solid;
   background: #fff;
+  font-size: 0.98rem;
+  font-weight: 800;
 }
 
 /* Galería de fotos: foto principal y miniaturas a la derecha.
@@ -488,6 +610,11 @@
     display: none;
   }
 
+  /* En tablet/celular no hay divisores: la columna de otros siempre se muestra */
+  .detalle-reporte.otros-cerrado .detalle-otros {
+    display: flex;
+  }
+
   .detalle-otros {
     grid-column: 1 / -1;
   }
@@ -554,4 +681,59 @@
   .detalle-inferior {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+/* Botón de apoyo: va bajo el clima y ocupa el ancho de la columna. */
+.detalle-apoyo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  gap: clamp(8px, 3cqi, 12px);
+  width: 100%;
+  min-height: 60px;
+  min-height: clamp(56px, 22cqi, 72px);
+  padding: 12px 16px;
+  padding: clamp(10px, 3.5cqi, 14px);
+  border: 4px solid #f7a94f;
+  border-radius: 22px;
+  background: #fff;
+  color: #f7a94f;
+  font-family: inherit;
+  font-size: 1.25rem;
+  font-size: clamp(1rem, 6.5cqi, 1.4rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.detalle-apoyo:hover {
+  background: #fff3e8;
+}
+
+.detalle-apoyo.votado {
+  background: #f7a94f;
+  border-color: #f7a94f;
+  color: #fff;
+}
+
+.detalle-apoyo.votado:hover {
+  background: #e8942f;
+  border-color: #e8942f;
+}
+
+.detalle-apoyo-icono {
+  flex: 0 0 auto;
+  width: 1.4em;
+  height: 1.4em;
+  object-fit: contain;
+}
+
+.detalle-apoyo-texto {
+  white-space: nowrap;
 }

@@ -240,6 +240,8 @@ Hay dos formas de levantar el proyecto: **con Docker** (recomendada) y **sin Doc
 
 > Para la Opción A, asegúrate de tener **Docker activo** antes de ejecutar los comandos (Docker Desktop en Windows/macOS o el servicio `docker` en Linux). Para la Opción B, hay que tener **PostgreSQL 16 o superior** instalado y conocer su usuario y contraseña.
 
+> **Shell utilizado:** todos los comandos de esta sección se ejecutan en **CMD (consola de Windows / Command Prompt)** de Windows. Si usas PowerShell, los comandos con rutas que contienen espacios (por ejemplo el `psql` de PostgreSQL) requieren el operador `&` y comillas; en ese caso se indica expresamente en el paso correspondiente. En macOS/Linux se usa la terminal del sistema (bash/zsh) y los mismos comandos aplican sin cambios.
+
 ### Opción A: con Docker (recomendada)
 
 Un solo comando construye las dos imágenes de la aplicación y levanta los tres servicios:
@@ -487,6 +489,8 @@ psql -U postgres -h localhost -f backend/database/focalware.sql
 El cliente de Prisma se genera con `npm run build` o `npm run db:generate`.
 
 ## Ejecución
+
+> **Shell utilizado:** los comandos de esta sección se ejecutan en **CMD (consola de Windows / Command Prompt)** de Windows. En PowerShell o macOS/Linux se aplican las mismas instrucciones, ajustando únicamente las rutas con espacios (ver nota en Instalación).
 
 ### Con Docker
 

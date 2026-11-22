@@ -46,6 +46,41 @@
   background: rgba(255, 255, 255, 0.42);
 }
 
+/* Contenedor de las acciones de la barra cuando no hay sesión */
+.app-acciones {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Botón "Crear cuenta": acción principal para quien no ha iniciado sesión.
+   Mismas medidas que "Iniciar sesión" (app-cuenta); solo cambia la paleta. */
+.app-crear-cuenta {
+  gap: 8px;
+  padding: 0 20px;
+  border-color: #fff;
+  background: #fff;
+  color: #e0283a;
+  font-size: 1rem;
+  font-weight: 700;
+  text-shadow: none;
+}
+
+.app-crear-cuenta:hover {
+  background: #ffe9e7;
+}
+
+.app-crear-cuenta ion-icon {
+  flex-shrink: 0;
+  width: 1.4rem;
+  height: 1.4rem;
+}
+
+.app-crear-cuenta:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+}
+
 .app-cuenta-texto {
   display: flex;
   flex-direction: column;
@@ -81,6 +116,49 @@
   background: #2b2b2b;
   color: #fff;
   font-size: 1.1rem;
+}
+
+/* Contenedor del avatar para posicionar el badge de notificaciones */
+.app-avatar-contenedor {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+/* Badge de "llamita" con contador de notificaciones sin leer (solo Vecino).
+   La llama (color #E72441) ocupa ~la mitad del avatar y el número va dentro. */
+.app-avatar-badge {
+  position: absolute;
+  bottom: -6px;
+  left: -6px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.app-avatar-badge-llama {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 1px 2px rgba(87, 12, 8, 0.45));
+}
+
+.app-avatar-badge-numero {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -35%);
+  z-index: 1;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
 
 .app-contenido {
@@ -162,6 +240,7 @@
 }
 
 .menu-opcion {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -175,10 +254,14 @@
   font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
-  overflow: hidden;
   transition:
     background 0.15s ease,
     transform 0.15s ease;
+}
+
+.menu-texto {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .menu-opcion:hover {
@@ -318,6 +401,18 @@
     height: 44px;
   }
 
+  .app-avatar-badge {
+    bottom: -4px;
+    left: -4px;
+    width: 28px;
+    height: 28px;
+  }
+
+  .app-avatar-badge-numero {
+    font-size: 0.7rem;
+    transform: translate(-50%, -30%);
+  }
+
   /* En celular el botón para entrar es solo el ícono, en un círculo como el avatar */
   .app-cuenta.app-entrar {
     justify-content: center;
@@ -329,6 +424,28 @@
   }
 
   .app-entrar strong {
+    display: none;
+  }
+
+  /* En celular las acciones se separan un poco menos y el texto queda oculto */
+  .app-acciones {
+    gap: 8px;
+  }
+
+  /* "Crear cuenta" en celular: círculo blanco sólido con icono rojo */
+  .app-cuenta.app-crear-cuenta {
+    justify-content: center;
+    width: 44px;
+    min-height: 44px;
+    padding: 0;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    background: #fff;
+    color: #e0283a;
+    box-shadow: none;
+  }
+
+  .app-crear-cuenta strong {
     display: none;
   }
 
@@ -403,4 +520,62 @@
   flex-shrink: 0;
   width: 1.4rem;
   height: 1.4rem;
+}
+
+/* Pantallas muy estrechas: evita que el logo + dos botones desborden */
+@media (max-width: 360px) {
+  .app-encabezado {
+    --padding-start: 12px;
+    --padding-end: 12px;
+  }
+
+  .app-marca {
+    gap: 8px;
+    font-size: 1.2rem;
+  }
+
+  .app-marca img {
+    width: 36px;
+    height: 36px;
+  }
+
+  .app-acciones {
+    gap: 6px;
+  }
+}
+
+/* Pantallas extremadamente angostas: el logo se queda solo, sin el texto,
+   para que las acciones del header no se superpongan. */
+@media (max-width: 300px) {
+  .app-marca span {
+    display: none;
+  }
+}
+
+/* UX-12: Puntito de notificación en "Mis reportes" cuando hay cambios de estado sin leer */
+.menu-punto-notificacion {
+  position: absolute;
+  top: 2px;
+  right: 10px;
+  width: 13px;
+  height: 13px;
+  border: 2px solid #e3d6d6;
+  border-radius: 50%;
+  background: #e0283a;
+  box-shadow: 0 1px 4px rgba(87, 12, 8, 0.45);
+  pointer-events: none;
+}
+
+.menu-lateral.colapsado .menu-punto-notificacion {
+  top: 4px;
+  right: 10px;
+}
+
+@media (max-width: 767px) {
+  .menu-punto-notificacion {
+    top: 6px;
+    right: 22%;
+    width: 11px;
+    height: 11px;
+  }
 }
