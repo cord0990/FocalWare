@@ -114,7 +114,7 @@ export const aplicarFiltros = (reportes: Reporte[], filtros: FiltrosReportes): R
 export const buscarReportes = (reportes: Reporte[], busqueda: string): Reporte[] => {
   const termino = normalizarTexto(busqueda.trim());
   return reportes.filter((reporte) =>
-    [reporte.sector, reporte.nombre, reporte.categoria].some((campo) =>
+    [reporte.sector, reporte.direccion, reporte.nombre, reporte.categoria].some((campo) =>
       normalizarTexto(campo).includes(termino),
     ),
   );

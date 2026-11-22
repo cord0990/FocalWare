@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
+import { MapContainer, Marker, Polygon, Popup, TileLayer, useMap } from 'react-leaflet';
 import { IonIcon } from '@ionic/react';
-import { caretUp, flameOutline, imageOutline, layersOutline } from 'ionicons/icons';
+import { caretUp, flameOutline, imageOutline, layersOutline, mapOutline } from 'ionicons/icons';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { Reporte } from '../../services/reportesService';
@@ -13,9 +13,11 @@ import { NIVELES_RIESGO, obtenerNivelRiesgo } from '../../utils/riesgo';
 import './MapaReportes.css';
 import './TarjetaReporte.css';
 import { urlDeImagen } from '../../services/api';
+import type { Sector } from '../../services/sectoresService';
 
 const CLAVE_ESTILO_MAPA = 'focalware-estilo-mapa';
 const CLAVE_MAPA_CALOR = 'focalware-mapa-calor';
+const CLAVE_SECTORES_MAPA = 'focalware-sectores-mapa';
 
 type EstiloMapa = keyof typeof ESTILOS_MAPA;
 
@@ -43,9 +45,25 @@ const leerCalorGuardado = () => {
   }
 };
 
+const leerSectoresGuardado = () => {
+  try {
+    return localStorage.getItem(CLAVE_SECTORES_MAPA) !== 'no';
+  } catch {
+    return true;
+  }
+};
+
 const guardarCalor = (activo: boolean) => {
   try {
     localStorage.setItem(CLAVE_MAPA_CALOR, activo ? 'si' : 'no');
+  } catch {
+    // Si el navegador no permite guardar, el mapa funciona igual.
+  }
+};
+
+const guardarSectores = (activo: boolean) => {
+  try {
+    localStorage.setItem(CLAVE_SECTORES_MAPA, activo ? 'si' : 'no');
   } catch {
     // Si el navegador no permite guardar, el mapa funciona igual.
   }
@@ -75,6 +93,8 @@ interface MapaReportesProps {
   reportes: Reporte[];
   reportesCalor: Reporte[];
   seleccionado?: Reporte;
+  sectores?: Sector[];
+  sectorSeleccionado?: string;
   onSeleccionar: (id: string) => void;
   onVerDetalles: (id: string) => void;
   onVotar?: (id: string) => void;
@@ -85,6 +105,8 @@ const MapaReportes: React.FC<MapaReportesProps> = ({
   reportes,
   reportesCalor,
   seleccionado,
+  sectores = [],
+  sectorSeleccionado = '',
   onSeleccionar,
   onVerDetalles,
   onVotar,
@@ -106,6 +128,12 @@ const MapaReportes: React.FC<MapaReportesProps> = ({
     guardarCalor(!calor);
   };
 
+  const [verSectores, setVerSectores] = useState(leerSectoresGuardado);
+  const alternarSectores = () => {
+    setVerSectores(!verSectores);
+    guardarSectores(!verSectores);
+  };
+
   // La lista de puntos se mantiene estable entre renders para no recrear la capa
   // de calor cada vez que se selecciona un reporte o cambia un filtro.
   const puntosCalor = useMemo(
@@ -124,6 +152,23 @@ const MapaReportes: React.FC<MapaReportesProps> = ({
         />
         <AjustarTamanoMapa />
         {calor && <CapaCalor puntos={puntosCalor} />}
+        {verSectores &&
+          sectores.map((sector) => {
+            const elegido = sector.nombre === sectorSeleccionado;
+            return (
+              <Polygon
+                key={sector.id}
+                positions={sector.poligono}
+                interactive={false}
+                pathOptions={{
+                  color: elegido ? '#e0283a' : '#6b7280',
+                  weight: elegido ? 2 : 1,
+                  fillColor: elegido ? '#e0283a' : '#6b7280',
+                  fillOpacity: elegido ? 0.15 : 0.04,
+                }}
+              />
+            );
+          })}
         <EnfocarReporte reporte={seleccionado} marcadores={marcadores.current} />
 
         {reportes.map((reporte) => {
@@ -201,6 +246,18 @@ const MapaReportes: React.FC<MapaReportesProps> = ({
           <IonIcon icon={layersOutline} aria-hidden="true" />
           {ESTILOS_MAPA[otroEstilo].nombre}
         </button>
+        {sectores.length > 0 && (
+          <button
+            type="button"
+            className={verSectores ? 'mapa-boton-estilo activo' : 'mapa-boton-estilo'}
+            onClick={alternarSectores}
+            aria-pressed={verSectores}
+            title="Muestra los límites de los sectores"
+          >
+            <IonIcon icon={mapOutline} aria-hidden="true" />
+            Sectores
+          </button>
+        )}
         <button
           type="button"
           className={calor ? 'mapa-boton-estilo activo' : 'mapa-boton-estilo'}

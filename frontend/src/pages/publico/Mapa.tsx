@@ -17,6 +17,7 @@ import SinResultados from '../../components/reportes/SinResultados';
 import TarjetaReporte from '../../components/reportes/TarjetaReporte';
 import { useAnchoRedimensionable } from '../../hooks/useAnchoRedimensionable';
 import { useIrAlLogin } from '../../hooks/useIrAlLogin';
+import { useSectores } from '../../hooks/useSectores';
 import { useSesion } from '../../hooks/useSesion';
 import { NIVELES_RIESGO, rangoNivel } from '../../utils/riesgo';
 import { esCategoriaReporte } from '../../utils/opcionesReporte';
@@ -47,6 +48,7 @@ const Mapa: React.FC = () => {
   const router = useIonRouter();
   const { usuario } = useSesion();
   const irAlLogin = useIrAlLogin();
+  const { catalogo, sectores: sectoresCatalogo } = useSectores();
   // El funcionario abre cada reporte en su vista de gestión; el resto, en el detalle público.
   const rutaDetalle = usuario?.rol === 'funcionario' ? rutaMunicipalReporte : rutaDetalleMapa;
   const [reportes, setReportes] = useState<Reporte[]>([]);
@@ -165,7 +167,7 @@ const Mapa: React.FC = () => {
           </IonButton>
           <IonSearchbar
             className="inicio-buscador"
-            placeholder="Buscar por sector, nombre o categoría"
+            placeholder="Buscar por sector, dirección, nombre o categoría"
             value={busqueda}
             debounce={250}
             onIonInput={(e) => setBusqueda(e.detail.value ?? '')}
@@ -190,6 +192,8 @@ const Mapa: React.FC = () => {
             reportes={reportesFiltrados}
             reportesCalor={reportesCalor}
             seleccionado={seleccionado}
+            sectores={catalogo?.sectores ?? []}
+            sectorSeleccionado={filtros.sector}
             onSeleccionar={seleccionar}
             onVerDetalles={(id) => router.push(rutaDetalle(id), 'forward')}
             onVotar={alternarVoto}
@@ -265,7 +269,7 @@ const Mapa: React.FC = () => {
       <FiltrosReportesModal
         abierto={filtrosAbiertos}
         filtros={filtros}
-        sectores={valoresUnicos(reportes.map((reporte) => reporte.sector))}
+        sectores={sectoresCatalogo.map((sector) => sector.nombre)}
         categorias={valoresUnicos(
           reportes.map((reporte) => reporte.categoria).filter(esCategoriaReporte),
         )}

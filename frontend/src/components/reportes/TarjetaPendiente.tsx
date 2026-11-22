@@ -25,7 +25,7 @@ const TarjetaPendiente: React.FC<TarjetaPendienteProps> = ({ pendiente, onEditar
     <div className="tarjeta-pendiente-info">
       <h3>{pendiente.nombre}</h3>
       <p>
-        {pendiente.sector} · {pendiente.categoria}
+        {pendiente.direccion || 'Sin dirección'} · {pendiente.categoria}
       </p>
       <small>Guardado el {formatearGuardado(pendiente.guardadoEn)}</small>
     </div>

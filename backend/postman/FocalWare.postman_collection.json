@@ -58,6 +58,10 @@
       "value": ""
     },
     {
+      "key": "sectorCreado",
+      "value": ""
+    },
+    {
       "key": "idReporteRevision",
       "value": ""
     },
@@ -923,6 +927,43 @@
       "description": "Listar, ver, crear y modificar reportes.",
       "item": [
         {
+          "name": "Sectores disponibles",
+          "description": "Catálogo geográfico que usa el filtro del mapa.",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Entrega los sectores del catálogo\", () => {",
+                  "  const sectores = pm.response.json().data.sectores;",
+                  "  pm.expect(sectores).to.be.an(\"array\").that.is.not.empty;",
+                  "  pm.expect(sectores[0]).to.include.keys(\"id\", \"nombre\", \"poligono\", \"centro\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sectores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sectores"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Listar reportes (sin sesión)",
           "event": [
             {
@@ -1253,6 +1294,93 @@
           "response": []
         },
         {
+          "name": "Crear reporte fuera de Valparaíso",
+          "description": "La API rechaza ubicaciones fuera del área de los sectores.",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Explica que la ubicación está fuera de los sectores\", () => {",
+                  "  pm.expect(pm.response.json().error).to.include(\"sector de Valparaíso\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenVecino}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Fuera de Valparaíso",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Prueba de ubicación fuera de los sectores.",
+                  "type": "text"
+                },
+                {
+                  "key": "categoria",
+                  "value": "Escombros",
+                  "type": "text"
+                },
+                {
+                  "key": "volumen",
+                  "value": "Pequeño (una bolsa)",
+                  "type": "text"
+                },
+                {
+                  "key": "direccion",
+                  "value": "Santiago",
+                  "type": "text"
+                },
+                {
+                  "key": "latitud",
+                  "value": "-33.450000",
+                  "type": "text"
+                },
+                {
+                  "key": "longitud",
+                  "value": "-70.660000",
+                  "type": "text"
+                },
+                {
+                  "key": "distanciaViviendas",
+                  "value": "Más de 100 m",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reportes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reportes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Crear reporte",
           "event": [
             {
@@ -1281,12 +1409,15 @@
                   "  pm.expect(reporte.estado).to.eql(\"Pendiente\");",
                   "  pm.expect(reporte.nombre).to.eql(\"Basura en escalera (prueba Postman)\");",
                   "  pm.expect(reporte.categoria).to.eql(\"Microbasural\");",
+                  "  pm.expect(reporte.sector).to.be.a(\"string\").and.not.empty;",
+                  "  pm.expect(reporte.direccion).to.eql(\"Escalera Fischer, Cerro Cordillera\");",
                   "});",
                   "pm.test(\"Guarda el clima consultado por la API\", () => {",
                   "  pm.expect(reporte.clima).to.be.an(\"object\");",
                   "  pm.expect(reporte.clima.temperatura).to.be.a(\"number\");",
                   "});",
-                  "pm.collectionVariables.set(\"idReporte\", reporte.id);"
+                  "pm.collectionVariables.set(\"idReporte\", reporte.id);",
+                  "pm.collectionVariables.set(\"sectorCreado\", reporte.sector);"
                 ]
               }
             }
@@ -1337,8 +1468,8 @@
                   "type": "text"
                 },
                 {
-                  "key": "sector",
-                  "value": "Cerro Cordillera",
+                  "key": "direccion",
+                  "value": "Escalera Fischer, Cerro Cordillera",
                   "type": "text"
                 },
                 {
@@ -1360,6 +1491,54 @@
                   "key": "riesgo",
                   "value": "72",
                   "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar reportes por sector",
+          "description": "Filtra por el sector canónico que el backend asignó al reporte creado.",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Incluye el reporte creado\", () => {",
+                  "  const ids = pm.response.json().data.reportes.map((reporte) => reporte.id);",
+                  "  pm.expect(ids).to.include(pm.collectionVariables.get(\"idReporte\"));",
+                  "});",
+                  "pm.test(\"Todos son del sector filtrado\", () => {",
+                  "  const sector = pm.collectionVariables.get(\"sectorCreado\");",
+                  "  pm.response.json().data.reportes.forEach((reporte) => {",
+                  "    pm.expect(reporte.sector).to.eql(sector);",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reportes?sector={{sectorCreado}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reportes"
+              ],
+              "query": [
+                {
+                  "key": "sector",
+                  "value": "{{sectorCreado}}"
                 }
               ]
             }
@@ -1426,8 +1605,8 @@
                   "type": "text"
                 },
                 {
-                  "key": "sector",
-                  "value": "Cerro Cordillera",
+                  "key": "direccion",
+                  "value": "Escalera Fischer, Cerro Cordillera",
                   "type": "text"
                 },
                 {
@@ -1550,7 +1729,7 @@
                   "pm.test(\"Guarda los cambios\", () => {",
                   "  const reporte = pm.response.json().data.reporte;",
                   "  pm.expect(reporte.nombre).to.eql(\"Basura en escalera (editado)\");",
-                  "  pm.expect(reporte.volumen).to.eql(\"Grande (un camión)\");",
+                  "  pm.expect(reporte.volumen).to.eql(\"Grande (una camioneta)\");",
                   "});"
                 ]
               }
@@ -1589,7 +1768,7 @@
                 },
                 {
                   "key": "volumen",
-                  "value": "Grande (un camión)",
+                  "value": "Grande (una camioneta)",
                   "type": "text"
                 }
               ]
@@ -1640,67 +1819,6 @@
                   "key": "nombre",
                   "value": "Intento de cambio ajeno",
                   "type": "text"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Corregir desglose (funcionario)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
-                  "pm.test(\"Guarda el desglose\", () => {",
-                  "  const reporte = pm.response.json().data.reporte;",
-                  "  pm.expect(reporte.categoria).to.eql(\"Microbasural\");",
-                  "  pm.expect(reporte.volumen).to.eql(\"Mediano (un auto)\");",
-                  "  pm.expect(reporte.distanciaViviendas).to.eql(\"Entre 10 y 50 m\");",
-                  "  pm.expect(reporte.riesgo).to.eql(72);",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/reportes/{{idReporte}}/desglose",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "reportes",
-                "{{idReporte}}",
-                "desglose"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"categoria\": \"Microbasural\",\n  \"volumen\": \"Mediano (un auto)\",\n  \"distanciaViviendas\": \"Entre 10 y 50 m\",\n  \"riesgo\": 72\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenFuncionario}}",
-                  "type": "string"
                 }
               ]
             }
@@ -2572,8 +2690,8 @@
                   "type": "text"
                 },
                 {
-                  "key": "sector",
-                  "value": "Cerro Cordillera",
+                  "key": "direccion",
+                  "value": "Escalera Fischer, Cerro Cordillera",
                   "type": "text"
                 },
                 {
@@ -2874,6 +2992,67 @@
                   "language": "json"
                 }
               }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Corregir desglose (funcionario)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Guarda el desglose\", () => {",
+                  "  const reporte = pm.response.json().data.reporte;",
+                  "  pm.expect(reporte.categoria).to.eql(\"Microbasural\");",
+                  "  pm.expect(reporte.volumen).to.eql(\"Mediano (un auto)\");",
+                  "  pm.expect(reporte.distanciaViviendas).to.eql(\"Entre 10 y 50 m\");",
+                  "  pm.expect(reporte.riesgo).to.eql(72);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/{{idReporteRevision}}/desglose",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reportes",
+                "{{idReporteRevision}}",
+                "desglose"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categoria\": \"Microbasural\",\n  \"volumen\": \"Mediano (un auto)\",\n  \"distanciaViviendas\": \"Entre 10 y 50 m\",\n  \"riesgo\": 72\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenFuncionario}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "response": []

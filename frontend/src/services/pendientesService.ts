@@ -20,25 +20,28 @@ const IDS_DE_EJEMPLO = ['P-001', 'P-002'];
 // Copia en memoria, por si el navegador no permite usar el almacenamiento local.
 let enMemoria: ReportePendiente[] | null = null;
 
+type PendienteViejo = Partial<ReportePendiente> & { sector?: string };
+
 const leer = (): ReportePendiente[] => {
   if (enMemoria) return enMemoria;
   try {
     const guardado = localStorage.getItem(CLAVE);
     // Los pendientes guardados con una versión anterior pueden no tener los campos nuevos.
     enMemoria = guardado
-      ? (JSON.parse(guardado) as Partial<ReportePendiente>[])
+      ? (JSON.parse(guardado) as PendienteViejo[])
           .filter((pendiente) => !IDS_DE_EJEMPLO.includes(pendiente.id ?? ''))
-          .map(
-            (pendiente) =>
-              ({
-                descripcion: '',
-                volumen: '',
-                distanciaViviendas: '',
-                imagenes: [],
-                ...pendiente,
-                riesgo: pendiente.riesgo ?? null,
-              }) as ReportePendiente,
-          )
+          .map((pendiente) => {
+            const { sector: sectorViejo, ...resto } = pendiente;
+            return {
+              descripcion: '',
+              volumen: '',
+              distanciaViviendas: '',
+              imagenes: [],
+              ...resto,
+              direccion: pendiente.direccion ?? sectorViejo ?? '',
+              riesgo: pendiente.riesgo ?? null,
+            } as ReportePendiente;
+          })
       : [];
   } catch {
     enMemoria = [];
@@ -144,10 +147,8 @@ export const validarYEnviarPendiente = async (
   if (enChile === true) {
     const direccion = await obtenerDireccionDesdePunto(pendiente.latitud, pendiente.longitud);
     if (direccion) {
-      // Actualiza el sector con la dirección validada desde el pin.
-      actualizarPendiente(id, { sector: direccion });
-    } else if (!(pendiente.sector?.trim().length >= 3)) {
-      return { ok: false, motivo: 'No se encontró una dirección válida. Agrega un sector/dirección.' };
+      // Actualiza la dirección validada desde el pin. El sector lo calcula el backend.
+      actualizarPendiente(id, { direccion });
     }
   }
 

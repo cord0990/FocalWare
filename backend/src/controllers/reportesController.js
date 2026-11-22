@@ -1,5 +1,6 @@
 const reportesService = require('../services/reportesService');
 const { primerErrorDeTextos } = require('../middlewares/validaciones');
+const { esSectorCanonico } = require('../dominio/sectores');
 const {
   esCategoriaReporte,
   esVolumenReporte,
@@ -10,13 +11,13 @@ const numero = (valor) => (valor === undefined || valor === null || valor === ''
 
 // Tope de las columnas en la base.
 const MAXIMO_TITULO = 150;
-const MAXIMO_SECTOR = 100;
+const MAXIMO_DIRECCION = 200;
 const MAXIMO_CATEGORIA = 50;
 const MAXIMO_VOLUMEN = 30;
 
 // Revisa que el reporte tenga sentido antes de guardarlo.
 const problemaDelReporte = (datos) => {
-  const { nombre, categoria, volumen, sector, latitud, longitud, distanciaViviendas, riesgo } = datos;
+  const { nombre, categoria, volumen, direccion, latitud, longitud, distanciaViviendas, riesgo } = datos;
 
   const texto = (valor) => String(valor ?? '').trim();
 
@@ -32,9 +33,8 @@ const problemaDelReporte = (datos) => {
   if (!esVolumenReporte(texto(volumen))) {
     return 'El volumen estimado no es válido.';
   }
-  if (!texto(sector)) return 'Escribe el sector o la dirección aproximada.';
-  if (texto(sector).length > MAXIMO_SECTOR) {
-    return `El sector puede tener máximo ${MAXIMO_SECTOR} caracteres.`;
+  if (texto(direccion).length > MAXIMO_DIRECCION) {
+    return `La dirección puede tener máximo ${MAXIMO_DIRECCION} caracteres.`;
   }
 
   if (!Number.isFinite(latitud) || latitud < -90 || latitud > 90) {
@@ -59,6 +59,10 @@ const problemaDelReporte = (datos) => {
 const listar = async (req, res, next) => {
   try {
     const { sector, categoria, estado } = req.query;
+
+    if (sector !== undefined && sector !== '' && !esSectorCanonico(sector)) {
+      return res.status(400).json({ ok: false, error: 'El sector no es válido' });
+    }
 
     // El id del vecino viene del token, si es que vino.
     // Se usa para responder `miVoto` en cada reporte (si ya lo apoyan),
@@ -118,12 +122,18 @@ const crear = async (req, res, next) => {
       descripcion,
       categoria,
       volumen,
-      sector,
+      direccion,
+      sector: sectorViejo,
       latitud,
       longitud,
       distanciaViviendas,
       riesgo,
     } = req.body;
+
+    // `sector` era el nombre viejo del campo de dirección. Se acepta como alias
+    // para no romper clientes ni borradores antiguos. El sector canónico siempre
+    // lo calcula el backend desde las coordenadas.
+    const direccionFinal = direccion ?? sectorViejo;
 
     // multer deja los archivos en req.files y su nombre ya es la ruta relativa.
     const fotos = (req.files ?? []).map((archivo) => ({
@@ -135,7 +145,7 @@ const crear = async (req, res, next) => {
       descripcion: String(descripcion ?? '').trim(),
       categoria: String(categoria ?? '').trim(),
       volumen: String(volumen ?? '').trim(),
-      sector: String(sector ?? '').trim(),
+      direccion: String(direccionFinal ?? '').trim(),
       latitud: Number(latitud),
       longitud: Number(longitud),
       distanciaViviendas,
@@ -168,8 +178,19 @@ const modificar = async (req, res, next) => {
       return res.status(400).json({ ok: false, error: 'El número de reporte no es válido' });
     }
 
-    const { nombre, categoria, volumen, sector, latitud, longitud, distanciaViviendas, riesgo } =
-      req.body;
+    const {
+      nombre,
+      categoria,
+      volumen,
+      direccion,
+      sector: sectorViejo,
+      latitud,
+      longitud,
+      distanciaViviendas,
+      riesgo,
+    } = req.body;
+
+    const direccionFinal = direccion ?? sectorViejo;
 
     const problemas = [];
 
@@ -200,11 +221,8 @@ const modificar = async (req, res, next) => {
         problemas.push('El volumen estimado no es válido.');
       }
     }
-    if (sector !== undefined) {
-      if (!texto(sector)) problemas.push('El sector no puede quedar vacío.');
-      else if (texto(sector).length > MAXIMO_SECTOR) {
-        problemas.push(`El sector puede tener máximo ${MAXIMO_SECTOR} caracteres.`);
-      }
+    if (direccionFinal !== undefined && texto(direccionFinal).length > MAXIMO_DIRECCION) {
+      problemas.push(`La dirección puede tener máximo ${MAXIMO_DIRECCION} caracteres.`);
     }
 
     if (
@@ -264,7 +282,7 @@ const modificar = async (req, res, next) => {
         ...(req.body.descripcion !== undefined && { descripcion: req.body.descripcion }),
         ...(categoria !== undefined && { categoria: String(categoria).trim() }),
         ...(volumen !== undefined && { volumen: String(volumen).trim() }),
-        ...(sector !== undefined && { sector: String(sector).trim() }),
+        ...(direccionFinal !== undefined && { direccion: String(direccionFinal).trim() }),
         ...(latitud !== undefined && { latitud: Number(latitud) }),
         ...(longitud !== undefined && { longitud: Number(longitud) }),
         ...(distanciaViviendas !== undefined && { distanciaViviendas }),

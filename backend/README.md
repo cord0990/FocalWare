@@ -72,6 +72,27 @@ El tipo se detecta por el contenido real con `file-type`, no por el nombre ni po
 
 Las imágenes se sirven en `/uploads` solo si tienen extensión `.jpg`, `.jpeg`, `.png` o `.webp`, con las cabeceras `X-Content-Type-Options: nosniff`, `Content-Security-Policy: default-src 'none'; sandbox` y `Cross-Origin-Resource-Policy: same-origin`.
 
+## Sectores geográficos
+
+El catálogo de sectores vive en `src/dominio/sectores.json` y se expone en `GET /api/sectores`. El backend calcula el sector de cada reporte desde sus coordenadas y guarda la dirección escrita por el vecino en `direccion`. Si la ubicación está fuera del área o a más de `distanciaMaximaKm` del sector más cercano, el reporte nuevo se rechaza.
+
+Para recalcular el sector de reportes existentes:
+
+```bash
+npm run db:sectores:check   # solo muestra los cambios
+npm run db:sectores         # los aplica
+```
+
+El script informa los reportes con coordenadas inválidas y los que quedan lejos del sector más cercano.
+
+## Pruebas
+
+```bash
+npm test
+```
+
+Incluye las pruebas del catálogo geográfico de sectores.
+
 ## Formato de respuestas
 
 Todas las respuestas son JSON:

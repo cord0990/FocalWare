@@ -229,8 +229,8 @@ La llave primaria son las dos columnas juntas, así un funcionario no queda dos 
 | `descripcion` | TEXT | | Detalle escrito por el vecino *(opcional)*. |
 | `categoria` | VARCHAR(50) | | Tipo de problema, por ejemplo basural o maleza. |
 | `tamano` | VARCHAR(30) | | Volumen estimado del foco. |
-| `sector` | VARCHAR(100) | | Cerro o zona donde está. |
-| `direccion` | VARCHAR(200) | | Calle o punto de referencia *(opcional)*. |
+| `sector` | VARCHAR(100) | | Sector canónico calculado por el backend desde las coordenadas. |
+| `direccion` | VARCHAR(200) | | Dirección o referencia escrita por el vecino *(opcional)*. |
 | `latitud` | NUMERIC(9,6) | | Coordenada GPS. |
 | `longitud` | NUMERIC(9,6) | | Coordenada GPS. |
 | `distancia_a_casas` | NUMERIC(8,2) | | Distancia en metros a las viviendas más cercanas *(opcional)*. |

@@ -110,22 +110,24 @@ const FiltrosReportesModal: React.FC<FiltrosReportesModalProps> = ({
               </fieldset>
               {errorFechas && <p className="filtros-error">{errorFechas}</p>}
 
-              <IonSelect
-                label="Sector"
-                labelPlacement="stacked"
-                fill="outline"
-                interface="popover"
-                placeholder="Todos"
-                value={borrador.sector}
-                onIonChange={(e) => actualizar({ sector: e.detail.value })}
-              >
-                <IonSelectOption value="">Todos</IonSelectOption>
-                {sectores.map((sector) => (
-                  <IonSelectOption key={sector} value={sector}>
-                    {sector}
-                  </IonSelectOption>
-                ))}
-              </IonSelect>
+              {sectores.length > 0 && (
+                <IonSelect
+                  label="Sector"
+                  labelPlacement="stacked"
+                  fill="outline"
+                  interface="popover"
+                  placeholder="Todos"
+                  value={borrador.sector}
+                  onIonChange={(e) => actualizar({ sector: e.detail.value })}
+                >
+                  <IonSelectOption value="">Todos</IonSelectOption>
+                  {sectores.map((sector) => (
+                    <IonSelectOption key={sector} value={sector}>
+                      {sector}
+                    </IonSelectOption>
+                  ))}
+                </IonSelect>
+              )}
             </div>
 
             <div className="filtros-columna">
@@ -166,27 +168,29 @@ const FiltrosReportesModal: React.FC<FiltrosReportesModalProps> = ({
                 </div>
               </div>
 
-              <IonSelect
-                label="Categoría(s)"
-                labelPlacement="stacked"
-                fill="outline"
-                interface="popover"
-                multiple
-                placeholder="Todas"
-                value={borrador.categorias}
-                onIonChange={(e) => {
-                  const valor = e.detail.value;
-                  if (Array.isArray(valor)) {
-                    actualizar({ categorias: valor.filter(esCategoriaReporte) });
-                  }
-                }}
-              >
-                {categorias.map((categoria) => (
-                  <IonSelectOption key={categoria} value={categoria}>
-                    {categoria}
-                  </IonSelectOption>
-                ))}
-              </IonSelect>
+              {categorias.length > 0 && (
+                <IonSelect
+                  label="Categoría(s)"
+                  labelPlacement="stacked"
+                  fill="outline"
+                  interface="popover"
+                  multiple
+                  placeholder="Todas"
+                  value={borrador.categorias}
+                  onIonChange={(e) => {
+                    const valor = e.detail.value;
+                    if (Array.isArray(valor)) {
+                      actualizar({ categorias: valor.filter(esCategoriaReporte) });
+                    }
+                  }}
+                >
+                  {categorias.map((categoria) => (
+                    <IonSelectOption key={categoria} value={categoria}>
+                      {categoria}
+                    </IonSelectOption>
+                  ))}
+                </IonSelect>
+              )}
             </div>
           </div>
 

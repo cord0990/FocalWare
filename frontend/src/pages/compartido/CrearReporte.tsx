@@ -31,6 +31,7 @@ import SelectorUbicacion, { type Ubicacion } from '../../components/reportes/Sel
 import { useConexion } from '../../hooks/useConexion';
 import { useUbicacionActual } from '../../hooks/useUbicacionActual';
 import { useGeocodificacion } from '../../hooks/useGeocodificacion';
+import { useSectores } from '../../hooks/useSectores';
 import { RUTAS, rutaEditarReporte, rutaMapaConReporte } from '../../routes/rutas';
 import { ErrorApi, urlDeImagen } from '../../services/api';
 import { esClimaDeRiesgo, obtenerClimaActual, type Clima } from '../../services/climaService';
@@ -48,6 +49,7 @@ import {
   type VolumenReporte,
 } from '../../utils/opcionesReporte';
 import { obtenerNivelRiesgo } from '../../utils/riesgo';
+import { sectorDeCoordenadas } from '../../utils/sectores';
 import { MAXIMO_TITULO, validarReporte } from '../../utils/validacionReporte';
 import './FormularioReporte.css';
 
@@ -70,6 +72,7 @@ const CrearReporte: React.FC = () => {
   const [mensaje, setMensaje] = useState('');
   const geo = useGeocodificacion('', null, setMensaje);
   const { sector, ubicacion, enfocar, sugerencias, buscandoSugerencias, cambiarUbicacion, onSectorChange, seleccionarSugerencia, limpiar: limpiarGeo } = geo;
+  const { catalogo, cargando: cargandoSectores } = useSectores();
   const [imagenes, setImagenes] = useState<string[]>([]);
   const [clima, setClima] = useState<Clima>();
   const [sinClima, setSinClima] = useState(false);
@@ -107,9 +110,16 @@ const CrearReporte: React.FC = () => {
   const riesgo = desglose.indice;
   const nivel = riesgo === null ? null : obtenerNivelRiesgo(riesgo);
 
+  const zona = ubicacion && catalogo
+    ? sectorDeCoordenadas(catalogo, ubicacion.latitud, ubicacion.longitud)
+    : null;
+  const sectorCalculado = zona?.sector.nombre ?? '';
+  const errorSector =
+    ubicacion && catalogo && !zona ? 'La ubicación debe estar dentro de Valparaíso.' : '';
+
   const errores = validarReporte({
     titulo,
-    sector,
+    direccion: sector,
     ubicacion,
     categoria,
     volumen,
@@ -148,14 +158,14 @@ const CrearReporte: React.FC = () => {
     }
 
     setIntentoEnviar(true);
-    if (Object.values(errores).some(Boolean) || !ubicacion) {
+    if (Object.values(errores).some(Boolean) || errorSector || !ubicacion) {
       setMensaje('Revisa los campos marcados en rojo.');
       return;
     }
 
     const datos: DatosNuevoReporte = {
       nombre: titulo.trim(),
-      sector: sector.trim(),
+      direccion: sector.trim(),
       categoria,
       volumen,
       distanciaViviendas: distancia,
@@ -343,13 +353,13 @@ const CrearReporte: React.FC = () => {
           <div className="formulario-fila-sector">
             <div className="formulario-sugerencias-contenedor">
               <IonInput
-                label="Sector o dirección"
+                label="Dirección o referencia (opcional)"
                 labelPlacement="stacked"
                 fill="outline"
-                placeholder="Ej: Cerro Cordillera, escalera Fischer"
+                placeholder="Ej: Escalera Fischer, Cerro Cordillera"
                 value={sector}
-                className={error('sector') ? 'campo-invalido ion-invalid ion-touched' : ''}
-                errorText={error('sector')}
+                className={error('direccion') ? 'campo-invalido ion-invalid ion-touched' : ''}
+                errorText={error('direccion')}
                 onIonInput={(e) => {
                   onSectorChange(e.detail.value ?? '');
                 }}
@@ -379,6 +389,19 @@ const CrearReporte: React.FC = () => {
               )}
             </IonButton>
           </div>
+
+          {ubicacion && (
+            <p className="formulario-sector-calculado">
+              {cargandoSectores
+                ? 'Calculando sector…'
+                : sectorCalculado
+                  ? `Sector: ${sectorCalculado}`
+                  : errorSector
+                    ? ''
+                    : 'El sector se calculará al enviar.'}
+            </p>
+          )}
+          {errorSector && <p className="formulario-error">{errorSector}</p>}
 
           <div className="formulario-fila-mapa">
             <div className={error('ubicacion') ? 'formulario-mapa invalido' : 'formulario-mapa'}>

@@ -9,10 +9,11 @@ export const MAXIMO_FOTOS = 5;
 export const MINIMO_DESCRIPCION = 10;
 export const MINIMO_TITULO = 5;
 export const MAXIMO_TITULO = 80;
+export const MAXIMO_DIRECCION = 200;
 
 interface DatosFormulario {
   titulo: string;
-  sector: string;
+  direccion: string;
   ubicacion: unknown;
   categoria: CategoriaReporte | '';
   volumen: VolumenReporte | '';
@@ -30,7 +31,10 @@ const validarTitulo = (titulo: string) => {
 // Devuelve el mensaje de error de cada campo, o un texto vacío si está bien.
 export const validarReporte = (datos: DatosFormulario) => ({
   titulo: validarTitulo(datos.titulo),
-  sector: datos.sector.trim().length < 3 ? 'Escribe el sector o la dirección aproximada.' : '',
+  direccion:
+    datos.direccion.trim().length > MAXIMO_DIRECCION
+      ? `La dirección puede tener máximo ${MAXIMO_DIRECCION} caracteres.`
+      : '',
   ubicacion: !datos.ubicacion ? 'Marca en el mapa dónde está el problema.' : '',
   categoria: !datos.categoria ? 'Elige una categoría.' : '',
   volumen: !datos.volumen ? 'Elige el volumen estimado.' : '',
