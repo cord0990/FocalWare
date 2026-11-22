@@ -103,7 +103,7 @@ Todas las rutas empiezan con `http://localhost:3000/api`.
 | F12 | Crear reporte | Guarda el reporte con hasta 5 fotos y el clima real. Rechaza los repetidos (misma categoría a menos de 50 m) | `POST /reportes` | [reportesController.js](../backend/src/controllers/reportesController.js) | Probada · Postman carpeta 3 |
 | F13 | Mis reportes | Los reportes del vecino que inició sesión | `GET /reportes/mios` | [reportesService.js](../backend/src/services/reportesService.js) | Probada · Postman carpeta 3 |
 | F14 | Modificar y eliminar el reporte propio | Solo el dueño, y solo mientras nadie lo ha revisado | `PUT` y `DELETE /reportes/:id` | [reportesService.js](../backend/src/services/reportesService.js) | Probada · Postman carpetas 3 y 5 |
-| F15 | Corregir el desglose | El funcionario corrige categoría, volumen, distancia y riesgo | `PATCH /reportes/:id/desglose` | [reportesController.js](../backend/src/controllers/reportesController.js) | Probada · Postman carpeta 3 |
+| F15 | Corregir el desglose | El funcionario corrige categoría, volumen, distancia y riesgo | `PATCH /reportes/:id/desglose` | [reportesController.js](../backend/src/controllers/reportesController.js) | Probada · Postman carpetas 3 y 6 |
 | F16 | Apoyos de vecinos | Apoyar y quitar el apoyo. Uno por vecino, no el propio, no en rechazados | `POST` y `DELETE /reportes/:id/votos` | [votosService.js](../backend/src/services/votosService.js) | Probada · Postman carpeta 4 |
 | F17 | Cola priorizada | Reportes sin revisión, del más riesgoso al menos | `GET /revisiones/cola` | [revisionService.js](../backend/src/services/revisionService.js) | Probada · Postman carpeta 6 |
 | F18 | Revisar un reporte | Aprobar, rechazar (con motivo obligatorio) o dejar en atención, con cuadrilla y fecha. Guarda el historial y avisa al vecino en la misma operación | `POST /reportes/:id/revision` | [revisionService.js](../backend/src/services/revisionService.js) | Probada · Postman carpeta 6 y [captura](img/postman-revisiones.png) |
@@ -201,7 +201,7 @@ Todo en español: `crearReporte`, `votosService.js`, `obtenerPerfil`.
 | Token JWT (RNF-05) | Parcial | Dura 15 minutos y guarda solo el id y el rol. Se firma con una clave secreta del `.env` (algoritmo simétrico HS256) y no tiene rotación |
 | Token vencido en la app | Cumple | Al abrir la app se revisa el token con la API. Si la API responde 401, la app cierra la sesión, avisa y lleva al login |
 | Rutas protegidas | Cumple | `verificarToken`, `permitirRoles` y `perteneceACuadrilla` en las rutas. La app también protege sus pantallas por rol |
-| CORS (RNF-06) | Cumple | Solo acepta pedidos de la URL del frontend (`FRONTEND_URL`) |
+| CORS (RNF-06) | Cumple | Lista explícita de orígenes en `FRONTEND_URL`, separados por coma, sin `*`. Responde preflight `204`, permite solo `Content-Type` y `Authorization`, expone `Retry-After` y no usa credenciales |
 | Cabeceras de seguridad | Cumple | nginx envía CSP, `nosniff`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy` y `Cross-Origin-Opener-Policy`; la API no envía `X-Powered-By`. HSTS queda para un despliegue con HTTPS |
 | Anonimato (RNF-07) | Cumple | El mapa y el detalle público no muestran el nombre ni el correo del vecino |
 | Inyección SQL | Cumple | Todas las consultas pasan por Prisma |

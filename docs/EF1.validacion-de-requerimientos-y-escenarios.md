@@ -38,7 +38,7 @@
 | **RNF-03** | Cumple | Reportes se guardan localmente sin conexión. |
 | **RNF-04** | Cumple | `bcryptjs` con 10 rondas. |
 | **RNF-05** | Cumple | JWT de 15 min con HS256, secreto ≥32 chars, validación de cuenta y payload; secreto persistente en Docker. |
-| **RNF-06** | Cumple | CORS con origen único desde `FRONTEND_URL`. |
+| **RNF-06** | Cumple | CORS con lista explícita de orígenes en `FRONTEND_URL`, separados por coma y sin comodines; preflight `204`, sin credenciales y con solo `Content-Type`/`Authorization`. |
 | **RNF-07** | Cumple | Reportes públicos no incluyen nombre/email del autor. |
 | **RNF-08** | Cumple | Validación de duplicados por cercanía (mensaje “Ya existe un antecedente…”). |
 | **RNF-09** | No verificado | No se probó en dispositivos Android/iOS.  (VERIFICAR CON ESCENARIO)|

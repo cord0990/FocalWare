@@ -48,7 +48,7 @@ backend/
 |---|---|
 | `PORT` | Puerto donde corre la API |
 | `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` | Datos de conexión a PostgreSQL |
-| `FRONTEND_URL` | Dirección del frontend que puede usar la API (CORS) |
+| `FRONTEND_URL` | Orígenes permitidos por CORS, separados por coma. No se permite `*` |
 | `JWT_SECRETO` | Clave para firmar los tokens de sesión (mínimo 32 caracteres). En Docker se autogenera si queda vacía |
 | `JWT_EXPIRACION` | Tiempo que dura la sesión, por ejemplo `15m` |
 | `DATA_ENCRYPTION_KEY` | Clave AES-256-GCM para cifrar datos sensibles (64 caracteres hexadecimales). En Docker se autogenera |
@@ -98,3 +98,14 @@ Los teléfonos de vecinos y funcionarios y la dirección exacta de los reportes 
 - `npm run db:encrypt:check` falla si queda algún valor sin cifrar o si la clave no puede descifrarlo.
 
 La misma clave debe conservarse entre reinicios y despliegues.
+
+## Pruebas del backend
+
+Además de la colección de Postman, hay pruebas unitarias/integración con el runner nativo de Node:
+
+```bash
+cd backend
+npm run test:backend
+```
+
+Incluyen la validación de `FRONTEND_URL` y el comportamiento del middleware de CORS: orígenes permitidos, preflight, orígenes rechazados y peticiones sin `Origin`.

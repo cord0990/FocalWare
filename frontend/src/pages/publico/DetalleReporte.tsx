@@ -418,7 +418,7 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
                 aria-label={`Votar a favor, ${reporte.votos} votos`}
               >
                 <IonIcon icon={caretUp} aria-hidden="true" />
-                {reporte.votos}
+                {reporte.miVoto ? 'Apoyado' : 'Apoyar'} · {reporte.votos}
               </button>
             )}
           </div>
@@ -426,7 +426,7 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
           <h1 className="detalle-titulo">{reporte.nombre}</h1>
 
           <div className="detalle-etiquetas">
-            <span>ID {reporte.id}</span>
+            <span>Reporte N° {reporte.id}</span>
             <span>{formatearFecha(reporte.fecha)}</span>
             <span>{reporte.categoria}</span>
             {reporte.editadoEn && <span>Modificado {formatearFecha(reporte.editadoEn)}</span>}

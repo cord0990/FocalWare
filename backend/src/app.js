@@ -22,12 +22,20 @@ try {
 
 const path = require('path');
 const express = require('express');
-const cors = require('cors');
 const rutas = require('./routes');
 const { rutaNoEncontrada, manejarErrores } = require('./middlewares/manejoErrores');
 const { cabecerasSeguridad } = require('./middlewares/cabecerasSeguridad');
+const { crearCors } = require('./middlewares/cors');
 
 const app = express();
+
+let corsMiddleware;
+try {
+  corsMiddleware = crearCors();
+} catch (error) {
+  console.error(error.message);
+  process.exit(1);
+}
 
 // No revelar que el servidor usa Express.
 app.disable('x-powered-by');
@@ -41,8 +49,9 @@ if (process.env.TRUST_PROXY === '1') {
   app.set('trust proxy', 1);
 }
 
-// Solo el frontend configurado en .env puede usar la API (RNF-06)
-app.use(cors({ origin: process.env.FRONTEND_URL }));
+// Solo los orígenes configurados en FRONTEND_URL pueden leer las respuestas
+// desde un navegador. La lista es explícita y no admite "*".
+app.use(corsMiddleware);
 app.use(express.json());
 
 // Fotos de los reportes y de los controles, por ejemplo /uploads/reportes/foto.jpg

@@ -42,6 +42,7 @@ services:
       DB_USER: postgres
       DB_PASSWORD: ${DB_PASSWORD:-postgres}
       DATABASE_URL: postgresql://postgres:${DB_PASSWORD:-postgres}@db:5432/focalware
+      # Lista de orígenes CORS separados por coma. No se permite "*".
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
       # Si queda vacío, el entrypoint genera una clave aleatoria y la guarda
       # en el volumen appdata. Definir JWT_SECRETO para fijarla manualmente.
