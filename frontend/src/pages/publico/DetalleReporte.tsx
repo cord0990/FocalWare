@@ -461,7 +461,11 @@ const DetalleReporte: React.FC<DetalleReporteProps> = ({ origen }) => {
           <h1 className="detalle-titulo">{reporte.nombre}</h1>
 
           <div className="detalle-etiquetas">
-            <span>ID {reporte.id}</span>
+            <span>
+              {esGestion || usuario?.rol === 'funcionario'
+                ? `ID ${reporte.id}`
+                : `Reporte N° ${reporte.id}`}
+            </span>
             <span>{formatearFecha(reporte.fecha)}</span>
             <span>{reporte.categoria}</span>
             {reporte.editadoEn && <span>Modificado {formatearFecha(reporte.editadoEn)}</span>}
