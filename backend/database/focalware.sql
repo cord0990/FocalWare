@@ -27,7 +27,7 @@ CREATE TABLE "vecino" (
     "nombre" VARCHAR(100) NOT NULL,
     "email" VARCHAR(150) NOT NULL,
     "password_hash" VARCHAR(255) NOT NULL,
-    "telefono" VARCHAR(20),
+    "telefono" TEXT,
 
     CONSTRAINT "vecino_pkey" PRIMARY KEY ("idvecino")
 );
@@ -38,7 +38,7 @@ CREATE TABLE "funcionario" (
     "nombre" VARCHAR(100) NOT NULL,
     "email" VARCHAR(150) NOT NULL,
     "password_hash" VARCHAR(255) NOT NULL,
-    "telefono" VARCHAR(20),
+    "telefono" TEXT,
 
     CONSTRAINT "funcionario_pkey" PRIMARY KEY ("idfuncionario")
 );
@@ -80,7 +80,7 @@ CREATE TABLE "reporte" (
     "categoria" VARCHAR(50) NOT NULL,
     "tamano" VARCHAR(30) NOT NULL,
     "sector" VARCHAR(100) NOT NULL,
-    "direccion" VARCHAR(200),
+    "direccion" TEXT,
     "latitud" DECIMAL(9,6) NOT NULL,
     "longitud" DECIMAL(9,6) NOT NULL,
     "distancia_a_casas" DECIMAL(8,2),

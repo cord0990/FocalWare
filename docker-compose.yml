@@ -47,6 +47,9 @@ services:
       # en el volumen appdata. Definir JWT_SECRETO para fijarla manualmente.
       JWT_SECRETO: ${JWT_SECRETO:-}
       JWT_EXPIRACION: ${JWT_EXPIRACION:-15m}
+      # Clave para cifrar teléfonos y direcciones. Si queda vacía, el entrypoint
+      # genera una y la guarda en el volumen appdata.
+      DATA_ENCRYPTION_KEY: ${DATA_ENCRYPTION_KEY:-}
       # El frontend llega a través de nginx, que pone la IP real del cliente en X-Forwarded-For.
       # Sin esto, todos los usuarios compartirían el límite de intentos de la IP del proxy.
       TRUST_PROXY: "1"
