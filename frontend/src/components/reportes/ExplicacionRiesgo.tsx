@@ -110,8 +110,8 @@ const ExplicacionRiesgo: React.FC<ExplicacionRiesgoProps> = ({ abierto, desglose
           </div>
 
           <p className="explicacion-nota">
-            Los puntajes son valores de ejemplo para esta etapa del proyecto. En la Entrega 2 el
-            cálculo se hará en el servidor, con el clima real de Open-Meteo.
+            El servidor calcula el riesgo con el clima de Open-Meteo para la ubicación del
+            reporte. Con el tiempo sube por los apoyos y las semanas que pasan sin resolverse.
           </p>
         </div>
       </IonContent>

@@ -125,36 +125,6 @@
   text-transform: none;
 }
 
-.btn-voto {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  min-width: 64px;
-  min-height: 46px;
-  padding: 0 12px;
-  white-space: nowrap;
-  /* Amarillo dorado: color propio de los votos, distinto del rojo de riesgo y de Detalles */
-  border: 2px solid #d4a017;
-  border-radius: 8px;
-  background: #fff;
-  color: #8a6400;
-  font-family: inherit;
-  font-size: 0.95rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.btn-voto:hover:not(:disabled) {
-  background: #fff6dc;
-}
-
-.btn-voto.votado {
-  border-color: #d4a017;
-  background: #e8b62c;
-  color: #3d2a00;
-}
-
 /* Lista angosta (o celular): la imagen pasa arriba y ocupa todo el ancho de la tarjeta */
 @container lista-reportes (max-width: 440px) {
   .tarjeta-reporte {
@@ -196,14 +166,6 @@
   color: #5a4545;
   font-size: 0.9rem;
   font-weight: 600;
-}
-
-/* En "Mis reportes" el botón de votos solo muestra cuántos recibió el reporte */
-.btn-voto:disabled {
-  border-color: #c9b0b0;
-  background: #f6f0f0;
-  color: #6b5a5a;
-  cursor: default;
 }
 
 /* Botón de voto con triángulo y llama: naranja #F7A94F y blanco */
