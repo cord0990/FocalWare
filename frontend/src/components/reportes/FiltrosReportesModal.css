@@ -1,6 +1,6 @@
 /* Ventana centrada con el fondo oscurecido detrás */
 .modal-filtros {
-  --width: min(760px, calc(100% - 32px));
+  --width: min(900px, calc(100% - 32px));
   --height: auto;
   --max-height: calc(100% - 32px);
   --border-radius: 20px;
@@ -51,7 +51,7 @@
   --ion-text-color: #1f1f1f;
   --ion-background-color: #fff;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
   gap: 0;
   padding: 24px;
   border-radius: 14px;
@@ -94,22 +94,14 @@
 }
 
 .filtros-panel ion-select {
-  --background: #e8e8e8;
+  --background: #f3f0f0;
   --color: #1f1f1f;
-  --placeholder-color: #6b6b6b;
-  --border-color: #cfcfcf;
+  --placeholder-color: #555555;
+  --placeholder-opacity: 1;
+  --border-color: #cfc4c4;
   --border-radius: 10px;
   --highlight-color-focused: #e0283a;
   min-height: 44px;
-  font-size: 0.95rem;
-}
-
-/* Los campos de fecha acompañan el mismo estilo que los selects */
-.filtros-panel .selector-fecha-boton {
-  min-height: 44px;
-  border-color: #cfcfcf;
-  border-radius: 10px;
-  background: #e8e8e8;
   font-size: 0.95rem;
 }
 
@@ -128,49 +120,122 @@
 
 .filtros-error {
   margin: 0;
-  color: #c62828;
+  color: #a61b1b;
   font-size: 0.85rem;
 }
 
-.filtros-orden {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.filtros-orden ion-select {
-  flex: 1;
-  min-width: 0;
-}
-
 .filtros-direccion {
-  display: flex;
-  flex: 0 0 auto;
-  gap: 6px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  border: 2px solid #e0283a;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 .filtros-direccion button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border: 2px solid #b9b9b9;
-  border-radius: 10px;
-  background: #e8e8e8;
-  color: #5a4545;
-  font-size: 1.2rem;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 0;
+  background: #fff;
+  color: #b01c2c;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
 }
 
+.filtros-direccion button + button {
+  border-left: 2px solid #e0283a;
+}
+
 .filtros-direccion button:hover {
+  background: #fdebed;
+}
+
+/* Opción elegida: rojo con letra blanca (4,6:1) */
+.filtros-direccion button.activo {
+  background: #e0283a;
+  color: #fff;
+}
+
+/* Lapso de tiempo: dos botones para elegir Desde/Hasta y el calendario fijo debajo */
+.filtros-fecha {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-height: 56px;
+  padding: 6px 12px;
+  border: 2px solid #cfc4c4;
+  border-radius: 10px;
+  background: #f3f0f0;
+  color: #1f1f1f;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.filtros-fecha:hover {
   border-color: #e0283a;
 }
 
-.filtros-direccion button.activo {
+.filtros-fecha.activo {
   border-color: #e0283a;
-  background: #e0283a;
-  color: #fff;
+  background: #fdebed;
+}
+
+.filtros-fecha-nombre {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #5a4545;
+}
+
+.filtros-fecha-valor {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.filtros-fecha-valor.vacio {
+  color: #555555;
+  font-weight: 500;
+}
+
+.filtros-fecha-valor ion-icon {
+  color: #b01c2c;
+  font-size: 1.1rem;
+}
+
+.filtros-calendario {
+  --background: #fff;
+  --ion-text-color: #1f1f1f;
+  --ion-color-primary: #e0283a;
+  --ion-color-primary-rgb: 224, 40, 58;
+  --ion-color-primary-contrast: #fff;
+  --ion-color-primary-shade: #c5233a;
+  --ion-color-primary-tint: #e33e4e;
+  width: 100%;
+  max-width: 100%;
+  border: 1px solid #ecdede;
+  border-radius: 12px;
+  color: #1f1f1f;
+}
+
+.filtros-borrar-fechas {
+  align-self: flex-start;
+  min-height: 44px;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: #b01c2c;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 .filtros-acciones {
@@ -205,8 +270,8 @@
 }
 
 .btn-aplicar {
-  --background: #f05a47;
-  --background-hover: #d9483a;
+  --background: #d43a48;
+  --background-hover: #bf3240;
   --color: #fff;
 }
 
@@ -229,8 +294,3 @@
   }
 }
 
-@media (max-width: 480px) {
-  .filtros-fechas-campos {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}

@@ -1,15 +1,10 @@
 import React, { useState } from 'react';
-import {
-  IonSegment,
-  IonSegmentButton,
-  IonIcon,
-  IonButton,
-  useIonRouter
-} from '@ionic/react';
-import { settingsOutline } from 'ionicons/icons';
+import { IonIcon, useIonRouter } from '@ionic/react';
+import { notificationsOutline, personOutline } from 'ionicons/icons';
 
 import AppLayout from '../../../components/layout/AppLayout';
 import { useSesion } from '../../../hooks/useSesion';
+import { useNotificacionesNoLeidas } from '../../../hooks/useNotificacionesNoLeidas';
 import { RUTAS, rutaDetalleMapa } from '../../../routes/rutas';
 import Notificaciones, { Notificacion } from './Notificaciones';
 import Configuracion from './Configuracion';
@@ -39,6 +34,15 @@ const Perfil: React.FC<{ seccion: SeccionPerfil }> = ({ seccion }) => {
   };
 
   const router = useIonRouter();
+  const noLeidas = useNotificacionesNoLeidas();
+  // Las notificaciones son del vecino; el funcionario solo ve sus datos.
+  const esVecino = usuario?.rol === 'vecino';
+  const pestanaActiva: SeccionPerfil = tabActiva === 'configuracion' ? 'configuracion' : 'notificaciones';
+
+  const irA = (nueva: SeccionPerfil) => {
+    if (nueva !== seccion) router.push(RUTA_SECCION[nueva], 'forward');
+    else setTabActiva(nueva);
+  };
 
   const handleCerrarSesion = () => {
     cerrarSesion();
@@ -47,28 +51,36 @@ const Perfil: React.FC<{ seccion: SeccionPerfil }> = ({ seccion }) => {
 
   return (
     <AppLayout>
-      <div className="perfil-header-tabs">
-        <IonSegment
-          value={tabActiva === 'configuracion' ? 'configuracion' : undefined}
-          onIonChange={(e) => {
-            const nueva = e.detail.value as SeccionPerfil;
-            if (nueva !== seccion) router.push(RUTA_SECCION[nueva], 'forward');
-            else setTabActiva(nueva);
-          }}
-          className="perfil-segment"
-        >
-          <IonSegmentButton value="configuracion" className="perfil-segment-btn">
-            <IonIcon icon={settingsOutline} />
-          </IonSegmentButton>
-        </IonSegment>
-
-        <IonButton
-          fill="clear"
-          className="btn-cerrar-sesion"
-          onClick={handleCerrarSesion}
-        >
-          Cerrar sesión
-        </IonButton>
+      <div className="perfil-cabecera">
+        <h1 className="perfil-titulo">Mi perfil</h1>
+        {/* Pestañas con nombre: el vecino tiene sus datos y sus notificaciones */}
+        {esVecino && (
+          <nav className="perfil-pestanas" aria-label="Secciones del perfil">
+            <button
+              type="button"
+              className={pestanaActiva === 'configuracion' ? 'perfil-pestana activa' : 'perfil-pestana'}
+              aria-current={pestanaActiva === 'configuracion' ? 'page' : undefined}
+              onClick={() => irA('configuracion')}
+            >
+              <IonIcon icon={personOutline} aria-hidden="true" />
+              Mis datos
+            </button>
+            <button
+              type="button"
+              className={pestanaActiva === 'notificaciones' ? 'perfil-pestana activa' : 'perfil-pestana'}
+              aria-current={pestanaActiva === 'notificaciones' ? 'page' : undefined}
+              onClick={() => irA('notificaciones')}
+            >
+              <IonIcon icon={notificationsOutline} aria-hidden="true" />
+              Notificaciones
+              {noLeidas > 0 && (
+                <span className="perfil-pestana-contador" aria-label={`${noLeidas} sin leer`}>
+                  {noLeidas > 99 ? '99+' : noLeidas}
+                </span>
+              )}
+            </button>
+          </nav>
+        )}
       </div>
 
       <div className="perfil-contenido">
@@ -77,7 +89,7 @@ const Perfil: React.FC<{ seccion: SeccionPerfil }> = ({ seccion }) => {
         )}
 
         {tabActiva === 'configuracion' && (
-          <Configuracion />
+          <Configuracion onCerrarSesion={handleCerrarSesion} />
         )}
 
         {tabActiva === 'detalle' && (

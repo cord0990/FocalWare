@@ -502,7 +502,7 @@
   justify-content: center;
   gap: 8px;
   height: 100%;
-  color: #b9a3a3;
+  color: #6b5a5a;
   font-weight: 600;
 }
 
@@ -690,7 +690,7 @@
   border: 4px solid #f7a94f;
   border-radius: 22px;
   background: #fff;
-  color: #f7a94f;
+  color: #9a5200;
   font-family: inherit;
   font-size: 1.25rem;
   font-size: clamp(1rem, 6.5cqi, 1.4rem);
@@ -712,7 +712,7 @@
 .detalle-apoyo.votado {
   background: #f7a94f;
   border-color: #f7a94f;
-  color: #fff;
+  color: #3d2a00;
 }
 
 .detalle-apoyo.votado:hover {

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   IonButton,
+  IonDatetime,
   IonIcon,
   IonModal,
   IonSelect,
@@ -8,8 +9,7 @@ import {
   IonSpinner,
   IonTextarea,
 } from '@ionic/react';
-import { closeOutline } from 'ionicons/icons';
-import SelectorFecha from '../SelectorFecha';
+import { calendarOutline, closeOutline } from 'ionicons/icons';
 import GaleriaEditable from '../reportes/GaleriaEditable';
 import { ErrorApi } from '../../services/api';
 import {
@@ -156,7 +156,7 @@ const ModalGestion: React.FC<ModalGestionProps> = ({ accion, reporte, funcionari
           </p>
 
           {accion === 'aprobar' && (
-            <div className="gestion-campos-fila">
+            <div className="gestion-campos-fila gestion-aprobar">
               <div className="gestion-campo">
                 <span className="gestion-etiqueta" aria-hidden="true">
                   Cuadrilla
@@ -177,15 +177,33 @@ const ModalGestion: React.FC<ModalGestionProps> = ({ accion, reporte, funcionari
                   ))}
                 </IonSelect>
                 {error('cuadrilla') && <p className="gestion-error">{error('cuadrilla')}</p>}
+
+                {/* La fecha se elige en el calendario de al lado; aquí se muestra cuál quedó */}
+                <span className="gestion-etiqueta" id="gestion-fecha-etiqueta">
+                  Fecha de atención
+                </span>
+                <p
+                  className={fechaAtencion ? 'gestion-fecha-elegida' : 'gestion-fecha-elegida vacio'}
+                  aria-live="polite"
+                >
+                  <IonIcon icon={calendarOutline} aria-hidden="true" />
+                  {fechaAtencion ? formatearFecha(fechaAtencion) : 'Elige un día en el calendario'}
+                </p>
+                {error('fecha') && <p className="gestion-error">{error('fecha')}</p>}
               </div>
               <div className="gestion-campo">
-                <SelectorFecha
-                  etiqueta="Fecha de atención"
-                  valor={fechaAtencion}
+                <IonDatetime
+                  className="gestion-calendario"
+                  aria-labelledby="gestion-fecha-etiqueta"
+                  presentation="date"
+                  locale="es-CL"
+                  firstDayOfWeek={1}
                   min={fechaDeHoy()}
-                  onCambiar={setFechaAtencion}
+                  value={fechaAtencion || undefined}
+                  onIonChange={(e) =>
+                    setFechaAtencion(typeof e.detail.value === 'string' ? e.detail.value.slice(0, 10) : '')
+                  }
                 />
-                {error('fecha') && <p className="gestion-error">{error('fecha')}</p>}
               </div>
             </div>
           )}

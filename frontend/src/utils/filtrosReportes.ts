@@ -32,10 +32,12 @@ export interface FiltroActivo {
   sinEste: FiltrosReportes;
 }
 
-const NOMBRES_ORDEN: Record<CriterioOrden, string> = {
-  riesgo: 'Riesgo',
-  votos: 'Votos',
-  fecha: 'Fecha',
+// Cómo se dice cada dirección del orden, según lo que se ordena.
+// Se usa en el panel de filtros y en la etiqueta del filtro activo.
+export const TEXTOS_ORDEN: Record<CriterioOrden, { mayor: string; menor: string }> = {
+  riesgo: { mayor: 'Mayor riesgo', menor: 'Menor riesgo' },
+  votos: { mayor: 'Más votados', menor: 'Menos votados' },
+  fecha: { mayor: 'Más recientes', menor: 'Más antiguos' },
 };
 
 // "Mis reportes" muestra primero los más recientes.
@@ -82,7 +84,7 @@ export const listarFiltrosActivos = (
   if (filtros.orden !== base.orden || filtros.descendente !== base.descendente) {
     activos.push({
       clave: 'orden',
-      texto: `Orden: ${NOMBRES_ORDEN[filtros.orden]} ${filtros.descendente ? '↓' : '↑'}`,
+      texto: filtros.descendente ? TEXTOS_ORDEN[filtros.orden].mayor : TEXTOS_ORDEN[filtros.orden].menor,
       sinEste: { ...filtros, orden: base.orden, descendente: base.descendente },
     });
   }
