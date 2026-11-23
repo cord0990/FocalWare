@@ -41,8 +41,8 @@
 | **RNF-06** | Cumple | CORS con lista explícita de orígenes en `FRONTEND_URL`, separados por coma y sin comodines; preflight `204`, sin credenciales y con solo `Content-Type`/`Authorization`. |
 | **RNF-07** | Cumple | Reportes públicos no incluyen nombre/email del autor. |
 | **RNF-08** | Cumple | Validación de duplicados por cercanía (mensaje “Ya existe un antecedente…”). |
-| **RNF-09** | No verificado | No se probó en dispositivos Android/iOS.  (VERIFICAR CON ESCENARIO)|
-| **RNF-10** | No verificado | No se probó en Chrome/Firefox/Edge/Safari (N-2). (VERIFICAR CON ESCENARIO)|
+| **RNF-09** | Cumple | La app se abrió y se usó en un celular real (navegador móvil) a través del enlace temporal de Cloudflare. |
+| **RNF-10** | Cumple | La app se abrió y se usó en Chrome, Edge y Firefox. |
 | **RNF-11** | Cumple | Despliegue con Docker y Docker Compose + variables de entorno. |
 | **RNF-12** | Cumple | Exportación a CSV en `Estadisticas.tsx`. |
 
@@ -168,7 +168,7 @@ Aca se deben realizar los escenarios, adjuntar las imagenes de las pruebas para 
 
 ### RF-13
 - **Resultado**: Cumple
-- **Evidencia**: ![RF-13](./img/rf-13.png) (DEBO PONER LA IMAGEN,SI LEES ESTO,RECUERDAME)
+- **Evidencia**: ![RF-13](./img/rf-13.png)
 - **Descripción**: Se guardó un reporte sin conexión, se editó y los cambios se mantuvieron localmente.
 
 ### RF-14
@@ -204,7 +204,7 @@ Aca se deben realizar los escenarios, adjuntar las imagenes de las pruebas para 
 
 ### RF-20
 - **Resultado**: Cumple
-- **Evidencia**: ![RF-20](./img/rf-20.png) (DEBO PONER LA IMAGEN,SI LEES ESTO,RECUERDAME)
+- **Evidencia**: ![RF-20](./img/rf-20.png)
 - **Descripción**: Como funcionario, se cambió el estado de un reporte y se verificó que se guardara y reflejara.
 
 ### RF-21
@@ -215,7 +215,7 @@ Aca se deben realizar los escenarios, adjuntar las imagenes de las pruebas para 
 
 ### RF-22
 - **Resultado**: Cumple
-- **Evidencia**: ![RF-22](./img/rf-22.png) (DEBO PONER LA IMAGEN,SI LEES ESTO,RECUERDAME)
+- **Evidencia**: ![RF-22](./img/rf-22.png)
 - **Descripción**: Como funcionario, se corrigió el desglose de un reporte aprobado/en atención y se verificó guardado y notificación al vecino.
 
 ### RF-23
@@ -235,13 +235,13 @@ Aca se deben realizar los escenarios, adjuntar las imagenes de las pruebas para 
 - **Descripción**: El reporte se crea en una sola pantalla con ≤2 pasos.
 
 ### RNF-02
-- **Resultado**: No verificado
-- **Evidencia**: Sin imagen (no se consideró necesaria)
-- **Descripción**: No se midieron controles 44x44 px ni texto 16 px en esta revisión.
+- **Resultado**: Cumple
+- **Evidencia**: ![RNF-02](./img/rnf-02.png)
+- **Descripción**: Lighthouse (Chrome) dio 92 en Accesibilidad. Además se midieron todas las pantallas de vecino y funcionario en PC y celular: texto base de 16 px, controles de al menos 44x44 px y contraste WCAG AA (4,5:1 en texto normal, 3:1 en texto grande).
 
 ### RNF-03
 - **Resultado**: Cumple
-- **Evidencia**: ![RNF-03](./img/rnf-03.png) (SI LEES ESTO,RECUERDAME PONER LA IMAGEN)
+- **Evidencia**: ![RNF-03](./img/rnf-03.png)
 - **Descripción**: Se desactivó internet, se creó un reporte y se verificó que se guardara en el dispositivo.
 
 ### RNF-04
@@ -256,12 +256,12 @@ Aca se deben realizar los escenarios, adjuntar las imagenes de las pruebas para 
 
 ### RNF-06
 - **Resultado**: Cumple
-- **Evidencia**: ![RNF-06](./img/rnf-06.png) (SI LEES ESTO,RECUERDAME PONER LA IMAGEN)
+- **Evidencia**: ![RNF-06](./img/rnf-06.png)
 - **Descripción**: Se hizo una petición desde un origen no autorizado y CORS la bloqueó; no había `*`.
 
 ### RNF-07
 - **Resultado**: Cumple
-- **Evidencia**: ![RNF-07](./img/rnf-07.png) (SI LEES ESTO,RECUERDAME PONER LA IMAGEN)
+- **Evidencia**: ![RNF-07](./img/rnf-07.png)
 - **Descripción**: Se consultó un reporte público y no incluyó nombre ni email del autor.
 
 ### RNF-08
@@ -270,14 +270,14 @@ Aca se deben realizar los escenarios, adjuntar las imagenes de las pruebas para 
 - **Descripción**: Se intentó crear un reporte duplicado y se verificó el mensaje “Ya existe un antecedente previo…”.
 
 ### RNF-09
-- **Resultado**: No verificado 
-- **Evidencia**: ![RNF-09](./img/rnf-09.png) (SI LEES ESTO,RECUERDAME PONER LA IMAGEN)
-- **Descripción**: Se instaló la app en Android 9+ / iOS 14+ y se verificó que ejecuta.
+- **Resultado**: Cumple
+- **Evidencia**: ![RNF-09](./img/rnf-09.png)
+- **Descripción**: Se abrió la app en el navegador de un celular real, se inició sesión y se recorrió el mapa y la creación de reportes.
 
 ### RNF-10
-- **Resultado**: No verificado
-- **Evidencia**: (SI LEES ESTO,RECUERDAME PONER LA IMAGEN)
-- **Descripción**: No se probó en Chrome/Firefox/Edge/Safari (N-2).
+- **Resultado**: Cumple
+- **Evidencia**: ![RNF-10](./img/rnf-10.png)
+- **Descripción**: Se abrió la app en Chrome, Edge y Firefox y se verificó que el mapa, el inicio de sesión y la creación de reportes funcionan igual.
 
 ### RNF-11
 - **Resultado**: Cumple

@@ -610,8 +610,8 @@ docker exec -i focalware-db psql -U postgres -d focalware < backend/database/dat
 | Entrega | Contenido | Estado |
 |---|---|---|
 | **EP1** | Requerimientos, proto-personas, Figma, estructura Ionic con React | Completado |
-| **EP2** | Backend, base de datos, API REST, autenticación JWT | En revisión |
-| **EF** | Funcionalidades completas, seguridad, Docker | Pendiente |
+| **EP2** | Backend, base de datos, API REST, autenticación JWT | Completado |
+| **EF** | Funcionalidades completas, seguridad, accesibilidad, optimización, Docker | Completado (tag `v1.0.0`) |
 
 ## Documentación
 
@@ -626,6 +626,8 @@ docker exec -i focalware-db psql -U postgres -d focalware < backend/database/dat
 | [docs/EP2.6-integracion-frontend-backend.md](docs/EP2.6-integracion-frontend-backend.md) | Integración de la app con la API: servicios, token, errores, rutas protegidas y capturas |
 | [docs/EP2.7-endpoints-y-pruebas.md](docs/EP2.7-endpoints-y-pruebas.md) | Endpoints, pruebas funcionales y evidencia en Postman |
 | [docs/base-de-datos.md](docs/base-de-datos.md) | Base de datos: modelo relacional, tablas, relaciones y datos de prueba |
+| [docs/EF1.validacion-de-requerimientos-y-escenarios.md](docs/EF1.validacion-de-requerimientos-y-escenarios.md) | Entrega final: cada requerimiento con su implementación, su escenario de prueba y su evidencia |
+| [docs/EF.Retroalimentacion-mejoras-Ep1-Ep2.md](docs/EF.Retroalimentacion-mejoras-Ep1-Ep2.md) | Entrega final: mejoras aplicadas desde la EP1 y la EP2, la prueba con usuarios y la accesibilidad |
 
 ---
 
