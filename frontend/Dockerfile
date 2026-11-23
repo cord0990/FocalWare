@@ -2,9 +2,6 @@ FROM node:22-alpine AS build
 
 WORKDIR /app
 
-# Cypress no se usa dentro del contenedor: evita descargar su binario en el build.
-ENV CYPRESS_INSTALL_BINARY=0
-
 # Primero las dependencias, así la capa se cachea y no se reinstala cada vez que cambia el código.
 COPY package*.json ./
 RUN npm ci
