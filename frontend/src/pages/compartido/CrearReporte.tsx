@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   IonButton,
   IonIcon,
@@ -13,12 +13,8 @@ import {
 import {
   arrowBackOutline,
   checkmarkCircleOutline,
-  createOutline,
-  folderOpenOutline,
   helpCircleOutline,
-  imageOutline,
   locateOutline,
-  mapOutline,
   thermometerOutline,
   waterOutline,
   warningOutline,
@@ -32,11 +28,11 @@ import SelectorUbicacion from '../../components/reportes/SelectorUbicacion';
 import { useConexion } from '../../hooks/useConexion';
 import { useUbicacionActual } from '../../hooks/useUbicacionActual';
 import { useGeocodificacion } from '../../hooks/useGeocodificacion';
-import { RUTAS, rutaEditarReporte, rutaMapaConReporte } from '../../routes/rutas';
-import { ErrorApi, urlDeImagen } from '../../services/api';
+import { RUTAS, rutaMiReporte } from '../../routes/rutas';
+import { ErrorApi } from '../../services/api';
 import { esClimaDeRiesgo, obtenerClimaActual, type Clima } from '../../services/climaService';
 import { guardarPendiente } from '../../services/pendientesService';
-import { crearReporte, type DatosNuevoReporte, type Reporte } from '../../services/reportesService';
+import { crearReporte, type DatosNuevoReporte } from '../../services/reportesService';
 import {
   calcularIndice,
   type CategoriaReporte,
@@ -52,6 +48,9 @@ interface Aviso {
   titulo: string;
   mensaje: string;
 }
+
+// Tiempo que el vecino ve el aviso verde antes de abrir el reporte creado.
+const ESPERA_REDIRECCION_MS = 2200;
 
 const CrearReporte: React.FC = () => {
   const router = useIonRouter();
@@ -83,7 +82,8 @@ const CrearReporte: React.FC = () => {
   const [enviando, setEnviando] = useState(false);
   const gps = useUbicacionActual();
   const [aviso, setAviso] = useState<Aviso | null>(null);
-  const [creado, setCreado] = useState<Reporte>();
+  const [exitoCreado, setExitoCreado] = useState(false);
+  const temporizador = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [explicacionAbierta, setExplicacionAbierta] = useState(false);
 
   // El clima se pide para el punto elegido en el mapa, así el riesgo se calcula con el
@@ -135,6 +135,10 @@ const CrearReporte: React.FC = () => {
     !!(titulo || sector || categoria || volumen || distancia || descripcion || ubicacion) || imagenes.length > 0;
 
   const reiniciar = () => {
+    if (temporizador.current !== null) {
+      clearTimeout(temporizador.current);
+      temporizador.current = null;
+    }
     setTitulo('');
     setCategoria('');
     setVolumen('');
@@ -144,10 +148,20 @@ const CrearReporte: React.FC = () => {
     setImagenes([]);
     setIntentoEnviar(false);
     setAviso(null);
+    setExitoCreado(false);
+    setEnviando(false);
   };
 
   // Al salir de la pantalla se limpia el formulario para empezar de cero la próxima vez.
   useIonViewDidLeave(reiniciar);
+
+  // Si la pantalla se desmonta por otro camino, no debe quedar una redirección pendiente.
+  useEffect(
+    () => () => {
+      if (temporizador.current !== null) clearTimeout(temporizador.current);
+    },
+    [],
+  );
 
   const usarMiUbicacion = () =>
     gps.obtener((punto) => {
@@ -195,13 +209,12 @@ const CrearReporte: React.FC = () => {
 
     setEnviando(true);
     try {
-      setCreado(await crearReporte(datos));
-      setAviso({
-        tipo: 'exito',
-        titulo: '¡Reporte creado con éxito!',
-        mensaje:
-          'Gracias por ayudar a tu comunidad. Tu reporte ya está en el mapa y quedará Pendiente hasta que el municipio lo revise.',
-      });
+      const reporte = await crearReporte(datos);
+      setExitoCreado(true);
+      temporizador.current = setTimeout(() => {
+        reiniciar();
+        router.push(rutaMiReporte(reporte.id), 'root');
+      }, ESPERA_REDIRECCION_MS);
     } catch (causa) {
       const sinEspacio = causa instanceof DOMException && causa.name === 'QuotaExceededError';
       const sinConexion = causa instanceof ErrorApi && causa.estado === 0;
@@ -215,8 +228,8 @@ const CrearReporte: React.FC = () => {
             ? 'No pudimos conectarnos con el servidor. Revisa tu conexión e inténtalo de nuevo.'
             : (causa as Error).message || 'Ocurrió un problema al enviarlo.',
       });
+      setEnviando(false);
     }
-    setEnviando(false);
   };
 
   // Cierra el aviso, limpia el formulario y va a la pantalla elegida.
@@ -226,16 +239,7 @@ const CrearReporte: React.FC = () => {
     router.push(ruta, 'root');
   };
 
-  const irAlMapa = () => salirA(creado ? rutaMapaConReporte(creado.id) : RUTAS.mapa);
   const irAMisReportes = () => salirA(RUTAS.misReportes);
-
-  // Si el vecino se equivocó en algo, puede corregirlo apenas lo crea.
-  const accionesExito = creado && [
-    { texto: 'Ver en el mapa', icono: mapOutline, principal: true, onClick: irAlMapa },
-    { texto: 'Editar reporte', icono: createOutline, onClick: () => salirA(rutaEditarReporte(creado.id)) },
-    { texto: 'Mis reportes', icono: folderOpenOutline, onClick: irAMisReportes },
-  ];
-  const nivelCreado = creado && !creado.riesgoEnCalculo ? obtenerNivelRiesgo(creado.riesgo) : null;
 
   const cancelar = () => {
     if (!hayCambios) {
@@ -327,10 +331,18 @@ const CrearReporte: React.FC = () => {
         </aside>
 
         <div className="formulario-principal">
+          {exitoCreado && (
+            <div className="formulario-exito" role="status" aria-live="polite">
+              <IonIcon icon={checkmarkCircleOutline} aria-hidden="true" />
+              <span>¡Reporte creado con éxito! Te llevamos a tu reporte…</span>
+            </div>
+          )}
+
           <button
             type="button"
             className="formulario-volver"
             onClick={() => router.push(RUTAS.misReportes, 'back')}
+            disabled={enviando}
           >
             <span>
               <IonIcon icon={arrowBackOutline} aria-hidden="true" />
@@ -464,7 +476,7 @@ const CrearReporte: React.FC = () => {
         tipo={aviso?.tipo ?? 'exito'}
         titulo={aviso?.titulo ?? ''}
         mensaje={aviso?.mensaje ?? ''}
-        textoAceptar={aviso?.tipo === 'error' ? 'Reintentar' : 'Aceptar'}
+        textoAceptar={aviso?.tipo === 'error' ? 'Reintentar' : 'Ver en Mis reportes'}
         textoSecundario={aviso?.tipo === 'error' ? 'Cerrar' : undefined}
         onAceptar={
           aviso?.tipo === 'error'
@@ -475,36 +487,7 @@ const CrearReporte: React.FC = () => {
             : irAMisReportes
         }
         onSecundario={() => setAviso(null)}
-        acciones={aviso?.tipo === 'exito' ? accionesExito : undefined}
-      >
-        {aviso?.tipo === 'exito' && creado && (
-          <div className="resumen-creado">
-            <div className="resumen-creado-foto">
-              {creado.imagenes[0] ? (
-                <img src={urlDeImagen(creado.imagenes[0])} alt="" />
-              ) : (
-                <IonIcon icon={imageOutline} aria-hidden="true" />
-              )}
-            </div>
-            <div className="resumen-creado-datos">
-              <strong>{creado.nombre}</strong>
-              <span>
-                Reporte N° {creado.id} · {creado.sector}
-              </span>
-              <div className="resumen-creado-etiquetas">
-                <span>{creado.categoria}</span>
-                {nivelCreado ? (
-                  <span style={{ background: nivelCreado.color, color: nivelCreado.texto }}>
-                    Riesgo {creado.riesgo} %
-                  </span>
-                ) : (
-                  <span>Riesgo en cálculo</span>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-      </AvisoModal>
+      />
 
       <ExplicacionRiesgo
         abierto={explicacionAbierta}
