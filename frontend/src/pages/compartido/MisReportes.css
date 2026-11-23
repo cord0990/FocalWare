@@ -220,7 +220,7 @@
   --border-color: #e0283a;
   --border-width: 2px;
   --border-radius: 26px;
-  --color: #e0283a;
+  --color: #b01c2c;
   --background-hover: #fdeeee;
   --padding-start: 20px;
   --padding-end: 20px;
@@ -251,7 +251,7 @@
   --border-radius: 26px;
   --box-shadow: 0 0 0 2px #e0283a;
   --color: #1f1f1f;
-  --placeholder-color: #8a8a8a;
+  --placeholder-color: #6b6b6b;
   --icon-color: #1f1f1f;
   flex: 0 1 560px;
   min-height: 52px;
@@ -364,4 +364,9 @@
   .pendientes-reintentar {
     width: 100%;
   }
+}
+
+/* El campo de búsqueda mide al menos 44 px de alto (RNF-02) */
+.mis-reportes-buscador .searchbar-input {
+  min-height: 44px;
 }

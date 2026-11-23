@@ -34,7 +34,7 @@
 | ID | Estado | Evidencia / Comentario |
 | :--- | :--- | :--- |
 | **RNF-01** | Cumple | Creación de reporte en una sola pantalla (≤ 2 pasos). |
-| **RNF-02** | No verificado | No se midieron controles 44x44 px ni texto 16 px en esta revisión. (VERIFICAR)|
+| **RNF-02** | Cumple | Revisado en PC (1366 px) y celular (375 px), con los roles vecino y funcionario: texto base de 16 px, todos los controles de al menos 44x44 px y contraste de texto WCAG AA (4,5:1, o 3:1 en texto grande). Excepciones: los marcadores del mapa (30x40 px) tienen la misma acción en su tarjeta de la lista, y el texto chico de la barra superior sobre el degradado de la marca queda cerca de 3:1. |
 | **RNF-03** | Cumple | Reportes se guardan localmente sin conexión. |
 | **RNF-04** | Cumple | `bcryptjs` con 10 rondas. |
 | **RNF-05** | Cumple | JWT de 15 min con HS256, secreto ≥32 chars, validación de cuenta y payload; secreto persistente en Docker. |

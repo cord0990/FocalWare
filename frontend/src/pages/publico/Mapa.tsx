@@ -15,6 +15,7 @@ import {
   closeOutline,
   flameOutline,
   funnelOutline,
+  helpCircleOutline,
   helpOutline,
   listOutline,
   locateOutline,
@@ -200,6 +201,20 @@ const Mapa: React.FC = () => {
         }
       >
         <div className="inicio-barra">
+          <IonButton
+            fill="clear"
+            className="inicio-boton-icono inicio-boton-filtros"
+            aria-label={
+              filtrosActivos ? `Filtrar reportes, ${filtrosActivos} filtros activos` : 'Filtrar reportes'
+            }
+            onClick={() => setFiltrosAbiertos(true)}
+          >
+            <IonIcon slot="start" icon={funnelOutline} />
+            Filtros
+            {filtrosActivos > 0 && (
+              <IonBadge className="inicio-filtros-activos">{filtrosActivos}</IonBadge>
+            )}
+          </IonButton>
           <IonSearchbar
             className="inicio-buscador"
             placeholder="Buscar por sector, nombre o categoría"
@@ -208,32 +223,6 @@ const Mapa: React.FC = () => {
             onIonInput={(e) => setBusqueda(e.detail.value ?? '')}
           />
           <div className="inicio-acciones">
-            <IonButton
-              fill="solid"
-              className="inicio-boton-icono inicio-boton-principal"
-              aria-label={
-                filtrosActivos ? `Filtrar reportes, ${filtrosActivos} filtros activos` : 'Filtrar reportes'
-              }
-              onClick={() => setFiltrosAbiertos(true)}
-            >
-              <IonIcon slot="icon-only" icon={funnelOutline} />
-              {filtrosActivos > 0 && (
-                <IonBadge className="inicio-filtros-activos">{filtrosActivos}</IonBadge>
-              )}
-            </IonButton>
-            <IonButton
-              fill="solid"
-              className="inicio-boton-icono inicio-boton-principal"
-              aria-label="Actualizar reportes"
-              onClick={cargarReportes}
-              disabled={cargando}
-            >
-              {cargando ? (
-                <IonSpinner name="crescent" color="light" />
-              ) : (
-                <IonIcon slot="icon-only" icon={refreshOutline} />
-              )}
-            </IonButton>
             <button
               type="button"
               className="inicio-boton-icono inicio-boton-ayuda"
@@ -241,8 +230,21 @@ const Mapa: React.FC = () => {
               aria-expanded={ayudaAbierta}
               onClick={() => setAyudaAbierta(true)}
             >
-              <IonIcon icon={helpOutline} aria-hidden="true" />
+              <IonIcon icon={helpCircleOutline} aria-hidden="true" />
             </button>
+            <IonButton
+              fill="clear"
+              className="inicio-boton-icono"
+              aria-label="Actualizar reportes"
+              onClick={cargarReportes}
+              disabled={cargando}
+            >
+              {cargando ? (
+                <IonSpinner name="crescent" />
+              ) : (
+                <IonIcon slot="icon-only" icon={refreshOutline} />
+              )}
+            </IonButton>
           </div>
         </div>
 

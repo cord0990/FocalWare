@@ -2,13 +2,14 @@ import { useState } from 'react';
 import {
   IonButton,
   IonContent,
+  IonDatetime,
   IonIcon,
   IonModal,
   IonSelect,
   IonSelectOption,
 } from '@ionic/react';
-import { arrowDownOutline, arrowUpOutline, closeOutline } from 'ionicons/icons';
-import SelectorFecha from '../SelectorFecha';
+import { calendarOutline, closeOutline } from 'ionicons/icons';
+import { formatearFecha } from '../../utils/fechas';
 import { ESTADOS_REPORTE, esEstadoReporte } from '../../services/reportesService';
 import {
   esCategoriaReporte,
@@ -16,6 +17,7 @@ import {
 } from '../../utils/opcionesReporte';
 import {
   FILTROS_INICIALES,
+  TEXTOS_ORDEN,
   type CriterioOrden,
   type FiltrosReportes,
 } from '../../utils/filtrosReportes';
@@ -44,6 +46,8 @@ const FiltrosReportesModal: React.FC<FiltrosReportesModalProps> = ({
   // Los cambios se guardan en un borrador y solo se aplican al tocar "Aplicar filtros".
   // Si se cierra con la X o tocando fuera, el borrador se descarta.
   const [borrador, setBorrador] = useState(filtros);
+  // Qué fecha se está eligiendo en el calendario: la de inicio o la de término.
+  const [campoFecha, setCampoFecha] = useState<'desde' | 'hasta'>('desde');
 
   const actualizar = (cambios: Partial<FiltrosReportes>) =>
     setBorrador((actual) => ({ ...actual, ...cambios }));
@@ -56,7 +60,10 @@ const FiltrosReportesModal: React.FC<FiltrosReportesModalProps> = ({
   return (
     <IonModal
       isOpen={abierto}
-      onWillPresent={() => setBorrador(filtros)}
+      onWillPresent={() => {
+        setBorrador(filtros);
+        setCampoFecha('desde');
+      }}
       onDidDismiss={onCerrar}
       className="modal-filtros"
     >
@@ -72,41 +79,36 @@ const FiltrosReportesModal: React.FC<FiltrosReportesModalProps> = ({
           <div className="filtros-panel">
             <div className="filtros-columna">
               <div className="filtros-campo">
-                <span className="filtros-etiqueta">Ordenar por:</span>
-                <div className="filtros-orden">
-                  <div className="filtros-direccion" role="group" aria-label="Dirección del orden">
-                    <button
-                      type="button"
-                      className={borrador.descendente ? '' : 'activo'}
-                      aria-pressed={!borrador.descendente}
-                      aria-label="Ascendente"
-                      title="Ascendente"
-                      onClick={() => actualizar({ descendente: false })}
-                    >
-                      <IonIcon icon={arrowUpOutline} aria-hidden="true" />
-                    </button>
-                    <button
-                      type="button"
-                      className={borrador.descendente ? 'activo' : ''}
-                      aria-pressed={borrador.descendente}
-                      aria-label="Descendente"
-                      title="Descendente"
-                      onClick={() => actualizar({ descendente: true })}
-                    >
-                      <IonIcon icon={arrowDownOutline} aria-hidden="true" />
-                    </button>
-                  </div>
-                  <IonSelect
-                    aria-label="Ordenar por"
-                    fill="outline"
-                    interface="popover"
-                    value={borrador.orden}
-                    onIonChange={(e) => actualizar({ orden: e.detail.value as CriterioOrden })}
+                <span className="filtros-etiqueta" id="filtros-orden-etiqueta">Ordenar por:</span>
+                <IonSelect
+                  aria-labelledby="filtros-orden-etiqueta"
+                  fill="outline"
+                  interface="popover"
+                  value={borrador.orden}
+                  onIonChange={(e) => actualizar({ orden: e.detail.value as CriterioOrden })}
+                >
+                  <IonSelectOption value="riesgo">Riesgo</IonSelectOption>
+                  <IonSelectOption value="votos">Votos</IonSelectOption>
+                  <IonSelectOption value="fecha">Fecha</IonSelectOption>
+                </IonSelect>
+                {/* La dirección se dice con palabras según lo que se ordena, no con flechas */}
+                <div className="filtros-direccion" role="group" aria-labelledby="filtros-orden-etiqueta">
+                  <button
+                    type="button"
+                    className={borrador.descendente ? 'activo' : ''}
+                    aria-pressed={borrador.descendente}
+                    onClick={() => actualizar({ descendente: true })}
                   >
-                    <IonSelectOption value="riesgo">Riesgo</IonSelectOption>
-                    <IonSelectOption value="votos">Votos</IonSelectOption>
-                    <IonSelectOption value="fecha">Fecha</IonSelectOption>
-                  </IonSelect>
+                    {TEXTOS_ORDEN[borrador.orden].mayor}
+                  </button>
+                  <button
+                    type="button"
+                    className={borrador.descendente ? '' : 'activo'}
+                    aria-pressed={!borrador.descendente}
+                    onClick={() => actualizar({ descendente: false })}
+                  >
+                    {TEXTOS_ORDEN[borrador.orden].menor}
+                  </button>
                 </div>
               </div>
 
@@ -181,20 +183,52 @@ const FiltrosReportesModal: React.FC<FiltrosReportesModalProps> = ({
             <div className="filtros-columna">
               <div className="filtros-fechas">
                 <span className="filtros-etiqueta filtros-etiqueta-titulo">Lapso de tiempo</span>
-                <div className="filtros-fechas-campos">
-                  <SelectorFecha
-                    etiqueta="Fecha de inicio"
-                    valor={borrador.desde}
-                    max={borrador.hasta || undefined}
-                    onCambiar={(desde) => actualizar({ desde })}
-                  />
-                  <SelectorFecha
-                    etiqueta="Fecha de término"
-                    valor={borrador.hasta}
-                    min={borrador.desde || undefined}
-                    onCambiar={(hasta) => actualizar({ hasta })}
-                  />
+                {/* Se elige qué fecha marcar y luego el día en el calendario */}
+                <div className="filtros-fechas-campos" role="group" aria-label="Fecha que se elige en el calendario">
+                  {(['desde', 'hasta'] as const).map((campo) => (
+                    <button
+                      key={campo}
+                      type="button"
+                      className={campoFecha === campo ? 'filtros-fecha activo' : 'filtros-fecha'}
+                      aria-pressed={campoFecha === campo}
+                      onClick={() => setCampoFecha(campo)}
+                    >
+                      <span className="filtros-fecha-nombre">{campo === 'desde' ? 'Desde' : 'Hasta'}</span>
+                      <span className={borrador[campo] ? 'filtros-fecha-valor' : 'filtros-fecha-valor vacio'}>
+                        <IonIcon icon={calendarOutline} aria-hidden="true" />
+                        {borrador[campo] ? formatearFecha(borrador[campo]) : 'Sin fecha'}
+                      </span>
+                    </button>
+                  ))}
                 </div>
+                <IonDatetime
+                  key={campoFecha}
+                  className="filtros-calendario"
+                  presentation="date"
+                  locale="es-CL"
+                  firstDayOfWeek={1}
+                  value={borrador[campoFecha] || undefined}
+                  min={campoFecha === 'hasta' ? borrador.desde || undefined : undefined}
+                  max={campoFecha === 'desde' ? borrador.hasta || undefined : undefined}
+                  onIonChange={(e) => {
+                    const fecha = typeof e.detail.value === 'string' ? e.detail.value.slice(0, 10) : '';
+                    actualizar({ [campoFecha]: fecha });
+                    // Después de elegir el inicio se pasa solo al término
+                    if (campoFecha === 'desde' && fecha) setCampoFecha('hasta');
+                  }}
+                />
+                {(borrador.desde || borrador.hasta) && (
+                  <button
+                    type="button"
+                    className="filtros-borrar-fechas"
+                    onClick={() => {
+                      actualizar({ desde: '', hasta: '' });
+                      setCampoFecha('desde');
+                    }}
+                  >
+                    Borrar fechas
+                  </button>
+                )}
                 {errorFechas && <p className="filtros-error">{errorFechas}</p>}
               </div>
             </div>

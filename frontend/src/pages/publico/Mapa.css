@@ -102,7 +102,7 @@
   --border-radius: 24px;
   --box-shadow: 0 0 0 2px #e0283a;
   --color: #1f1f1f;
-  --placeholder-color: #8a8a8a;
+  --placeholder-color: #6b6b6b;
   --icon-color: #1f1f1f;
   flex: 1 1 170px;
   min-width: 0;
@@ -112,6 +112,11 @@
 .inicio-buscador .searchbar-input-container,
 .inicio-buscador .searchbar-input {
   min-width: 0;
+}
+
+/* El campo de búsqueda mide al menos 44 px de alto (RNF-02) */
+.inicio-buscador .searchbar-input {
+  min-height: 44px;
 }
 
 .inicio-boton-icono {
@@ -126,20 +131,24 @@
   flex: 0 0 auto;
 }
 
-.inicio-boton-principal {
-  --background: #e72441;
-  --background-activated: #c91f38;
-  --background-hover: #d01d35;
-  --color: #fff;
-  --border-radius: 12px;
-  --box-shadow: 0 2px 6px rgba(231, 36, 65, 0.35);
+/* Botón de filtros con texto, a la izquierda del buscador y con su mismo borde */
+.inicio-boton-filtros {
+  --border-color: #e0283a;
+  --border-radius: 24px;
+  --border-style: solid;
+  --border-width: 2px;
+  --background: #fff;
+  --background-hover: #fdebed;
+  --padding-start: 14px;
+  --padding-end: 16px;
+  width: auto;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
 }
 
-.inicio-boton-principal:disabled {
-  --background: #e72441;
-  opacity: 0.6;
-}
-
+/* "?" con el círculo, como ícono simple igual que Actualizar */
 .inicio-boton-ayuda {
   display: inline-flex;
   align-items: center;
@@ -147,17 +156,17 @@
   width: 48px;
   height: 48px;
   padding: 0;
-  background: #fff;
-  color: #e72441;
-  border: 2px solid #e72441;
+  border: 0;
   border-radius: 12px;
-  font-size: 1.35rem;
+  background: transparent;
+  color: #1f1f1f;
+  font-size: 1.4rem;
   cursor: pointer;
   transition: background 0.15s ease;
 }
 
 .inicio-boton-ayuda:hover {
-  background: #fdebed;
+  background: rgba(31, 31, 31, 0.06);
 }
 
 .inicio-mapa {
@@ -258,7 +267,7 @@
     display: none;
   }
 
-  /* Arriba van Filtros y Actualizar; el buscador baja a su propia fila con todo el ancho */
+  /* Arriba van Filtros, Ayuda y Actualizar; el buscador baja a su propia fila con todo el ancho */
   .inicio-barra {
     flex-wrap: wrap;
     justify-content: space-between;
@@ -425,7 +434,8 @@
   padding: 12px 16px;
   border: 0;
   border-radius: 14px;
-  background: #e72441;
+  /* Rojo menos intenso que el de la marca; la letra blanca sigue cumpliendo WCAG AA (4,67:1) */
+  background: #d43a48;
   color: #fff;
   font-family: inherit;
   font-size: 1rem;
@@ -435,5 +445,5 @@
 }
 
 .ayuda-mapa-cerrar:hover {
-  background: #c91f38;
+  background: #bf3240;
 }

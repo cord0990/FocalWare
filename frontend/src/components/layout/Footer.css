@@ -4,7 +4,7 @@
   align-items: flex-end;
   gap: 16px;
   padding: 24px 48px;
-  background: #8b7979;
+  background: #7a6767;
   color: #fff;
   font-size: 0.8rem;
   font-weight: 600;
@@ -13,10 +13,13 @@
 .pie-enlaces {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0;
 }
 
 .pie a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   color: #fff;
   text-decoration: none;
 }

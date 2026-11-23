@@ -114,7 +114,7 @@
 }
 
 .btn-detalles {
-  --background: #e8293f;
+  --background: #e0283a;
   --background-hover: #c81f33;
   --border-radius: 8px;
   --box-shadow: none;
@@ -180,7 +180,8 @@
   border: 2px solid #F7A94F;
   border-radius: 12px;
   background: #fff;
-  color: #F7A94F;
+  /* Texto más oscuro que el borde para cumplir el contraste WCAG AA (5,9:1) */
+  color: #9A5200;
   font-family: inherit;
   font-size: 0.95rem;
   font-weight: 700;
@@ -198,7 +199,8 @@
 .btn-voto-mapa.votado {
   background: #F7A94F;
   border-color: #F7A94F;
-  color: #fff;
+  /* Blanco sobre naranjo no se lee (1,9:1); café oscuro sí (7:1) */
+  color: #3D2A00;
 }
 
 .btn-voto-mapa.votado:hover:not(:disabled) {

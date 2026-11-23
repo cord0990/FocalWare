@@ -102,7 +102,7 @@
 .auth-panel ion-input {
   --background: #fff;
   --color: #1f1f1f;
-  --placeholder-color: #8a8a8a;
+  --placeholder-color: #6b6b6b;
   --border-color: #d6d6d6;
   --border-radius: 8px;
   --highlight-color-focused: #e0283a;
@@ -116,7 +116,8 @@
   --border-color: #8a8a8a;
   --checkbox-background-checked: #5c1010;
   --border-color-checked: #5c1010;
-  margin: 4px 0 12px;
+  min-height: 44px;
+  margin: 0 0 8px;
   font-size: 0.85rem;
 }
 
@@ -134,7 +135,7 @@
 
 .mensaje-error {
   margin: 0 0 12px;
-  color: #c62828;
+  color: #a61b1b;
   font-size: 0.8rem;
 }
 

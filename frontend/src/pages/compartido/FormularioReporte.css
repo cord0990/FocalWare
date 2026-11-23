@@ -12,7 +12,7 @@
 .formulario-reporte ion-textarea {
   --background: #fff;
   --color: #1f1f1f;
-  --placeholder-color: #7a7a7a;
+  --placeholder-color: #6b6b6b;
   --border-color: #d9b8b8;
   --border-radius: 12px;
   --highlight-color-focused: #e0283a;
@@ -31,7 +31,7 @@
 .formulario-error,
 .formulario-reporte .campo-invalido .error-text {
   margin: 6px 4px 0;
-  color: #c62828;
+  color: #a61b1b;
   font-size: 0.92rem;
   font-weight: 700;
 }
@@ -445,10 +445,10 @@
   justify-content: center;
   gap: 8px;
   min-height: 48px;
-  border: 2px solid #c62828;
+  border: 2px solid #a61b1b;
   border-radius: 14px;
   background: transparent;
-  color: #c62828;
+  color: #a61b1b;
   font-family: inherit;
   font-size: 1rem;
   font-weight: 700;
