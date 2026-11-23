@@ -145,7 +145,7 @@ La especificación completa, con tipo y dependencias de cada requerimiento, est�
 | **RNF-02** | Dimensiones mínimas y accesibilidad | Controles de al menos 44x44 px y texto base de 16 px, según WCAG 2.1 Nivel AA. | Accesibilidad |
 | **RNF-03** | Descarga de reportes sin conexión | Operar sin conexión a internet para los reportes de los vecinos. | Disponibilidad / Integridad |
 | **RNF-04** | Cifrado de credenciales | bcrypt con mínimo 10 rondas. | Seguridad |
-| **RNF-05** | Expiración y rotación de tokens | JWT con expiración de 15 minutos, algoritmo asimétrico y mecanismo de rotación. | Seguridad |
+| **RNF-05** | Expiración de tokens | JWT firmado con HS256 (clave secreta de al menos 32 caracteres) que expira a los 15 minutos; al vencer, hay que iniciar sesión de nuevo. | Seguridad |
 | **RNF-06** | Restricción CORS | Lista blanca explícita de dominios, sin comodines en endpoints autenticados. | Seguridad |
 | **RNF-07** | Disociación y anonimización | Disociación total de la identidad de los autores en reportes públicos, conforme a la Ley N° 19.628. | Privacidad |
 | **RNF-08** | Validación de duplicados y orden de prioridad | Validar que el reporte no exista previamente | Integridad de los datos |

@@ -9,7 +9,6 @@
     "preview": "vite preview",
     "tunel": "tsc && vite build --mode tunel && vite preview --mode tunel",
     "test": "vitest run",
-    "test.e2e": "cypress run",
     "test.unit": "vitest",
     "lint": "eslint"
   },
@@ -36,7 +35,6 @@
     "@types/react-dom": "19.0.4",
     "@vitejs/plugin-legacy": "^8.0.0",
     "@vitejs/plugin-react": "^6.0.0",
-    "cypress": "^13.5.0",
     "eslint": "^9.20.1",
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-react-hooks": "^5.1.0",

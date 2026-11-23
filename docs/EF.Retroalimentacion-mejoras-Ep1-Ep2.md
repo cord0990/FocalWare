@@ -26,7 +26,7 @@ Se agregaron al README capturas representativas (mapa de reportes e inicio de se
 La API valida al arrancar que `DATABASE_URL` y `JWT_SECRETO` estén definidos y cumplan los requisitos mínimos. Express no envía la cabecera `X-Powered-By`.
 
 ### 6. CHECK / ENUM a estados y categorías
-Los estados de los reportes y las categorías de residuo se restringen mediante `CHECK` (o `ENUM`) en la base de datos.
+Los estados de los reportes y las categorías de residuo se restringen a listas cerradas en el backend (`dominio/opcionesReporte.js`), y el controlador rechaza cualquier valor fuera de ellas. Queda pendiente agregar la misma regla como `CHECK` en la base de datos, que requiere una migración nueva.
 
 ### 7. `.sql` re-ejecutable y única fuente de verdad con `schema.prisma`
 El script `backend/database/focalware.sql` se hizo re-ejecutable y se mantiene sincronizado con `backend/prisma/schema.prisma` mediante `generarSql.js` y `npm run db:check`.
@@ -82,7 +82,7 @@ nginx comprime los archivos de la app con gzip (el archivo principal bajó de 1,
 | EP1 | Comparación Figma vs. app (EP1.6) | Aplicado |
 | EP1 | Capturas y link a Figma en README | Aplicado |
 | EP2 | Validación de env y ocultamiento de X-Powered-By | Aplicado |
-| EP2 | CHECK/ENUM a estados y categorías | Aplicado |
+| EP2 | CHECK/ENUM a estados y categorías | Parcial (validado en el backend) |
 | EP2 | .sql re-ejecutable y fuente única | Aplicado |
 | EP2 | Riesgo calculado en servidor | Aplicado |
 | EP2 | Confirmación de cuenta y alineación README | Aplicado |
