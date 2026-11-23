@@ -57,6 +57,22 @@ Se actualizó la rama `frontend` desde `main` y se corrigieron los textos que a�
 
 ---
 
+## EF · Mejoras por la prueba con usuarios, accesibilidad y optimización
+
+### 16. Arreglos detectados en la prueba con usuarios
+El riesgo ahora es el mismo en la lista, el mapa y el detalle. "Mi perfil" abre los datos de la cuenta. Las notificaciones muestran el título del reporte y "Reporte N°" en vez de "ID". Los enlaces del pie del login funcionan. Se agregó una guía rápida del mapa, un aviso de notificaciones sin leer sobre el avatar y los errores del formulario se notan más.
+
+### 17. Accesibilidad WCAG 2.1 AA (RNF-02)
+Se revisaron todas las pantallas de vecino y funcionario en PC y celular. Se ajustó el color de la letra donde no llegaba al contraste mínimo (por ejemplo, el botón de voto pasó de 1,95:1 a 7:1) y todos los botones, enlaces y casillas miden al menos 44x44 px. Lighthouse dio 92 en Accesibilidad.
+
+### 18. Filtros, calendario y perfil más claros
+"Ordenar por" usa palabras ("Mayor riesgo", "Más recientes") en vez de flechas. El calendario queda fijo dentro de los filtros y al aprobar un reporte. "Mi perfil" se reorganizó en una tarjeta con el rol y el aporte del vecino, y secciones de datos, seguridad y sesión.
+
+### 19. Optimización de la carga
+nginx comprime los archivos de la app con gzip (el archivo principal bajó de 1,74 MB a 410 KB) y el navegador guarda en caché por un año los archivos con versión. Esto se suma a la compresión de fotos antes de subirlas y a la caché del clima y de la geocodificación.
+
+---
+
 ## Resumen
 
 | Entrega | Mejora | Estado |
@@ -76,4 +92,8 @@ Se actualizó la rama `frontend` desde `main` y se corrigieron los textos que a�
 | EP2 | Limitación de intentos de login | Aplicado |
 | EP2 | Reemplazo de Cypress y tests cliente | Aplicado |
 | EP2 | Actualización rama `frontend` y textos | Aplicado |
+| EF | Arreglos de la prueba con usuarios | Aplicado |
+| EF | Accesibilidad WCAG 2.1 AA (RNF-02) | Aplicado |
+| EF | Filtros, calendario y perfil | Aplicado |
+| EF | Compresión gzip y caché en nginx | Aplicado |
 
